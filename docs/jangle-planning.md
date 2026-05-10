@@ -125,7 +125,7 @@ Create a new Django project called `hangout` with apps: `users`, `posts`, `inter
 ### Prompt 2 — User Model ***Done
 In the `users` app, create a custom user model extending `AbstractUser`. Add fields: `bio` (TextField, blank), `avatar` (ImageField, upload to `avatars/`), `created_at` (auto DateTimeField). Set `AUTH_USER_MODEL` in settings. Create a DRF serializer with fields for `id`, `username`, `bio`, `avatar`, `created_at`. Create a `UserDetailView` and `UserUpdateView` using DRF generics, JWT-protected.
 
-### Prompt 3 — Post Model & API
+### Prompt 3 — Post Model & API ***Done
 In the `posts` app, create a `Post` model with: `author` (FK to User), `post_type` (choices: `text`, `youtube`, `file`), `title`, `body` (nullable), `youtube_url` (nullable), `file` (FileField, nullable), `file_type` (choices: `image`, `game`, `other`, nullable), `created_at`, `updated_at`, `is_pinned`, `is_removed` (both BooleanField, default False). Create a DRF serializer and viewset with list, create, retrieve, update, destroy actions. Unauthenticated users can read; only authenticated users can post. Only the author or admin can edit or delete. Filter out `is_removed=True` from all public responses.
 
 ### Prompt 4 — Comment Model & API

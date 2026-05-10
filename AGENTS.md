@@ -1,14 +1,14 @@
 # Agent Instructions
- 
+## Project: Jangle — Django + DRF + React + Vite + Tailwind 
 ## Workflow: Test-Driven Development
 1. Write failing tests first
 2. Confirm they fail for the right reasons
 3. Write minimum code to make them pass
 4. Refactor if needed, keeping tests green
  
-## After Every Iteration
+## After Every task
  
-**Update `docs/CURRENT_TASK.md`:**
+**Update `docs/CURRENT_TASK.md` (Keep around 20–40 lines Ideally):** 
 ```
 ## Next
 ## Completed

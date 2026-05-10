@@ -1,3 +1,15 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from posts.models import Post
+from posts.serializers import PostSerializer
+from posts.permissions import IsAuthorOrAdminOrReadOnly
 
-# Create your views here.
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthorOrAdminOrReadOnly]
+
+    def get_queryset(self):
+        return Post.objects.filter(is_removed=False).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

@@ -1,6 +1,4 @@
 import pytest
-from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @pytest.fixture
@@ -14,11 +12,14 @@ def user(db):
 
 @pytest.fixture
 def api_client():
+    from rest_framework.test import APIClient
     return APIClient()
 
 
 @pytest.fixture
 def auth_client(user):
+    from rest_framework.test import APIClient
+    from rest_framework_simplejwt.tokens import RefreshToken
     client = APIClient()
     token = str(RefreshToken.for_user(user).access_token)
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
