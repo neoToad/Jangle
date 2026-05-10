@@ -1,20 +1,22 @@
 ## Next
+- Add interactions admin with list_display, list_filter
+- Consider filtering comments by author or date range
+- Add like/reaction model to interactions app
 - Add Post admin registration
-- Consider filtering/ordering query params on list endpoint
-- Add interactions (likes, comments) referencing Post
 
 ## Completed
-- Post model: author FK, post_type/file_type choices, nullable body/youtube_url/file/file_type, is_pinned/is_removed BooleanFields, timestamps
-- PostSerializer: all fields except is_removed; author read-only
-- PostViewSet: list/create/retrieve/update/destroy; queryset excludes is_removed=True
-- IsAuthorOrAdminOrReadOnly permission: unauthenticated read, authenticated create, author/admin edit+delete
-- posts/urls.py wired via DefaultRouter
-- Fixed conftest.py: moved DRF imports inside fixtures (module-level DRF imports fail before pytest-django configures Django)
-- Installed missing pytest-django and Pillow into venv
+- Comment model: post/author/parent FKs, body, created_at, is_removed; self-referential parent for threaded replies
+- CommentSerializer: nested replies (SerializerMethodField, filters is_removed=False); post+author read-only; is_removed excluded from output
+- CommentListCreateView: GET public, POST requires auth; filters top-level (parent=None) + is_removed=False; sets author+post from URL
+- CommentDestroyView: soft-delete (sets is_removed=True); IsAuthorOrAdmin permission; returns 204
+- interactions/urls.py: posts/<post_id>/comments/ and comments/<pk>/
+- interactions/migrations/0001_initial.py generated
+- Post model: author FK, post_type/file_type choices, nullable fields, is_pinned/is_removed, timestamps
+- PostSerializer, PostViewSet, IsAuthorOrAdminOrReadOnly permission
 
 ## Tests
-- 37 new tests across test_models.py, test_serializers.py, test_views.py — all green
-- Full suite: 57 passed, 0 failed
+- 28 new tests across test_models.py, test_serializers.py, test_views.py — all green
+- Full suite: 85 passed, 0 failed
 
 ## Blockers
 - None

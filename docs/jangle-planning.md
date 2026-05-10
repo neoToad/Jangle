@@ -128,7 +128,7 @@ In the `users` app, create a custom user model extending `AbstractUser`. Add fie
 ### Prompt 3 — Post Model & API ***Done
 In the `posts` app, create a `Post` model with: `author` (FK to User), `post_type` (choices: `text`, `youtube`, `file`), `title`, `body` (nullable), `youtube_url` (nullable), `file` (FileField, nullable), `file_type` (choices: `image`, `game`, `other`, nullable), `created_at`, `updated_at`, `is_pinned`, `is_removed` (both BooleanField, default False). Create a DRF serializer and viewset with list, create, retrieve, update, destroy actions. Unauthenticated users can read; only authenticated users can post. Only the author or admin can edit or delete. Filter out `is_removed=True` from all public responses.
 
-### Prompt 4 — Comment Model & API
+### Prompt 4 — Comment Model & API ***Done
 In the `interactions` app, create a `Comment` model with: `post` (FK to Post), `author` (FK to User), `parent` (FK to self, nullable for threaded replies), `body`, `created_at`, `is_removed`. Create a nested DRF serializer that includes replies. Create endpoints to list comments by post, create a comment, and soft-delete (set `is_removed=True`). Only the author or admin can delete.
 
 ### Prompt 5 — Reactions & Votes
