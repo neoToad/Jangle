@@ -5,6 +5,7 @@
 - Write test_models.py for posts, interactions, chat apps following TDD workflow
 
 ## Completed
+- pytest configured: pytest.ini + core/settings_test.py (SQLite in-memory, InMemoryChannelLayer) + conftest.py with shared user/api_client/auth_client fixtures; all 20 tests passing in 0.66s via `docker-compose exec backend pytest`
 - Custom User model (users app): email as USERNAME_FIELD, no username, bio/avatar/created_at fields
 - AUTH_USER_MODEL = 'users.User' set in settings
 - UserSerializer: id, email (read-only), bio, avatar, created_at
