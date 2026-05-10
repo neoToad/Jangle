@@ -119,10 +119,10 @@ Jangle is a creative community hangout where people share cool things and spend 
 
 ## Build Prompts
 
-### Prompt 1 — Django Project Scaffold
+### Prompt 1 — Django Project Scaffold ***Done
 Create a new Django project called `hangout` with apps: `users`, `posts`, `interactions`, `chat`. Install and configure Django REST Framework, Simple JWT, django-cors-headers, and Django Channels with a Redis channel layer. Set up PostgreSQL as the database. Include a `.env` setup using `django-environ` for secrets and database credentials. Configure `settings.py` for all installed apps, middleware, and static/media file handling.
 
-### Prompt 2 — User Model
+### Prompt 2 — User Model ***Done
 In the `users` app, create a custom user model extending `AbstractUser`. Add fields: `bio` (TextField, blank), `avatar` (ImageField, upload to `avatars/`), `created_at` (auto DateTimeField). Set `AUTH_USER_MODEL` in settings. Create a DRF serializer with fields for `id`, `username`, `bio`, `avatar`, `created_at`. Create a `UserDetailView` and `UserUpdateView` using DRF generics, JWT-protected.
 
 ### Prompt 3 — Post Model & API
