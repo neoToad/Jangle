@@ -5,7 +5,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
 import chat.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'hangout.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 application = ProtocolTypeRouter({
     'http': get_asgi_application(),

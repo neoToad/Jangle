@@ -44,7 +44,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'hangout.urls'
+ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
@@ -61,7 +61,7 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = 'hangout.asgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
 
 # Database
 _db = urlparse(os.environ['DATABASE_URL'])

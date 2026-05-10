@@ -4,6 +4,7 @@
 - Write test_models.py for each app following TDD workflow
 
 ## Completed
+- Renamed Django project config directory from `backend/hangout/` to `backend/core/`; updated all `hangout.*` module references to `core.*` in manage.py, settings.py, asgi.py, wsgi.py
 - Created backend/Dockerfile (python:3.12-slim, libpq-dev, runs runserver 0.0.0.0:8000)
 - Created docker-compose.yml with db (postgres:16), redis (redis:7-alpine), backend services
 - Fixed backend/.env to use Docker service names (db, redis) and jangle credentials
