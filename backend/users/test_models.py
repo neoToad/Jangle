@@ -12,7 +12,7 @@ class UserModelTest(TestCase):
     def test_no_username_field(self):
         from django.core.exceptions import FieldDoesNotExist
         with self.assertRaises(FieldDoesNotExist):
-            User._meta.get_field('username')
+            User._meta.get_field('username')  # type: ignore[misc]
 
     def test_required_fields_is_empty(self):
         self.assertEqual(User.REQUIRED_FIELDS, [])

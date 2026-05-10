@@ -5,6 +5,7 @@
 - Write test_models.py for posts, interactions, chat apps following TDD workflow
 
 ## Completed
+- mypy + django-stubs 6.0.4 + djangorestframework-stubs 3.16.9 configured; mypy.ini with both plugins enabled; models.py annotated (UserManager generic, REQUIRED_FIELDS/objects typed); 0 mypy errors across 18 files
 - pytest configured: pytest.ini + core/settings_test.py (SQLite in-memory, InMemoryChannelLayer) + conftest.py with shared user/api_client/auth_client fixtures; all 20 tests passing in 0.66s via `docker-compose exec backend pytest`
 - Custom User model (users app): email as USERNAME_FIELD, no username, bio/avatar/created_at fields
 - AUTH_USER_MODEL = 'users.User' set in settings
