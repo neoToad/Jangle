@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from posts.models import Post
-from interactions.models import Comment
+from interactions.models import Comment, Reaction, Vote
 
 User = get_user_model()
 
@@ -117,3 +117,83 @@ class CommentDestroyViewTest(TestCase):
     def test_unauthenticated_gets_401(self):
         response = APIClient().delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ReactionViewTest(TestCase):
+    def setUp(self):
+        self.user = make_user()
+        self.other = make_user('other@example.com')
+        self.post = make_post(self.other)
+        self.comment = Comment.objects.create(post=self.post, author=self.other, body='c1')
+        self.post_url = reverse('interactions:post-reaction', args=[self.post.pk])
+        self.comment_url = reverse('interactions:comment-reaction', args=[self.comment.pk])
+
+    def test_unauthenticated_cannot_set_reaction(self):
+        response = APIClient().post(self.post_url, {'emoji': '🔥'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_add_reaction_to_post(self):
+        response = auth_client(self.user).post(self.post_url, {'emoji': '🔥'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        reaction = Reaction.objects.get(user=self.user, post=self.post)
+        self.assertEqual(reaction.emoji, '🔥')
+
+    def test_change_reaction_on_post(self):
+        Reaction.objects.create(user=self.user, post=self.post, emoji='🔥')
+        response = auth_client(self.user).post(self.post_url, {'emoji': '👍'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        reaction = Reaction.objects.get(user=self.user, post=self.post)
+        self.assertEqual(reaction.emoji, '👍')
+
+    def test_remove_reaction_from_post(self):
+        Reaction.objects.create(user=self.user, post=self.post, emoji='🔥')
+        response = auth_client(self.user).delete(self.post_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Reaction.objects.filter(user=self.user, post=self.post).exists())
+
+    def test_add_reaction_to_comment(self):
+        response = auth_client(self.user).post(self.comment_url, {'emoji': '😂'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        reaction = Reaction.objects.get(user=self.user, comment=self.comment)
+        self.assertEqual(reaction.emoji, '😂')
+
+    def test_remove_reaction_from_comment(self):
+        Reaction.objects.create(user=self.user, comment=self.comment, emoji='😂')
+        response = auth_client(self.user).delete(self.comment_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Reaction.objects.filter(user=self.user, comment=self.comment).exists())
+
+
+class VoteViewTest(TestCase):
+    def setUp(self):
+        self.user = make_user()
+        self.other = make_user('other2@example.com')
+        self.post = make_post(self.other)
+        self.url = reverse('interactions:post-vote', args=[self.post.pk])
+
+    def test_unauthenticated_cannot_vote(self):
+        response = APIClient().post(self.url, {'value': 1}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_cast_vote(self):
+        response = auth_client(self.user).post(self.url, {'value': 1}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        vote = Vote.objects.get(user=self.user, post=self.post)
+        self.assertEqual(vote.value, 1)
+
+    def test_change_vote(self):
+        Vote.objects.create(user=self.user, post=self.post, value=1)
+        response = auth_client(self.user).post(self.url, {'value': -1}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        vote = Vote.objects.get(user=self.user, post=self.post)
+        self.assertEqual(vote.value, -1)
+
+    def test_remove_vote(self):
+        Vote.objects.create(user=self.user, post=self.post, value=1)
+        response = auth_client(self.user).delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Vote.objects.filter(user=self.user, post=self.post).exists())
+
+    def test_invalid_vote_value_rejected(self):
+        response = auth_client(self.user).post(self.url, {'value': 0}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

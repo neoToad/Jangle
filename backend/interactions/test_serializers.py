@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from posts.models import Post
-from interactions.models import Comment
+from interactions.models import Comment, Reaction
 from interactions.serializers import CommentSerializer
 
 User = get_user_model()
@@ -57,3 +57,18 @@ class CommentSerializerTest(TestCase):
 
     def test_post_is_read_only(self):
         self.assertIn('post', CommentSerializer.Meta.read_only_fields)
+
+    def test_includes_reaction_counts(self):
+        u2 = make_user('u2@example.com')
+        u3 = make_user('u3@example.com')
+        Reaction.objects.create(user=self.user, comment=self.comment, emoji='🔥')
+        Reaction.objects.create(user=u2, comment=self.comment, emoji='🔥')
+        Reaction.objects.create(user=u3, comment=self.comment, emoji='👍')
+
+        data = CommentSerializer(self.comment).data
+        self.assertEqual(data['reaction_counts']['🔥'], 2)
+        self.assertEqual(data['reaction_counts']['👍'], 1)
+
+    def test_includes_vote_score_default_zero(self):
+        data = CommentSerializer(self.comment).data
+        self.assertEqual(data['vote_score'], 0)

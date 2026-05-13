@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from posts.models import Post
 from posts.serializers import PostSerializer
+from interactions.models import Reaction, Vote
 
 User = get_user_model()
 
@@ -45,3 +46,24 @@ class PostSerializerTest(TestCase):
     def test_updated_at_in_output(self):
         data = PostSerializer(self.post).data
         self.assertIn('updated_at', data)
+
+    def test_includes_reaction_counts(self):
+        u2 = User.objects.create_user(email='u2@example.com', password='pass')
+        u3 = User.objects.create_user(email='u3@example.com', password='pass')
+        Reaction.objects.create(user=self.user, post=self.post, emoji='🔥')
+        Reaction.objects.create(user=u2, post=self.post, emoji='🔥')
+        Reaction.objects.create(user=u3, post=self.post, emoji='👍')
+
+        data = PostSerializer(self.post).data
+        self.assertEqual(data['reaction_counts']['🔥'], 2)
+        self.assertEqual(data['reaction_counts']['👍'], 1)
+
+    def test_includes_vote_score(self):
+        u2 = User.objects.create_user(email='v2@example.com', password='pass')
+        u3 = User.objects.create_user(email='v3@example.com', password='pass')
+        Vote.objects.create(user=self.user, post=self.post, value=1)
+        Vote.objects.create(user=u2, post=self.post, value=1)
+        Vote.objects.create(user=u3, post=self.post, value=-1)
+
+        data = PostSerializer(self.post).data
+        self.assertEqual(data['vote_score'], 1)
