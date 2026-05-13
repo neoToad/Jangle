@@ -131,7 +131,7 @@ In the `posts` app, create a `Post` model with: `author` (FK to User), `post_typ
 ### Prompt 4 — Comment Model & API ***Done
 In the `interactions` app, create a `Comment` model with: `post` (FK to Post), `author` (FK to User), `parent` (FK to self, nullable for threaded replies), `body`, `created_at`, `is_removed`. Create a nested DRF serializer that includes replies. Create endpoints to list comments by post, create a comment, and soft-delete (set `is_removed=True`). Only the author or admin can delete.
 
-### Prompt 5 — Reactions & Votes
+### Prompt 5 — Reactions & Votes ***Done
 In the `interactions` app, create a `Reaction` model with: `user` (FK), `emoji` (CharField), `post` (FK nullable), `comment` (FK nullable), `created_at`. Add unique constraints on `(user, post)` and `(user, comment)`. Create a `Vote` model with: `user` (FK), `post` (FK), `value` (SmallIntegerField, 1 or -1), `created_at`. Add a unique constraint on `(user, post)`. Create DRF endpoints to add/change/remove a reaction and cast/change/remove a vote. Include aggregated reaction counts and vote scores in Post and Comment serializers.
 
 ### Prompt 6 — Django Channels Chat
