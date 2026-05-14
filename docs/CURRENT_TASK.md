@@ -20,10 +20,17 @@
 - Response interceptor that refreshes on `401` via `/api/auth/token/refresh/`
 - Retry logic after refresh and auth clear on refresh failure.
 - Added Zustand auth store for `currentUser`, `accessToken`, `refreshToken` with localStorage persistence.
+- Dockerized frontend app:
+- Added multi-stage `frontend/Dockerfile` (Node build + Nginx runtime).
+- Added SPA routing config in `frontend/nginx.conf` (`try_files ... /index.html`).
+- Added `frontend` service to `docker-compose.yml` on host port `5173`.
+- Added compose build arg `VITE_API_BASE_URL` with default `http://localhost:8000`.
+- Added `VITE_API_BASE_URL` to root `.env.example`.
 
 ## Tests
 - Added Vitest setup file (`src/test/setup.js`) and test config in `vite.config.js`.
 - No frontend test execution yet in this task (dependencies not installed in this run).
+- Docker build/runtime not executed in this run.
 
 ## Blockers
 - None
