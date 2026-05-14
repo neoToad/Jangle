@@ -1,18 +1,19 @@
 ## Next
-- Implement `LoginPage` with validation, submit/loading states, and API integration.
-- Implement `RegisterPage` with confirm-password checks and backend error display.
-- Add auth state/token persistence and route guards (protected + guest-only).
-- Add logout flow and navigation entry point.
-- Run targeted frontend auth tests, then full frontend suite.
+- Start auth TDD with failing tests for `LoginPage` behaviors.
+- Add failing tests for `RegisterPage` behaviors and validation.
+- Implement minimal auth UI/API wiring to satisfy tests.
+- Add protected + guest-only route guards and logout flow.
+- Run targeted auth tests, then full frontend Vitest suite.
 
 ## Completed
-- Created `NEXT_UP.md` with auth setup scope and TDD plan.
-- Aligned immediate priorities around login/register pages and functionality.
-- Updated task tracker to focus next implementation on authentication.
+- Reviewed historical `docs/CURRENT_TASK.md` entries from git history.
+- Cross-checked historical next items against current frontend/backend code.
+- Added `docs/TODO.md` containing remaining unfinished work only.
+- Kept auth implementation as the immediate active priority.
 
 ## Tests
 - No automated tests were added or run in this documentation-only task.
-- Next implementation task should begin with failing tests (frontend first).
+- Next implementation task should begin with failing frontend auth tests.
 
 ## Blockers
 - None currently identified.
