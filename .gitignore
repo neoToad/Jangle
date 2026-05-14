@@ -155,3 +155,12 @@ cython_debug/
 
 .qwen/
 /staticfiles/
+
+# Node / frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+*.tsbuildinfo

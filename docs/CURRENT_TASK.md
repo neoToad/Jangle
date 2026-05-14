@@ -1,51 +1,29 @@
 ## Next
-- Build login/register forms and call backend JWT endpoints.
-- Add protected-route handling and redirect rules based on auth state.
-- Implement post detail page data fetch with comments + live chat integration.
-- Add optimistic UI updates for feed votes/reactions and error toasts.
-- Add frontend tests for feed rendering variants and create-post form behavior.
+- Wire post card clicks in feed to navigate to `/post/:id`.
+- Add comment delete/reply UI controls and corresponding interaction tests.
+- Add chat history fetch endpoint/UI if persistent history is required on page load.
+- Run full frontend Vitest suite after post detail stabilization.
 
 ## Completed
-- Created `frontend/` React + Vite project scaffold with Tailwind CSS setup.
-- Added Vite config, PostCSS config, Tailwind config, and `.env.example` with `VITE_API_BASE_URL`.
-- Configured React Router routes:
-- `/` (feed)
-- `/post/:id` (post detail + comments + chat placeholders)
-- `/profile/:username`
-- `/login`
-- `/register`
-- Added Axios API client with:
-- Base URL from `import.meta.env.VITE_API_BASE_URL`
-- Request interceptor attaching `Authorization: Bearer <access>`
-- Response interceptor that refreshes on `401` via `/api/auth/token/refresh/`
-- Retry logic after refresh and auth clear on refresh failure.
-- Added Zustand auth store for `currentUser`, `accessToken`, `refreshToken` with localStorage persistence.
-- Dockerized frontend app:
-- Added multi-stage `frontend/Dockerfile` (Node build + Nginx runtime).
-- Added SPA routing config in `frontend/nginx.conf` (`try_files ... /index.html`).
-- Added `frontend` service to `docker-compose.yml` on host port `5173`.
-- Added compose build arg `VITE_API_BASE_URL` with default `http://localhost:8000`.
-- Added `VITE_API_BASE_URL` to root `.env.example`.
-- Built main feed page UI and API wiring:
-- Fetches posts from `/api/posts/` and renders in a scrollable list.
-- Supports DRF paginated payloads (`results` + `next`) with a load-more button.
-- Renders post cards by `post_type`:
-- `text`: title + body preview.
-- `youtube`: embedded player when URL can be parsed, fallback link otherwise.
-- `file`: image preview for image files, play/open + download links for game files.
-- Added per-card vote controls using `/api/interactions/posts/<id>/votes/`.
-- Added emoji reaction picker controls using `/api/interactions/posts/<id>/reactions/`.
-- Added create-post form with conditional fields by selected type:
-- `text` -> body
-- `youtube` -> youtube_url
-- `file` -> file_type + upload
-- Create post submits multipart form-data to `/api/posts/`.
+- Added frontend TDD coverage for post detail behavior in `frontend/src/pages/PostDetailPage.test.jsx`.
+- Added test cases for rendering full post content, nested threaded replies, comment submission, and WebSocket send/receive.
+- Implemented `PostDetailPage` data loading from `/api/posts/:id/` and `/api/interactions/posts/:id/comments/`.
+- Replaced placeholder post panel with full post title/body rendering.
+- Implemented threaded comments UI with recursive nested reply rendering.
+- Implemented authenticated comment form posting to `/api/interactions/posts/:id/comments/` and comment list refresh.
+- Implemented live chat panel bound to room `post-<id>` over `ws/chat/<room_name>/` with JWT query token.
+- Implemented real-time incoming message rendering and authenticated message sending.
+- Added chat/login guard messaging for unauthenticated users.
+- Installed frontend dependencies in `frontend/`.
+- Fixed Vitest setup by enabling global test APIs in `frontend/vite.config.js` (`test.globals = true`).
+- Added missing standard Node/frontend ignore paths in `.gitignore` (`node_modules/`, npm/yarn/pnpm debug logs, `.eslintcache`, `*.tsbuildinfo`).
 
 ## Tests
-- Added Vitest setup file (`src/test/setup.js`) and test config in `vite.config.js`.
-- No frontend test execution yet in this task (dependencies not installed in this run).
-- Docker build/runtime not executed in this run.
-- Feed page behavior not test-executed in this run (UI code added without local npm install/run here).
+- Added `frontend/src/pages/PostDetailPage.test.jsx`.
+- Ran `npm test -- PostDetailPage.test.jsx --run`.
+- Result: `1 passed` test file, `3 passed` tests in `src/pages/PostDetailPage.test.jsx`.
+- No tests required for `.gitignore` update.
+- Backend tests were not modified or executed in this task.
 
 ## Blockers
-- None
+- None.

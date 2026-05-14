@@ -140,7 +140,7 @@ In the `chat` app, create a `ChatRoom` model with: `name` (CharField), `post` (O
 ### Prompt 7 — React + Vite Frontend Scaffold ***Done
 Create a React + Vite project with Tailwind CSS. Set up React Router with routes: `/` (feed), `/post/:id` (post detail + comments + chat), `/profile/:username`, `/login`, `/register`. Configure an Axios instance with base URL from an env variable and a JWT auth interceptor that attaches the access token and refreshes on 401. Set up Zustand for global auth state (current user, tokens).
 
-### Prompt 8 — Feed & Post UI
+### Prompt 8 — Feed & Post UI ***Done
 Build the main feed page. Fetch posts from the API and display in a scrollable list. Each post card renders differently by `post_type`: text posts show title + body preview, YouTube posts embed the video, file posts show an image or play/download link for games. Include upvote/downvote buttons and emoji reaction pickers on each card. Add a create post form that conditionally shows fields based on the selected post type.
 
 ### Prompt 9 — Post Detail, Comments & Live Chat
