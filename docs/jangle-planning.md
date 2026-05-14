@@ -115,36 +115,6 @@ Jangle is a creative community hangout where people share cool things and spend 
 - Emoji reactions animate briefly when added
 - No public follower counts — keeps the vibe low pressure
 
----
-
-## Build Prompts
-
-### Prompt 1 — Django Project Scaffold ***Done
-Create a new Django project called `hangout` with apps: `users`, `posts`, `interactions`, `chat`. Install and configure Django REST Framework, Simple JWT, django-cors-headers, and Django Channels with a Redis channel layer. Set up PostgreSQL as the database. Include a `.env` setup using `django-environ` for secrets and database credentials. Configure `settings.py` for all installed apps, middleware, and static/media file handling.
-
-### Prompt 2 — User Model ***Done
-In the `users` app, create a custom user model extending `AbstractUser`. Add fields: `bio` (TextField, blank), `avatar` (ImageField, upload to `avatars/`), `created_at` (auto DateTimeField). Set `AUTH_USER_MODEL` in settings. Create a DRF serializer with fields for `id`, `username`, `bio`, `avatar`, `created_at`. Create a `UserDetailView` and `UserUpdateView` using DRF generics, JWT-protected.
-
-### Prompt 3 — Post Model & API ***Done
-In the `posts` app, create a `Post` model with: `author` (FK to User), `post_type` (choices: `text`, `youtube`, `file`), `title`, `body` (nullable), `youtube_url` (nullable), `file` (FileField, nullable), `file_type` (choices: `image`, `game`, `other`, nullable), `created_at`, `updated_at`, `is_pinned`, `is_removed` (both BooleanField, default False). Create a DRF serializer and viewset with list, create, retrieve, update, destroy actions. Unauthenticated users can read; only authenticated users can post. Only the author or admin can edit or delete. Filter out `is_removed=True` from all public responses.
-
-### Prompt 4 — Comment Model & API ***Done
-In the `interactions` app, create a `Comment` model with: `post` (FK to Post), `author` (FK to User), `parent` (FK to self, nullable for threaded replies), `body`, `created_at`, `is_removed`. Create a nested DRF serializer that includes replies. Create endpoints to list comments by post, create a comment, and soft-delete (set `is_removed=True`). Only the author or admin can delete.
-
-### Prompt 5 — Reactions & Votes ***Done
-In the `interactions` app, create a `Reaction` model with: `user` (FK), `emoji` (CharField), `post` (FK nullable), `comment` (FK nullable), `created_at`. Add unique constraints on `(user, post)` and `(user, comment)`. Create a `Vote` model with: `user` (FK), `post` (FK), `value` (SmallIntegerField, 1 or -1), `created_at`. Add a unique constraint on `(user, post)`. Create DRF endpoints to add/change/remove a reaction and cast/change/remove a vote. Include aggregated reaction counts and vote scores in Post and Comment serializers.
-
-### Prompt 6 — Django Channels Chat ***Done
-In the `chat` app, create a `ChatRoom` model with: `name` (CharField), `post` (OneToOneField to Post, nullable), `created_at`. Create a `ChatMessage` model with: `room` (FK to ChatRoom), `author` (FK to User), `body`, `created_at`. Write a Django Channels WebSocket consumer that authenticates the user via JWT query param, joins the correct room by name, broadcasts incoming messages to the room group, and saves each message to the database. Set up routing for `ws/chat/<room_name>/`.
-
-### Prompt 7 — React + Vite Frontend Scaffold ***Done
-Create a React + Vite project with Tailwind CSS. Set up React Router with routes: `/` (feed), `/post/:id` (post detail + comments + chat), `/profile/:username`, `/login`, `/register`. Configure an Axios instance with base URL from an env variable and a JWT auth interceptor that attaches the access token and refreshes on 401. Set up Zustand for global auth state (current user, tokens).
-
-### Prompt 8 — Feed & Post UI ***Done
-Build the main feed page. Fetch posts from the API and display in a scrollable list. Each post card renders differently by `post_type`: text posts show title + body preview, YouTube posts embed the video, file posts show an image or play/download link for games. Include upvote/downvote buttons and emoji reaction pickers on each card. Add a create post form that conditionally shows fields based on the selected post type.
-
-### Prompt 9 — Post Detail, Comments & Live Chat
-Build the post detail page. Show full post content at the top. Below, render a threaded comment section with nested replies and a comment form. Alongside or below, render a live chat panel via WebSocket to `ws/chat/<room_name>/`. Display incoming messages in real time and allow the logged-in user to send messages. Use the post ID or a global room name to determine the room.
 
 ---
 

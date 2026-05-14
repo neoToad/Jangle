@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
 
@@ -44,7 +45,11 @@ function PostCard({ post, onVote, onReact, isAuthed }) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <header className="mb-2 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{post.title}</h2>
+        <h2 className="text-lg font-semibold">
+          <Link className="hover:underline" to={`/post/${post.id}`}>
+            {post.title}
+          </Link>
+        </h2>
         <span className="text-xs uppercase tracking-wide text-slate-500">{post.post_type}</span>
       </header>
 
