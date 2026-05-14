@@ -25,8 +25,6 @@ Jangle is a creative community hangout where people share cool things and spend 
 | Database | PostgreSQL (Supabase or Railway) |
 | Auth | Django built-in + SimpleJWT (or django-allauth for social login) |
 | Frontend | React + Vite + Tailwind CSS |
-| File Storage | Supabase Storage or Cloudflare R2 |
-| Hosting | Railway (backend), Vercel (frontend) |
 
 ---
 
