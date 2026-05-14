@@ -20,6 +20,7 @@
 - Updated `backend/.env.example` with the same CORS dev origins so new environments are configured correctly.
 - Wired feed post titles to post detail route links (`/post/:id`) in `frontend/src/pages/FeedPage.jsx`.
 - Added frontend test coverage for feed post title link behavior in `frontend/src/pages/FeedPage.test.jsx`.
+- Added `docker-compose.dev.yml` override for frontend hot reload in Docker (`node:20-alpine` + Vite dev server + source bind mount + named `node_modules` volume).
 
 ## Tests
 - Added `frontend/src/pages/PostDetailPage.test.jsx`.
@@ -29,6 +30,7 @@
 - No automated tests required for env-only CORS configuration update.
 - Ran `npm test -- FeedPage.test.jsx --run`.
 - Result: `1 passed` test file, `1 passed` test in `src/pages/FeedPage.test.jsx`.
+- No automated tests were run for Docker Compose dev override configuration.
 - Backend tests were not modified or executed in this task.
 
 ## Blockers
