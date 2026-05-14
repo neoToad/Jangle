@@ -1,37 +1,29 @@
 ## Next
-- Add DRF endpoints/serializers for chat room history retrieval.
-- Add pagination and ordering controls for room message history.
-- Add authorization rules for post-bound chat rooms (private/public behavior).
-- Add consumer test coverage for malformed JSON and invalid JWT tokens.
-- Wire frontend chat client to `ws/chat/<room_name>/?token=<access_jwt>`.
+- Build login/register forms and call backend JWT endpoints.
+- Add protected-route handling and redirect rules based on auth state.
+- Implement feed API integration and post detail data loading.
+- Implement post comments UI and wire real-time chat websocket client.
+- Add Vitest + RTL tests for auth store and Axios refresh interceptor behavior.
 
 ## Completed
-- Added `ChatRoom` model in `chat` with:
-- `name` (`CharField`, unique)
-- `post` (`OneToOneField` to `posts.Post`, nullable, `SET_NULL`)
-- `created_at` (`DateTimeField(auto_now_add=True)`)
-- Added `ChatMessage` model in `chat` with:
-- `room` (`ForeignKey` to `ChatRoom`)
-- `author` (`ForeignKey` to `users.User`)
-- `body` (`TextField`)
-- `created_at` (`DateTimeField(auto_now_add=True)`)
-- Added JWT-authenticated websocket consumer behavior:
-- Requires `token` query param with SimpleJWT access token.
-- Resolves room by URL name and joins `chat_<room_name>` group.
-- Persists each incoming message to `ChatMessage`.
-- Broadcasts message payload to all room subscribers.
-- Updated websocket route to `ws/chat/<room_name>/` via `chat/routing.py`.
-- Generated migration: `chat/migrations/0001_initial.py`.
+- Created `frontend/` React + Vite project scaffold with Tailwind CSS setup.
+- Added Vite config, PostCSS config, Tailwind config, and `.env.example` with `VITE_API_BASE_URL`.
+- Configured React Router routes:
+- `/` (feed)
+- `/post/:id` (post detail + comments + chat placeholders)
+- `/profile/:username`
+- `/login`
+- `/register`
+- Added Axios API client with:
+- Base URL from `import.meta.env.VITE_API_BASE_URL`
+- Request interceptor attaching `Authorization: Bearer <access>`
+- Response interceptor that refreshes on `401` via `/api/auth/token/refresh/`
+- Retry logic after refresh and auth clear on refresh failure.
+- Added Zustand auth store for `currentUser`, `accessToken`, `refreshToken` with localStorage persistence.
 
 ## Tests
-- Added model tests in `chat/test_models.py` for room/message creation and relations.
-- Added websocket consumer tests in `chat/test_consumers.py` for:
-- JWT-required connection behavior.
-- Broadcast payload correctness.
-- DB persistence of incoming messages.
-- Verified with:
-- `python -m pytest chat/test_models.py chat/test_consumers.py`
-- Result: 5 passed, 0 failed.
+- Added Vitest setup file (`src/test/setup.js`) and test config in `vite.config.js`.
+- No frontend test execution yet in this task (dependencies not installed in this run).
 
 ## Blockers
 - None

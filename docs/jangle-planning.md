@@ -134,10 +134,10 @@ In the `interactions` app, create a `Comment` model with: `post` (FK to Post), `
 ### Prompt 5 — Reactions & Votes ***Done
 In the `interactions` app, create a `Reaction` model with: `user` (FK), `emoji` (CharField), `post` (FK nullable), `comment` (FK nullable), `created_at`. Add unique constraints on `(user, post)` and `(user, comment)`. Create a `Vote` model with: `user` (FK), `post` (FK), `value` (SmallIntegerField, 1 or -1), `created_at`. Add a unique constraint on `(user, post)`. Create DRF endpoints to add/change/remove a reaction and cast/change/remove a vote. Include aggregated reaction counts and vote scores in Post and Comment serializers.
 
-### Prompt 6 — Django Channels Chat
+### Prompt 6 — Django Channels Chat ***Done
 In the `chat` app, create a `ChatRoom` model with: `name` (CharField), `post` (OneToOneField to Post, nullable), `created_at`. Create a `ChatMessage` model with: `room` (FK to ChatRoom), `author` (FK to User), `body`, `created_at`. Write a Django Channels WebSocket consumer that authenticates the user via JWT query param, joins the correct room by name, broadcasts incoming messages to the room group, and saves each message to the database. Set up routing for `ws/chat/<room_name>/`.
 
-### Prompt 7 — React + Vite Frontend Scaffold
+### Prompt 7 — React + Vite Frontend Scaffold ***Done
 Create a React + Vite project with Tailwind CSS. Set up React Router with routes: `/` (feed), `/post/:id` (post detail + comments + chat), `/profile/:username`, `/login`, `/register`. Configure an Axios instance with base URL from an env variable and a JWT auth interceptor that attaches the access token and refreshes on 401. Set up Zustand for global auth state (current user, tokens).
 
 ### Prompt 8 — Feed & Post UI
