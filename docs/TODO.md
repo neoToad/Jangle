@@ -1,6 +1,9 @@
 # TODO
 
 ## High Priority
+- Implement header profile menu interaction and accessibility behavior in `frontend/src/components/Layout.jsx` with TDD coverage.
+- Implement profile page MVP states and data rendering in `frontend/src/pages/ProfilePage.jsx` with tests.
+- Add or confirm backend profile API contract tests (`test_models.py`, `test_serializers.py`, `test_views.py`) and endpoint support.
 - Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
