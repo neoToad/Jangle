@@ -1,11 +1,52 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
+import PostCard from '../components/PostCard'
 import { useAuthStore } from '../store/authStore'
 
-const EMOJIS = ['👍', '🔥', '😂', '😮', '❤️']
-
 const FEED_TABS = ['Following', 'Explore', 'Games']
+
+const SEEDED_POSTS = [
+  {
+    id: 'seed-1',
+    type: 'game',
+    author: 'mosswood',
+    avatar: '??',
+    time: '23 minutes ago',
+    title: 'Tiny Garden Sim',
+    description: 'A relaxing little game where you grow things and water them. No fail state, just vibes.',
+    reactions: { seed: 14, heart: 9, spark: 6 },
+    votes: 38,
+    comments: 7,
+    color: '#8faa8b',
+  },
+  {
+    id: 'seed-2',
+    type: 'writing',
+    author: 'hazel.ink',
+    avatar: '??',
+    time: '1 hour ago',
+    title: 'On Making Things Nobody Asked For',
+    description:
+      'A short essay about creating stuff with no clear audience and why that can become your most meaningful work.',
+    reactions: { gold: 22, fire: 11, eyes: 8 },
+    votes: 54,
+    comments: 19,
+    color: '#c9a87c',
+  },
+  {
+    id: 'seed-3',
+    type: 'youtube',
+    author: 'driftwood_tv',
+    avatar: '??',
+    time: '3 hours ago',
+    title: 'The Last Video Store in My City',
+    description: "A short documentary about the last Blockbuster-style store still operating. It's beautiful.",
+    reactions: { cry: 17, love: 13, film: 5 },
+    votes: 29,
+    comments: 11,
+    color: '#a87c9e',
+  },
+]
 
 const emptyForm = {
   post_type: 'text',
@@ -16,127 +57,27 @@ const emptyForm = {
   file: null,
 }
 
-function buildMediaUrl(filePath) {
-  if (!filePath) return null
-  if (filePath.startsWith('http://') || filePath.startsWith('https://')) return filePath
-  const base = import.meta.env.VITE_API_BASE_URL || window.location.origin
-  return new URL(filePath, base).toString()
+function mapPostType(post) {
+  if (post.post_type === 'youtube') return 'youtube'
+  if (post.post_type === 'file' && post.file_type === 'game') return 'game'
+  return 'writing'
 }
 
-function youtubeEmbedUrl(url) {
-  if (!url) return null
-  try {
-    const parsed = new URL(url)
-    if (parsed.hostname.includes('youtu.be')) {
-      return `https://www.youtube.com/embed/${parsed.pathname.replace('/', '')}`
-    }
-    if (parsed.searchParams.get('v')) {
-      return `https://www.youtube.com/embed/${parsed.searchParams.get('v')}`
-    }
-  } catch {
-    return null
+function mapApiPost(post) {
+  const type = mapPostType(post)
+  return {
+    id: post.id,
+    type,
+    author: post.author?.username || post.author_name || 'jangler',
+    avatar: post.author?.avatar_emoji || '�',
+    time: 'recently',
+    title: post.title,
+    description: post.body || post.youtube_url || 'Shared a new drop.',
+    reactions: post.reaction_counts || {},
+    votes: post.vote_score ?? 0,
+    comments: post.comment_count ?? 0,
+    color: type === 'game' ? '#8faa8b' : type === 'youtube' ? '#a87c9e' : '#c9a87c',
   }
-  return null
-}
-
-function PostCard({ post, onVote, onReact, isAuthed }) {
-  const fileUrl = buildMediaUrl(post.file)
-  const embedUrl = youtubeEmbedUrl(post.youtube_url)
-  const reactionCounts = post.reaction_counts || {}
-
-  return (
-    <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <header className="mb-2 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">
-          <Link className="hover:underline" to={`/post/${post.id}`}>
-            {post.title}
-          </Link>
-        </h2>
-        <span className="text-xs uppercase tracking-wide text-slate-500">{post.post_type}</span>
-      </header>
-
-      {post.post_type === 'text' && (
-        <p className="max-h-24 overflow-hidden whitespace-pre-wrap text-sm text-slate-700">{post.body || ''}</p>
-      )}
-
-      {post.post_type === 'youtube' && (
-        <div className="space-y-2">
-          {embedUrl ? (
-            <iframe
-              title={`youtube-${post.id}`}
-              src={embedUrl}
-              className="h-64 w-full rounded"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <a className="text-sm text-blue-600 underline" href={post.youtube_url} target="_blank" rel="noreferrer">
-              Open YouTube link
-            </a>
-          )}
-        </div>
-      )}
-
-      {post.post_type === 'file' && (
-        <div className="space-y-2">
-          {post.file_type === 'image' && fileUrl ? (
-            <img src={fileUrl} alt={post.title} className="max-h-96 w-full rounded object-contain" />
-          ) : null}
-          {post.file_type === 'game' && fileUrl ? (
-            <div className="flex gap-3 text-sm">
-              <a className="text-blue-600 underline" href={fileUrl} target="_blank" rel="noreferrer">
-                Play / Open
-              </a>
-              <a className="text-blue-600 underline" href={fileUrl} download>
-                Download
-              </a>
-            </div>
-          ) : null}
-          {post.file_type !== 'image' && post.file_type !== 'game' && fileUrl ? (
-            <a className="text-blue-600 underline" href={fileUrl} target="_blank" rel="noreferrer">
-              Download file
-            </a>
-          ) : null}
-        </div>
-      )}
-
-      <footer className="mt-4 space-y-3 border-t border-slate-100 pt-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onVote(post.id, 1)}
-            disabled={!isAuthed}
-            className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-50"
-          >
-            Upvote
-          </button>
-          <button
-            type="button"
-            onClick={() => onVote(post.id, -1)}
-            disabled={!isAuthed}
-            className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-50"
-          >
-            Downvote
-          </button>
-          <span className="text-sm text-slate-700">Score: {post.vote_score ?? 0}</span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {EMOJIS.map((emoji) => (
-            <button
-              key={emoji}
-              type="button"
-              onClick={() => onReact(post.id, emoji)}
-              disabled={!isAuthed}
-              className="rounded border border-slate-300 px-2 py-1 text-xs disabled:opacity-50"
-            >
-              {emoji} {reactionCounts[emoji] || 0}
-            </button>
-          ))}
-        </div>
-      </footer>
-    </article>
-  )
 }
 
 function CreatePostForm({ onCreated, isAuthed }) {
@@ -178,14 +119,14 @@ function CreatePostForm({ onCreated, isAuthed }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="text-lg font-semibold">Create Post</h2>
+    <form onSubmit={submit} className="space-y-3 rounded-[20px] border border-jangle-border bg-jangle-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
+      <h2 className="font-display text-lg font-semibold text-jangle-textPrimary">Create Post</h2>
       <select
         name="post_type"
         value={form.post_type}
         onChange={onChange}
         disabled={!isAuthed}
-        className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary"
       >
         <option value="text">Text</option>
         <option value="youtube">YouTube</option>
@@ -199,7 +140,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
         placeholder="Title"
         required
         disabled={!isAuthed}
-        className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+        className="w-full rounded-lg border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary"
       />
 
       {form.post_type === 'text' && (
@@ -210,7 +151,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
           placeholder="Write your post"
           rows={4}
           disabled={!isAuthed}
-          className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary"
         />
       )}
 
@@ -222,7 +163,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
           placeholder="https://www.youtube.com/watch?v=..."
           required
           disabled={!isAuthed}
-          className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary"
         />
       )}
 
@@ -233,7 +174,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
             value={form.file_type}
             onChange={onChange}
             disabled={!isAuthed}
-            className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary"
           >
             <option value="image">Image</option>
             <option value="game">Game</option>
@@ -245,7 +186,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
             onChange={onChange}
             required
             disabled={!isAuthed}
-            className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary"
           />
         </div>
       )}
@@ -253,7 +194,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
       <button
         type="submit"
         disabled={!isAuthed || submitting}
-        className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-semibold text-jangle-bg disabled:opacity-50"
       >
         {submitting ? 'Posting...' : 'Create Post'}
       </button>
@@ -283,7 +224,8 @@ export default function FeedPage() {
       const items = Array.isArray(data) ? data : data.results || []
       const next = Array.isArray(data) ? null : data.next
       setNextUrl(next)
-      setPosts((prev) => (reset ? items : [...prev, ...items]))
+      const normalizedItems = items.map(mapApiPost)
+      setPosts((prev) => (reset ? normalizedItems : [...prev, ...normalizedItems]))
     } catch {
       setError('Could not load posts.')
     } finally {
@@ -297,13 +239,13 @@ export default function FeedPage() {
   }, [])
 
   const onVote = async (postId, value) => {
-    if (!isAuthed) return
+    if (!isAuthed || String(postId).startsWith('seed-')) return
     await api.post(`/api/interactions/posts/${postId}/votes/`, { value })
     await loadPosts({ reset: true })
   }
 
   const onReact = async (postId, emoji) => {
-    if (!isAuthed) return
+    if (!isAuthed || String(postId).startsWith('seed-')) return
     await api.post(`/api/interactions/posts/${postId}/reactions/`, { emoji })
     await loadPosts({ reset: true })
   }
@@ -313,6 +255,8 @@ export default function FeedPage() {
     setLoadingMore(true)
     await loadPosts()
   }
+
+  const visiblePosts = posts.length > 0 ? posts : SEEDED_POSTS
 
   return (
     <section className="space-y-4">
@@ -347,18 +291,18 @@ export default function FeedPage() {
       <CreatePostForm onCreated={() => loadPosts({ reset: true })} isAuthed={isAuthed} />
 
       {!isAuthed && (
-        <p className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+        <p className="rounded border border-jangle-accent/30 bg-jangle-accent/10 p-3 text-sm text-jangle-textMuted">
           Log in to create posts, vote, and react.
         </p>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-300">{error}</p>}
 
       <div className="max-h-[65vh] space-y-3 overflow-y-auto pr-1">
         {loading ? (
-          <p className="text-sm text-slate-600">Loading posts...</p>
+          <p className="text-sm text-jangle-textMuted">Loading posts...</p>
         ) : (
-          posts.map((post) => (
+          visiblePosts.map((post) => (
             <PostCard key={post.id} post={post} onVote={onVote} onReact={onReact} isAuthed={isAuthed} />
           ))
         )}
@@ -369,7 +313,7 @@ export default function FeedPage() {
           type="button"
           onClick={loadMore}
           disabled={loadingMore}
-          className="rounded border border-slate-300 px-4 py-2 text-sm disabled:opacity-50"
+          className="rounded-full border border-jangle-border px-4 py-2 text-sm text-jangle-textMuted disabled:opacity-50"
         >
           {loadingMore ? 'Loading...' : 'Load more'}
         </button>
@@ -377,3 +321,4 @@ export default function FeedPage() {
     </section>
   )
 }
+
