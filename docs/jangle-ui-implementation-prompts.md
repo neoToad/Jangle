@@ -4,21 +4,7 @@ Use these prompts in order. Each prompt is scoped so an implementation agent can
 
 
 
-## Prompt 3: Implement Reusable PostCard Base
-Create a reusable post card component and render feed data.
 
-Requirements:
-- Support shared card structure: avatar, author, time, type badge/icon, title, description, footer actions.
-- Match card styling: rounded `20px`, border, hover border tint by post color, soft glow shadow.
-- Include post type label mapping (`GAME`, `WRITING`, `VIDEO`) and icon marker.
-- Render seeded post list with realistic sample data aligned with the docs.
-
-Testing:
-- Add unit/integration tests that verify card header/body/footer content rendering from props.
-- Add hover-state test (or class toggle test) for elevated card styling.
-
-Definition of done:
-- Multiple posts render consistently using one PostCard API.
 
 ## Prompt 4: Add Post-Type Preview Strips (Game and Video)
 Implement conditional preview bars for `game` and `youtube` posts.

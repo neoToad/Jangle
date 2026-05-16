@@ -1,22 +1,22 @@
 ## Next
-- Start Prompt 4: add type-specific preview strips for game and video posts while preserving the reusable `PostCard` contract.
-- Add tests for conditional strip rendering by post type and game CTA presence.
-- Decide whether to move feed seed/mapping helpers into a dedicated module before Prompt 4 to keep `FeedPage` lean.
-- Refine seeded avatar display (currently placeholder-safe) when unicode handling is standardized in this shell.
+- Start Prompt 5: implement richer reactions + voting interactions (`+ React` picker, toggle vote score deltas) on top of current `PostCard`.
+- Add interaction tests for picker open/close, emoji increment behavior, and vote toggle state transitions.
+- Decide whether interaction state should stay local in `PostCard` or be lifted into `FeedPage` before API write-back.
+- Normalize seeded reaction keys to user-facing emoji labels ahead of Prompt 5 UX polish.
 
 ## Completed
-- Implemented Prompt 3 with TDD by introducing a reusable `PostCard` component and wiring feed rendering through it.
-- Added shared card structure in `PostCard`: avatar, author, timestamp, type badge/icon, title link, description, and footer actions.
-- Added Jangle card styling treatment: `20px` rounded corners, border, hover tint based on post color, and glow/elevation shadow transitions.
-- Added post type label/icon mapping in card API: `GAME`, `WRITING`, `VIDEO`.
-- Added realistic seeded feed data aligned to planning docs and fallback rendering when API list is empty.
-- Added API-to-UI normalization mapper in `FeedPage` so backend records render through one `PostCard` prop contract.
+- Implemented Prompt 4 with TDD in reusable `PostCard` component.
+- Added conditional game preview strip with playable badge text, play count, and `Play Now` CTA.
+- Added conditional youtube preview strip with video icon tile and inline-watch hint copy.
+- Applied per-post accent tint and border treatment on preview strip containers.
+- Ensured writing posts render with no preview strip.
+- Expanded `PostCard` tests to validate preview-strip behavior by post type and `Play Now` visibility.
 
 ## Tests
-- `npm test -- --run src/components/PostCard.test.jsx` (failed first before component existed, then passed after implementation).
-- `npm test -- --run src/pages/FeedPage.test.jsx` (passed after `PostCard` integration).
-- `npm test -- --run` (full frontend suite passed: 7 files, 26 tests).
+- `npm test -- --run src/components/PostCard.test.jsx` (failed first on missing preview strips, then passed after implementation).
+- `npm test -- --run src/pages/FeedPage.test.jsx` (passed after `PostCard` updates).
+- `npm test -- --run` (full frontend suite passed: 7 files, 28 tests).
 
 ## Blockers
-- No blockers for Prompt 3 implementation.
+- No blockers for Prompt 4 implementation.
 - Existing non-blocking warnings remain: React Router future flags and prior `act(...)` warning in `PostDetailPage` tests.

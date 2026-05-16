@@ -62,6 +62,53 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
         <p className="text-sm leading-relaxed text-jangle-textMuted">{post.description}</p>
       </div>
 
+      {post.type === 'game' && (
+        <div
+          className="mb-4 flex items-center justify-between rounded-xl border px-4 py-3"
+          style={{
+            backgroundColor: `${post.color || '#8faa8b'}1a`,
+            borderColor: `${post.color || '#8faa8b'}66`,
+          }}
+        >
+          <div>
+            <p className="text-xs font-semibold" style={{ color: post.color || '#8faa8b' }}>
+              Playable in browser
+            </p>
+            <p className="text-xs text-jangle-textMuted">{post.playCount ?? 0} people played</p>
+          </div>
+          <button
+            type="button"
+            className="rounded-lg px-3 py-1.5 text-xs font-semibold text-jangle-bg"
+            style={{ backgroundColor: post.color || '#8faa8b' }}
+          >
+            Play Now
+          </button>
+        </div>
+      )}
+
+      {post.type === 'youtube' && (
+        <div
+          className="mb-4 flex items-center gap-3 rounded-xl border px-4 py-3"
+          style={{
+            backgroundColor: `${post.color || '#a87c9e'}1a`,
+            borderColor: `${post.color || '#a87c9e'}66`,
+          }}
+        >
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-sm"
+            style={{ backgroundColor: `${post.color || '#a87c9e'}33`, color: post.color || '#a87c9e' }}
+          >
+            ▶
+          </div>
+          <div>
+            <p className="text-xs font-semibold" style={{ color: post.color || '#a87c9e' }}>
+              YouTube embed
+            </p>
+            <p className="text-xs text-jangle-textMuted">Click to watch inline</p>
+          </div>
+        </div>
+      )}
+
       <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-jangle-border pt-3">
         <div className="flex flex-wrap items-center gap-2">
           {reactionEntries.map(([emoji, count]) => (

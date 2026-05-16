@@ -51,4 +51,58 @@ describe('PostCard', () => {
     expect(card).toHaveClass('border-jangle-tint')
     expect(card).toHaveClass('shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]')
   })
+
+  it('renders game preview strip with play count and Play Now CTA only for game posts', () => {
+    render(
+      <MemoryRouter>
+        <PostCard
+          post={{ ...basePost, type: 'game', playCount: 41 }}
+          onVote={vi.fn()}
+          onReact={vi.fn()}
+          isAuthed={false}
+        />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Playable in browser')).toBeInTheDocument()
+    expect(screen.getByText('41 people played')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play Now' })).toBeInTheDocument()
+    expect(screen.queryByText('YouTube embed')).not.toBeInTheDocument()
+  })
+
+  it('renders youtube preview strip only for youtube posts and no preview for writing posts', () => {
+    const youtubePost = {
+      ...basePost,
+      id: 2,
+      type: 'youtube',
+      title: 'Video Drop',
+    }
+
+    const writingPost = {
+      ...basePost,
+      id: 3,
+      type: 'writing',
+      title: 'Writing Drop',
+    }
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <PostCard post={youtubePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('YouTube embed')).toBeInTheDocument()
+    expect(screen.getByText('Click to watch inline')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Play Now' })).not.toBeInTheDocument()
+
+    rerender(
+      <MemoryRouter>
+        <PostCard post={writingPost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.queryByText('YouTube embed')).not.toBeInTheDocument()
+    expect(screen.queryByText('Playable in browser')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Play Now' })).not.toBeInTheDocument()
+  })
 })
