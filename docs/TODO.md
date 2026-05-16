@@ -1,7 +1,7 @@
 # TODO
 
 ## High Priority
-- Prompt 10: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
+- Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
 - Add comment reply/delete UI controls in post detail, with interaction tests.
@@ -11,7 +11,6 @@
 ## Medium Priority
 - Add empty-feed UI copy state for successful API responses with zero posts.
 - Run full backend test suite before next backend feature merge.
-- Run full frontend Vitest suite after post-detail and chat follow-ups.
 - Add targeted tests for auth store token lifecycle and refresh interceptor behavior.
 
 ## Admin / Moderation

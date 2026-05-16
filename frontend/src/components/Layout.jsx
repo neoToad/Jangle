@@ -10,12 +10,12 @@ const INITIAL_CHAT_MESSAGES = [
 
 function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout }) {
   return (
-    <div className="flex h-full flex-col rounded-3xl border border-jangle-border bg-jangle-surface p-4">
+    <div className="flex h-full flex-col rounded-[20px] border border-jangle-border bg-jangle-surface p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="font-display text-lg text-jangle-textPrimary">The Jangle</h2>
+        <h2 className="font-display text-lg font-semibold text-jangle-textPrimary">The Jangle</h2>
         <div className="flex items-center gap-2 text-xs text-jangle-textMuted">
           <span className="h-2 w-2 rounded-full bg-jangle-sage motion-safe:animate-pulse" />
-          <span>12 online</span>
+          <span>12 Janglers online</span>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
               Login
             </Link>
             <span className="text-jangle-textMuted" aria-hidden>
-              ·
+              .
             </span>
             <Link
               to="/register"
@@ -133,7 +133,7 @@ export default function Layout() {
             jangle
           </Link>
           <label htmlFor="global-search" className="order-3 flex w-full items-center gap-2 rounded-full border border-jangle-border bg-jangle-surface px-4 py-2 sm:order-none sm:max-w-xs">
-            <span aria-hidden>??</span>
+            <span aria-hidden>o</span>
             <input
               id="global-search"
               type="search"
@@ -154,7 +154,7 @@ export default function Layout() {
               aria-label="Open profile menu"
               className="min-h-11 min-w-11 rounded-full border border-jangle-sage/40 bg-jangle-sage/15 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
             >
-              ??
+              o
             </button>
           </div>
         </nav>
@@ -204,7 +204,7 @@ export default function Layout() {
             setIsMobileChatOpen(false)
           }
         }}
-        className={`fixed inset-x-3 bottom-3 z-30 max-h-[70vh] rounded-3xl bg-jangle-surface transition duration-300 lg:hidden ${
+        className={`fixed inset-x-3 bottom-3 z-30 max-h-[70vh] rounded-[20px] bg-jangle-surface transition duration-300 lg:hidden ${
           isMobileChatOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
         }`}
       >

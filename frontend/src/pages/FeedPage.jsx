@@ -55,7 +55,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
 
   return (
     <form onSubmit={submit} className="space-y-3 rounded-[20px] border border-jangle-border bg-jangle-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
-      <h2 className="font-display text-lg font-semibold text-jangle-textPrimary">Create Post</h2>
+      <h2 className="font-display text-lg font-semibold text-jangle-textPrimary">Create Drop</h2>
       <select
         name="post_type"
         value={form.post_type}
@@ -131,7 +131,7 @@ function CreatePostForm({ onCreated, isAuthed }) {
         disabled={!isAuthed || submitting}
         className="rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-semibold text-jangle-bg disabled:opacity-50"
       >
-        {submitting ? 'Posting...' : 'Create Post'}
+        {submitting ? 'Posting...' : 'Create Drop'}
       </button>
     </form>
   )
@@ -194,6 +194,13 @@ export default function FeedPage() {
 
   return (
     <section className="space-y-4">
+      <div className="mb-1 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-jangle-textMuted">Drops</p>
+          <h1 className="font-display text-2xl font-semibold text-jangle-textPrimary">Latest from Janglers</h1>
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {FEED_TABS.map((tab) => {
@@ -226,7 +233,7 @@ export default function FeedPage() {
 
       {!isAuthed && (
         <p className="rounded border border-jangle-accent/30 bg-jangle-accent/10 p-3 text-sm text-jangle-textMuted">
-          Log in to create posts, vote, and react.
+          Log in to create Drops, vote, and react.
         </p>
       )}
 

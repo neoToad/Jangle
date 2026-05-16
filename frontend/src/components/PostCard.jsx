@@ -42,9 +42,9 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
       data-testid={`post-card-${post.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`motion-card-enter motion-card-hover rounded-[20px] border bg-jangle-surface p-5 transition-all ${
+      className={`motion-card-enter motion-card-hover rounded-[20px] border bg-jangle-surface p-5 ${
         hovered
-          ? 'border-jangle-tint shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]'
+          ? 'shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]'
           : 'border-jangle-border shadow-[0_2px_12px_rgba(0,0,0,0.2)]'
       }`}
       style={{
@@ -65,18 +65,18 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
                 {TYPE_ICONS[post.type] || '•'} {TYPE_LABELS[post.type] || 'POST'}
               </span>
             </div>
-            <p className="text-xs text-jangle-textMuted">{post.time || 'recently'}</p>
+            <p className="text-xs font-medium text-jangle-textMuted">{post.time || 'recently'}</p>
           </div>
         </div>
       </header>
 
-      <div className="mb-4 space-y-2">
+      <div className="mb-4 space-y-2.5">
         <h2 className="font-display text-xl font-semibold text-jangle-textPrimary">
           <Link to={`/post/${post.id}`} className="hover:underline">
             {post.title}
           </Link>
         </h2>
-        <p className="text-sm leading-relaxed text-jangle-textMuted">{post.description}</p>
+        <p className="text-sm leading-relaxed text-jangle-textMuted/95">{post.description}</p>
       </div>
 
       {post.type === 'game' && (

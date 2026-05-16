@@ -70,6 +70,8 @@ describe('FeedPage', () => {
 
     await screen.findByRole('link', { name: 'Clickable Post' })
 
+    expect(screen.getByText('Drops')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Latest from Janglers' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Following' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Explore' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Games' })).toBeInTheDocument()

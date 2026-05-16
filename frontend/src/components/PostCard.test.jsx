@@ -50,7 +50,6 @@ describe('PostCard', () => {
 
     fireEvent.mouseEnter(card)
 
-    expect(card).toHaveClass('border-jangle-tint')
     expect(card).toHaveClass('shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]')
   })
 

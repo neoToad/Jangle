@@ -46,6 +46,7 @@ describe('Layout shell', () => {
   it('renders initial chat messages', () => {
     renderLayout()
 
+    expect(screen.getByText('12 Janglers online')).toBeInTheDocument()
     expect(screen.getByText('mosswood')).toBeInTheDocument()
     expect(screen.getByText('yo the garden build is up')).toBeInTheDocument()
     expect(screen.getByText('hazel.ink')).toBeInTheDocument()
