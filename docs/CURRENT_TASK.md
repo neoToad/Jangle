@@ -1,16 +1,17 @@
 ## Next
-- Recreate frontend service with dev override and verify it binds to `localhost:5174`.
-- Run backend auth tests once DB service is confirmed reachable in local env.
+- Run full frontend auth suite (`AuthFlow`, `LoginPage`, `RegisterPage`) to check for regressions after login contract alignment.
+- Optionally improve backend/UX messaging consistency for invalid email vs invalid credentials.
 
 ## Completed
-- Resolved recurring port collision risk between base and dev compose frontend services.
-- Updated `docker-compose.dev.yml` frontend host-port mapping from `5173:5173` to `5174:5173`.
-- Kept base `docker-compose.yml` frontend mapping unchanged (`5173:80`).
-- This allows regular and dev variants to run without competing for host port 5173.
+- Updated login request contract to match backend JWT expectations: send `email` + `password` to `/api/auth/token/`.
+- Updated login form UI from `Email or username` to `Email`, including required-field validation messaging.
+- Kept backend failure reason rendering (`non_field_errors` and `detail`) in place for better login error feedback.
+- Added/updated login tests first, confirmed failure, then implemented minimal code to pass.
 
 ## Tests
-- No application tests run for this config-only change.
-- Functional verification step pending: `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d` then open `http://localhost:5174`.
+- `npm test -- LoginPage.test.jsx --run` (frontend): passing (5/5).
+- Coverage includes required-field behavior, submit/loading, success redirect, `non_field_errors`, and backend `detail` rendering.
+- Verified test contract now asserts `email` is sent in login payload.
 
 ## Blockers
-- None.
+- None for login contract alignment; remaining work is broader auth-flow regression coverage.

@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/authStore'
 export default function LoginPage() {
   const navigate = useNavigate()
   const setAuth = useAuthStore((state) => state.setAuth)
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState({})
   const [nonFieldErrors, setNonFieldErrors] = useState([])
@@ -17,7 +17,7 @@ export default function LoginPage() {
     if (submitting) return
 
     const nextErrors = {}
-    if (!username.trim()) nextErrors.username = ['Email or username is required.']
+    if (!email.trim()) nextErrors.email = ['Email is required.']
     if (!password) nextErrors.password = ['Password is required.']
     setErrors(nextErrors)
     setNonFieldErrors([])
@@ -25,7 +25,7 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
-      const response = await loginUser({ username: username.trim(), password })
+      const response = await loginUser({ email: email.trim(), password })
       setAuth({
         accessToken: response.data?.access ?? null,
         refreshToken: response.data?.refresh ?? null,
@@ -33,11 +33,12 @@ export default function LoginPage() {
       navigate('/', { replace: true })
     } catch (error) {
       const data = error?.response?.data || {}
+      const nonFieldErrors = data.non_field_errors || (data.detail ? [data.detail] : [])
       setErrors({
-        username: data.username || [],
+        email: data.email || [],
         password: data.password || [],
       })
-      setNonFieldErrors(data.non_field_errors || ['Login failed.'])
+      setNonFieldErrors(nonFieldErrors.length ? nonFieldErrors : ['Login failed.'])
     } finally {
       setSubmitting(false)
     }
@@ -48,16 +49,17 @@ export default function LoginPage() {
       <h1 className="text-2xl font-semibold">Login</h1>
       <form onSubmit={submit} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <div className="space-y-1">
-          <label htmlFor="login-username" className="block text-sm font-medium">
-            Email or username
+          <label htmlFor="login-email" className="block text-sm font-medium">
+            Email
           </label>
           <input
-            id="login-username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            id="login-email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
           />
-          {errors.username?.map((err) => (
+          {errors.email?.map((err) => (
             <p key={err} className="text-sm text-red-600">
               {err}
             </p>

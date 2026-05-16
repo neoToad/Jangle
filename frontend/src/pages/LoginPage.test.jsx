@@ -24,7 +24,7 @@ describe('LoginPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /log in/i }))
 
-    expect(await screen.findByText(/email or username is required/i)).toBeInTheDocument()
+    expect(await screen.findByText(/email is required/i)).toBeInTheDocument()
     expect(await screen.findByText(/password is required/i)).toBeInTheDocument()
     expect(loginUser).not.toHaveBeenCalled()
   })
@@ -44,8 +44,8 @@ describe('LoginPage', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByLabelText(/email or username/i), {
-      target: { value: 'colin' },
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'colin@example.com' },
     })
     fireEvent.change(screen.getByLabelText(/^password$/i), {
       target: { value: 'pass1234' },
@@ -53,7 +53,7 @@ describe('LoginPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /log in/i }))
 
     expect(loginUser).toHaveBeenCalledWith({
-      username: 'colin',
+      email: 'colin@example.com',
       password: 'pass1234',
     })
 
@@ -88,8 +88,8 @@ describe('LoginPage', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByLabelText(/email or username/i), {
-      target: { value: 'colin' },
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'colin@example.com' },
     })
     fireEvent.change(screen.getByLabelText(/^password$/i), {
       target: { value: 'pass1234' },
@@ -103,7 +103,7 @@ describe('LoginPage', () => {
     loginUser.mockRejectedValue({
       response: {
         data: {
-          username: ['No account found for this username.'],
+          email: ['No account found for this email.'],
           non_field_errors: ['Unable to log in with provided credentials.'],
         },
       },
@@ -115,15 +115,41 @@ describe('LoginPage', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.change(screen.getByLabelText(/email or username/i), {
-      target: { value: 'missing' },
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'missing@example.com' },
     })
     fireEvent.change(screen.getByLabelText(/^password$/i), {
       target: { value: 'wrong' },
     })
     fireEvent.click(screen.getByRole('button', { name: /log in/i }))
 
-    expect(await screen.findByText(/no account found for this username/i)).toBeInTheDocument()
+    expect(await screen.findByText(/no account found for this email/i)).toBeInTheDocument()
     expect(await screen.findByText(/unable to log in with provided credentials/i)).toBeInTheDocument()
+  })
+
+  it('renders backend detail message for failed login', async () => {
+    loginUser.mockRejectedValue({
+      response: {
+        data: {
+          detail: 'No active account found with the given credentials',
+        },
+      },
+    })
+
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'missing@example.com' },
+    })
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: 'wrong' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /log in/i }))
+
+    expect(await screen.findByText(/no active account found with the given credentials/i)).toBeInTheDocument()
   })
 })
