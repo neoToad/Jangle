@@ -1,16 +1,19 @@
 ## Next
-- Pick one high-priority UI/API gap from `docs/TODO.md` (comment controls, chat history fetch, or interaction 404 tests) and execute it with TDD.
-- Run full backend and frontend suites after the next feature-level change set.
-- Decide on follow-relationship and avatar field direction before expanding seed realism further.
+- Pick Prompt 1 from `docs/jangle-ui-implementation-prompts.md` and execute with frontend TDD (failing test first).
+- Confirm current React/Tailwind shell location (`frontend/src/...`) before implementing theme tokens and app shell.
+- Decide whether to ship prompts as-is or split each into separate issue tickets.
+- After Prompt 1, run frontend tests and record pass/fail deltas in this file.
 
 ## Completed
-- Audited `docs/TODO.md` against current repo state and removed completed auth-flow items.
-- Confirmed implemented auth work exists (login/register pages, route guards, logout flow, and frontend auth tests).
-- Added missing outstanding work to `docs/TODO.md` for chat admin moderation, seed docs references, and schema decisions.
-- Reorganized TODOs into clearer priority buckets to reflect current project backlog.
+- Reviewed `docs/jangle-feed.jsx` for concrete UI details: palette, typography, nav, feed cards, reactions, voting, and chat sidebar behavior.
+- Reviewed `docs/jangle-planning.md` for product language and visual identity constraints.
+- Authored `docs/jangle-ui-implementation-prompts.md` containing a sequenced 10-prompt implementation pack.
+- Structured prompts to be PR-sized and TDD-friendly with explicit requirements, tests, and done criteria.
+- Included prompts for shell/theming, feed controls, card variants, interactions, chat sidebar, responsive/a11y hardening, and API integration.
 
 ## Tests
-- Not run (docs-only update).
+- Not run (docs-only deliverable).
 
 ## Blockers
-- No blockers for this task.
+- No blockers for creating the prompt pack.
+- Implementation blockers may appear if frontend file ownership/structure differs from assumptions in the prompts.
