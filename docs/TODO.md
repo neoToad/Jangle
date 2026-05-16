@@ -1,6 +1,9 @@
 # TODO
 
 ## High Priority
+- Implement functional YouTube inline playback in `frontend/src/components/PostCard.jsx` with adapter and component test coverage.
+- Implement functional game `Play Now` behavior in feed cards (inline or new-tab policy) with explicit tests.
+- Add media URL parsing/safety guardrails for feed embeds and playable links.
 - Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
 - Add backend serializer/view tests to lock comment count semantics and payload presence for feed responses.
 - Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.

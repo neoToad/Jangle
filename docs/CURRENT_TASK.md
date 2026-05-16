@@ -1,4 +1,7 @@
 ## Next
+- Implement functional media interactions in feed cards for YouTube inline playback and game browser play.
+- Add adapter and component tests for media fields, toggle behavior, and safe URL handling.
+- Add feed regression tests to ensure media interactions do not break existing post actions.
 - Fix feed comment count mismatch so feed cards render real comment totals from API data.
 - Add backend serializer/view contract support for `comment_count` with tests.
 - Add frontend adapter/feed regression tests for non-zero comment totals.
@@ -49,6 +52,12 @@
   - backend serializer/view `comment_count` support.
   - integration/regression/performance validation.
 - Added unresolved comment-count fix tasks to `docs/TODO.md` High Priority.
+- Investigated why YouTube inline watch and game browser play do not work and confirmed both are currently placeholder UI with no handlers.
+- Created `docs/FEED_MEDIA_INTERACTION_PLAN.md` with a detailed TDD rollout for:
+  - adapter media-field contract updates.
+  - YouTube inline embed interactions and parsing safety.
+  - game launch behavior, guardrails, and feed regression coverage.
+- Added unresolved media-interaction implementation tasks to `docs/TODO.md` High Priority.
 
 ## Tests
 - No tests run in this docs-only planning task.
