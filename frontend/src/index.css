@@ -1,6 +1,20 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap');
+
+@theme {
+  --color-jangle-bg: #1a1614;
+  --color-jangle-surface: #252019;
+  --color-jangle-border: #3a3228;
+  --color-jangle-accent: #c9a87c;
+  --color-jangle-sage: #8faa8b;
+  --color-jangle-textPrimary: #ede6d6;
+  --color-jangle-textMuted: #9c8f7e;
+}
 
 body {
   margin: 0;
   min-height: 100vh;
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  background-color: #1a1614;
+  color: #ede6d6;
 }
