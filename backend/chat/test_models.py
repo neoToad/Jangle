@@ -37,3 +37,10 @@ def test_chat_message_links_room_author_and_body(user):
     assert message.author == user
     assert message.body == 'hi there'
     assert message.created_at is not None
+
+
+def test_chat_models_are_registered_in_admin_site(admin_client):
+    from django.contrib import admin
+
+    assert ChatRoom in admin.site._registry
+    assert ChatMessage in admin.site._registry
