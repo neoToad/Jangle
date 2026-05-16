@@ -4,24 +4,6 @@ Use these prompts in order. Each prompt is scoped so an implementation agent can
 
 
 
-
-
-## Prompt 4: Add Post-Type Preview Strips (Game and Video)
-Implement conditional preview bars for `game` and `youtube` posts.
-
-Requirements:
-- `game` strip: playable badge, play count text, and `Play Now` CTA.
-- `youtube` strip: video icon tile and inline-watch hint text.
-- Use per-post accent color tint and border for strip container.
-- Keep writing posts clean with no preview strip.
-
-Testing:
-- Add tests asserting game strip only for game posts and video strip only for youtube posts.
-- Verify `Play Now` button is present for game cards.
-
-Definition of done:
-- Type-specific strips render correctly without leaking to other post types.
-
 ## Prompt 5: Reactions and Voting Interactions
 Implement local interaction mechanics from the reference.
 

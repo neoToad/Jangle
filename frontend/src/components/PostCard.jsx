@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
 const TYPE_LABELS = {
@@ -13,12 +13,29 @@ const TYPE_ICONS = {
   youtube: '◈',
 }
 
-const REACTION_FALLBACK = ['👍', '🔥', '😂', '😮', '❤️']
+const REACTION_OPTIONS = ['👍', '🔥', '😂', '😮', '❤️']
 
 export default function PostCard({ post, onVote, onReact, isAuthed }) {
   const [hovered, setHovered] = useState(false)
-  const reactions = post.reactions || {}
-  const reactionEntries = Object.keys(reactions).length > 0 ? Object.entries(reactions) : REACTION_FALLBACK.map((emoji) => [emoji, 0])
+  const [showPicker, setShowPicker] = useState(false)
+  const [reactions, setReactions] = useState(post.reactions || {})
+  const [voteValue, setVoteValue] = useState(0)
+  const reactionEntries = Object.entries(reactions).filter(([, count]) => count > 0)
+  const displayedScore = (post.votes ?? 0) + voteValue
+
+  const toggleVote = (value) => {
+    if (!isAuthed) return
+    const nextValue = voteValue === value ? 0 : value
+    setVoteValue(nextValue)
+    onVote(post.id, nextValue)
+  }
+
+  const addReaction = (emoji) => {
+    if (!isAuthed) return
+    setReactions((prev) => ({ ...prev, [emoji]: (prev[emoji] ?? 0) + 1 }))
+    setShowPicker(false)
+    onReact(post.id, emoji)
+  }
 
   return (
     <article
@@ -115,28 +132,61 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
             <button
               key={emoji}
               type="button"
-              onClick={() => onReact(post.id, emoji)}
+              onClick={() => addReaction(emoji)}
               disabled={!isAuthed}
               className="rounded-full border border-jangle-border bg-jangle-bg px-2.5 py-1 text-xs text-jangle-textPrimary disabled:opacity-50"
             >
               {emoji} {count}
             </button>
           ))}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowPicker((prev) => !prev)}
+              disabled={!isAuthed}
+              className="rounded-full border border-jangle-border bg-jangle-bg px-2.5 py-1 text-xs text-jangle-textPrimary disabled:opacity-50"
+            >
+              + React
+            </button>
+            {showPicker && (
+              <div
+                role="menu"
+                aria-label="Emoji picker"
+                className="absolute bottom-10 left-0 z-10 flex gap-1 rounded-lg border border-jangle-border bg-jangle-surface p-2 shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
+              >
+                {REACTION_OPTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => addReaction(emoji)}
+                    className="rounded-md border border-jangle-border bg-jangle-bg px-2 py-1 text-sm"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-jangle-textMuted">💬 {post.comments ?? 0}</span>
           <button
             type="button"
-            onClick={() => onVote(post.id, 1)}
+            className="rounded-full border border-jangle-border px-2.5 py-1 text-xs text-jangle-textMuted"
+          >
+            Comments {post.comments ?? 0}
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleVote(1)}
             disabled={!isAuthed}
             className="rounded-full border border-jangle-border px-2.5 py-1 text-xs text-jangle-textMuted disabled:opacity-50"
           >
             Upvote
           </button>
-          <span className="text-sm text-jangle-textPrimary">{post.votes ?? 0}</span>
+          <span className="text-sm text-jangle-textPrimary">{displayedScore}</span>
           <button
             type="button"
-            onClick={() => onVote(post.id, -1)}
+            onClick={() => toggleVote(-1)}
             disabled={!isAuthed}
             className="rounded-full border border-jangle-border px-2.5 py-1 text-xs text-jangle-textMuted disabled:opacity-50"
           >

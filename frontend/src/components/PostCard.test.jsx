@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+﻿import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import PostCard from './PostCard'
@@ -12,7 +12,7 @@ const basePost = {
   title: 'Tiny Garden Sim',
   description: 'A relaxing little game where you grow things and water them.',
   color: '#8faa8b',
-  reactions: { seed: 14, heart: 9 },
+  reactions: { '👍': 14, '❤️': 9 },
   comments: 7,
   votes: 38,
 }
@@ -32,7 +32,7 @@ describe('PostCard', () => {
     expect(screen.getByText('A relaxing little game where you grow things and water them.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /upvote/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /downvote/i })).toBeInTheDocument()
-    expect(screen.getByText(/7/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /comments 7/i })).toBeInTheDocument()
   })
 
   it('applies elevated hover styling when hovered', () => {
@@ -104,5 +104,51 @@ describe('PostCard', () => {
     expect(screen.queryByText('YouTube embed')).not.toBeInTheDocument()
     expect(screen.queryByText('Playable in browser')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Play Now' })).not.toBeInTheDocument()
+  })
+
+  it('opens + React picker, increments selected emoji, and closes picker', () => {
+    render(
+      <MemoryRouter>
+        <PostCard post={basePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed />
+      </MemoryRouter>,
+    )
+
+    expect(screen.queryByRole('menu', { name: /emoji picker/i })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '+ React' }))
+
+    const picker = screen.getByRole('menu', { name: /emoji picker/i })
+    expect(picker).toBeInTheDocument()
+
+    const pickerButtons = within(picker).getAllByRole('button')
+    fireEvent.click(pickerButtons[1])
+
+    expect(screen.queryByRole('menu', { name: /emoji picker/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '🔥 1' })).toBeInTheDocument()
+  })
+
+  it('toggles vote score for upvote, downvote, and untoggle behavior', () => {
+    render(
+      <MemoryRouter>
+        <PostCard post={basePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed />
+      </MemoryRouter>,
+    )
+
+    const upvote = screen.getByRole('button', { name: /upvote/i })
+    const downvote = screen.getByRole('button', { name: /downvote/i })
+
+    expect(screen.getByText('38')).toBeInTheDocument()
+
+    fireEvent.click(upvote)
+    expect(screen.getByText('39')).toBeInTheDocument()
+
+    fireEvent.click(upvote)
+    expect(screen.getByText('38')).toBeInTheDocument()
+
+    fireEvent.click(downvote)
+    expect(screen.getByText('37')).toBeInTheDocument()
+
+    fireEvent.click(downvote)
+    expect(screen.getByText('38')).toBeInTheDocument()
   })
 })

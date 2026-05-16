@@ -1,10 +1,15 @@
 ## Next
-- Start Prompt 5: implement richer reactions + voting interactions (`+ React` picker, toggle vote score deltas) on top of current `PostCard`.
-- Add interaction tests for picker open/close, emoji increment behavior, and vote toggle state transitions.
-- Decide whether interaction state should stay local in `PostCard` or be lifted into `FeedPage` before API write-back.
-- Normalize seeded reaction keys to user-facing emoji labels ahead of Prompt 5 UX polish.
+- Start Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
+- Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
+- Revisit seeded data strategy so placeholder content can mirror backend reaction emoji format exactly.
 
 ## Completed
+- Implemented Prompt 5 local interaction mechanics in `PostCard` using TDD.
+- Added emoji reaction pills with counts and `+ React` picker popover interaction.
+- Selecting a picker emoji now increments that reaction count and closes the popover deterministically.
+- Added local vote toggle behavior (`+1`, `-1`, second-click reset to base score) with displayed score delta.
+- Added comments count action button in card footer.
+- Expanded `PostCard` tests to cover picker open/close, reaction increment, and vote up/down untoggle states.
 - Implemented Prompt 4 with TDD in reusable `PostCard` component.
 - Added conditional game preview strip with playable badge text, play count, and `Play Now` CTA.
 - Added conditional youtube preview strip with video icon tile and inline-watch hint copy.
@@ -13,10 +18,9 @@
 - Expanded `PostCard` tests to validate preview-strip behavior by post type and `Play Now` visibility.
 
 ## Tests
-- `npm test -- --run src/components/PostCard.test.jsx` (failed first on missing preview strips, then passed after implementation).
-- `npm test -- --run src/pages/FeedPage.test.jsx` (passed after `PostCard` updates).
-- `npm test -- --run` (full frontend suite passed: 7 files, 28 tests).
+- `npm test -- --run` (initial run failed in `PostCard.test.jsx` due encoding issue causing duplicate emoji keys, then fixed).
+- `npm test -- --run` (full frontend suite passed: 7 files, 30 tests).
 
 ## Blockers
-- No blockers for Prompt 4 implementation.
+- No blockers for Prompt 5 implementation.
 - Existing non-blocking warnings remain: React Router future flags and prior `act(...)` warning in `PostDetailPage` tests.
