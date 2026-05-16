@@ -154,6 +154,7 @@ export default function FeedPage() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [activeTab, setActiveTab] = useState('Following')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [isNearBottom, setIsNearBottom] = useState(false)
 
   const loadPosts = async ({ reset } = { reset: false }) => {
     if (reset) {
@@ -181,6 +182,28 @@ export default function FeedPage() {
   useEffect(() => {
     loadPosts({ reset: true })
   }, [])
+
+  useEffect(() => {
+    const updateBottomState = () => {
+      if (!nextUrl) {
+        setIsNearBottom(false)
+        return
+      }
+
+      const threshold = 24
+      const viewportBottom = window.scrollY + window.innerHeight
+      const pageBottom = document.documentElement.scrollHeight
+      setIsNearBottom(viewportBottom >= pageBottom - threshold)
+    }
+
+    updateBottomState()
+    window.addEventListener('scroll', updateBottomState)
+    window.addEventListener('resize', updateBottomState)
+    return () => {
+      window.removeEventListener('scroll', updateBottomState)
+      window.removeEventListener('resize', updateBottomState)
+    }
+  }, [nextUrl, posts.length, loading, loadingMore])
 
   const onVote = async (postId, value) => {
     if (!isAuthed) return
@@ -257,7 +280,7 @@ export default function FeedPage() {
 
       {error && <p className="text-sm text-red-300">{error}</p>}
 
-      <div className="max-h-[65vh] space-y-3 overflow-y-auto pr-1">
+      <div className="space-y-3">
         {loading ? (
           <p className="text-sm text-jangle-textMuted">Loading posts...</p>
         ) : (
@@ -267,7 +290,7 @@ export default function FeedPage() {
         )}
       </div>
 
-      {nextUrl && (
+      {nextUrl && isNearBottom && (
         <button
           type="button"
           onClick={loadMore}

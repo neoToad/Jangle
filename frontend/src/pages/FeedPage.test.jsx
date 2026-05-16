@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import FeedPage from './FeedPage'
@@ -247,5 +247,88 @@ describe('FeedPage', () => {
 
     expect(await screen.findByText('Could not load posts.')).toBeInTheDocument()
     expect(screen.queryByText('Tiny Garden Sim')).not.toBeInTheDocument()
+  })
+
+  it('does not use an internal feed scroll container', async () => {
+    api.get.mockResolvedValue({
+      data: {
+        results: [
+          {
+            id: 42,
+            post_type: 'text',
+            title: 'Scrollable Post',
+            body: 'Body',
+            reaction_counts: {},
+            vote_score: 0,
+          },
+        ],
+        next: null,
+      },
+    })
+
+    const { container } = render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Scrollable Post' })
+
+    const internalScrollContainer = container.querySelector('.max-h-\\[65vh\\].overflow-y-auto')
+    expect(internalScrollContainer).not.toBeInTheDocument()
+  })
+
+  it('shows load more only after user reaches page bottom', async () => {
+    Object.defineProperty(window, 'innerHeight', {
+      value: 600,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(window, 'scrollY', {
+      value: 0,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 2000,
+      configurable: true,
+      writable: true,
+    })
+
+    api.get.mockResolvedValue({
+      data: {
+        results: [
+          {
+            id: 42,
+            post_type: 'text',
+            title: 'Paginated Post',
+            body: 'Body',
+            reaction_counts: {},
+            vote_score: 0,
+          },
+        ],
+        next: '/api/posts/?page=2',
+      },
+    })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Paginated Post' })
+    expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument()
+
+    Object.defineProperty(window, 'scrollY', {
+      value: 1410,
+      configurable: true,
+      writable: true,
+    })
+    fireEvent.scroll(window)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument()
+    })
   })
 })

@@ -25,3 +25,16 @@
 - Decide whether avatars should remain `ImageField`-backed files or move to a URL field.
 - Add concise API docs/examples for reactions and votes payloads.
 - Consider Docker Compose healthchecks for stronger startup readiness guarantees.
+
+- Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when HTTP routes are implemented.
+- Add empty-feed UI copy for successful API responses with zero posts.
+- Align post-detail interactions with feed-card local reaction/vote behavior.
+- Fix feed scrolling and load-more visibility behavior in `frontend/src/pages/FeedPage.jsx`:
+  - remove internal feed scroll container (`max-h-[65vh] overflow-y-auto`) so scrolling is page-level and scrollbar stays at viewport right edge.
+  - keep feed content in normal document flow and preserve spacing without right-padding hack (`pr-1`) tied to internal scroll.
+  - show `Load more` only when user reaches the bottom of the page (or near-bottom threshold), while `nextUrl` exists.
+  - add scroll-position state/effect (or `IntersectionObserver` sentinel near footer) to control `Load more` button visibility.
+  - keep loading/disabled logic intact (`loadingMore`, `nextUrl`) and ensure no duplicate loads.
+  - add/adjust `FeedPage.test.jsx` coverage for:
+    - no internal feed scroll class regression
+    - load-more hidden before bottom, visible at bottom with paginated data.

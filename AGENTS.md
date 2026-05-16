@@ -17,7 +17,7 @@
 ## Tests
 ## Blockers
 ```
-**Move anything from the next section that is not completed to TODO.md** 
+**Move anything from the next section that is not completed to `docs/TODO.md`** 
 
 ---
  
