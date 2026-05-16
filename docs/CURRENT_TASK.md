@@ -1,7 +1,14 @@
 ## Next
+- Implement post-detail styling parity in `frontend/src/pages/PostDetailPage.jsx` so detail layout matches feed and site theme.
+- Add tests that enforce Jangle token classes and prevent regression to legacy `slate/white` containers.
+- Restyle post-detail comments and live chat sections while preserving existing interaction behavior.
+- Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates.
+- Add backend chat API endpoints and split DRF tests (`test_models.py`, `test_serializers.py`, `test_views.py`) for sidebar chat contract.
+- Add websocket consumer/routing and integration tests for room chat delivery behavior.
+- Implement functional feed tab behavior for `Following`, `Explore`, and `Games` with frontend TDD coverage.
+- Implement backend feed mode contract (`/api/posts/?feed=...`) and split DRF tests by file.
 - Implement profile menu behavior in `frontend/src/components/Layout.jsx` with TDD in `frontend/src/components/Layout.test.jsx`.
 - Build profile page MVP states in `frontend/src/pages/ProfilePage.jsx` with dedicated tests.
-- Confirm backend profile API contract and required DRF tests split by file.
 
 ## Completed
 - Investigated the non-working profile button path in frontend shell components.
@@ -13,6 +20,26 @@
   - backend profile contract expectations and test split.
   - post-MVP expansion scope.
 - Moved unresolved next implementation work into `docs/TODO.md` under High Priority.
+- Audited feed tabs in `frontend/src/pages/FeedPage.jsx` and confirmed they currently only toggle visual active state.
+- Created `docs/FEED_TABS_IMPLEMENTATION_PLAN.md` with an 8-prompt TDD rollout for:
+  - frontend tab contract and URL sync.
+  - backend `feed` query contract and queryset branching.
+  - following semantics, explore ranking, and games filtering.
+  - auth policy, race-safety, and hardening/documentation.
+- Added unresolved feed-tab implementation tasks to `docs/TODO.md` High Priority.
+- Reviewed sidebar chat implementation and confirmed current behavior is local-state mock (no REST persistence or websocket integration).
+- Created `docs/SIDEBAR_CHAT_IMPLEMENTATION_PLAN.md` with a 7-prompt TDD rollout for:
+  - backend chat data + REST contract.
+  - websocket consumer and routing.
+  - frontend chat service layer and layout integration.
+  - reliability, security baseline, and regression/docs completion.
+- Added unresolved sidebar-chat implementation work to `docs/TODO.md` High Priority.
+- Investigated feed vs post-detail visual mismatch and confirmed the root cause is divergent component/style systems.
+- Created `docs/POST_DETAIL_STYLE_PARITY_PLAN.md` with an 8-prompt TDD rollout for:
+  - style contract tests and top-post shell alignment.
+  - optional shared styling primitives and mapped detail metadata parity.
+  - comments/chat restyle, responsive polish, and regression cleanup.
+- Added unresolved post-detail style parity implementation tasks to `docs/TODO.md` High Priority.
 
 ## Tests
 - No tests run in this docs-only planning task.
