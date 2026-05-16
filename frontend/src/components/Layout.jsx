@@ -44,11 +44,11 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
               }
             }}
             placeholder="Say something..."
-            className="w-full rounded-full border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
+            className="min-h-11 w-full rounded-full border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
           />
           <button
             type="submit"
-            className="rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-xs font-semibold text-jangle-bg"
+            className="min-h-11 rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-xs font-semibold text-jangle-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
             aria-label="Send chat message"
           >
             Send
@@ -58,17 +58,25 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
           <button
             type="button"
             onClick={onLogout}
-            className="text-xs text-jangle-textMuted transition hover:text-jangle-textPrimary"
+            className="min-h-11 rounded-full px-3 text-xs text-jangle-textMuted transition hover:text-jangle-textPrimary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
           >
             Log out
           </button>
         ) : (
           <div className="flex gap-2 text-xs">
-            <Link to="/login" className="text-jangle-textMuted transition hover:text-jangle-textPrimary">
+            <Link
+              to="/login"
+              className="inline-flex min-h-11 items-center rounded-full px-3 text-jangle-textMuted transition hover:text-jangle-textPrimary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
+            >
               Login
             </Link>
-            <span className="text-jangle-textMuted">·</span>
-            <Link to="/register" className="text-jangle-textMuted transition hover:text-jangle-textPrimary">
+            <span className="text-jangle-textMuted" aria-hidden>
+              �
+            </span>
+            <Link
+              to="/register"
+              className="inline-flex min-h-11 items-center rounded-full px-3 text-jangle-textMuted transition hover:text-jangle-textPrimary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
+            >
               Register
             </Link>
           </div>
@@ -117,30 +125,36 @@ export default function Layout() {
         }}
       />
       <header className="sticky top-0 z-20 border-b border-jangle-border bg-jangle-bg/90 backdrop-blur">
-        <nav aria-label="Primary" className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-          <Link to="/" className="font-display text-2xl font-bold tracking-tight text-jangle-accent">
+        <nav aria-label="Primary" className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-2 sm:flex-nowrap sm:gap-4">
+          <Link
+            to="/"
+            className="rounded-md font-display text-2xl font-bold tracking-tight text-jangle-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
+          >
             jangle
           </Link>
-          <label className="flex w-full max-w-xs items-center gap-2 rounded-full border border-jangle-border bg-jangle-surface px-4 py-2">
-            <span aria-hidden>🔍</span>
+          <label htmlFor="global-search" className="order-3 flex w-full items-center gap-2 rounded-full border border-jangle-border bg-jangle-surface px-4 py-2 sm:order-none sm:max-w-xs">
+            <span aria-hidden>??</span>
             <input
+              id="global-search"
+              type="search"
+              aria-label="Search drops"
               placeholder="search drops..."
-              className="w-full bg-transparent text-sm text-jangle-textPrimary outline-none placeholder:text-jangle-textMuted"
+              className="min-h-11 w-full bg-transparent text-sm text-jangle-textPrimary outline-none placeholder:text-jangle-textMuted focus-visible:outline-none"
             />
           </label>
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="motion-shake-hover rounded-full border border-jangle-accent/30 bg-jangle-accent/15 px-4 py-2 text-sm font-semibold text-jangle-accent"
+              className="motion-shake-hover min-h-11 rounded-full border border-jangle-accent/30 bg-jangle-accent/15 px-4 py-2 text-sm font-semibold text-jangle-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
             >
               Shake it
             </button>
             <button
               type="button"
               aria-label="Open profile menu"
-              className="h-9 w-9 rounded-full border border-jangle-sage/40 bg-jangle-sage/15 text-base"
+              className="min-h-11 min-w-11 rounded-full border border-jangle-sage/40 bg-jangle-sage/15 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
             >
-              🌿
+              ??
             </button>
           </div>
         </nav>
@@ -165,14 +179,31 @@ export default function Layout() {
         type="button"
         aria-label="Open The Jangle chat"
         aria-expanded={isMobileChatOpen}
+        aria-controls="mobile-chat-drawer"
         onClick={() => setIsMobileChatOpen((prev) => !prev)}
-        className="fixed bottom-4 right-4 z-30 rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-semibold text-jangle-bg shadow-lg lg:hidden"
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            setIsMobileChatOpen((prev) => !prev)
+          }
+        }}
+        className="fixed bottom-4 right-4 z-30 min-h-11 rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-semibold text-jangle-bg shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80 lg:hidden"
       >
         The Jangle
       </button>
 
       <div
+        id="mobile-chat-drawer"
         data-testid="mobile-chat-drawer"
+        role="dialog"
+        aria-label="The Jangle mobile chat"
+        aria-modal="false"
+        tabIndex={-1}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            setIsMobileChatOpen(false)
+          }
+        }}
         className={`fixed inset-x-3 bottom-3 z-30 max-h-[70vh] rounded-3xl bg-jangle-surface transition duration-300 lg:hidden ${
           isMobileChatOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-full opacity-0'
         }`}

@@ -87,4 +87,34 @@ describe('Layout shell', () => {
     fireEvent.click(trigger)
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
+
+  it('exposes labels for interactive controls and keeps minimum touch target classes', () => {
+    renderLayout()
+
+    expect(screen.getByRole('searchbox', { name: /search drops/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /shake it/i })).toHaveClass('min-h-11')
+    expect(screen.getByRole('button', { name: /open profile menu/i })).toHaveClass('min-h-11')
+    expect(screen.getByRole('button', { name: /open the jangle chat/i })).toHaveClass('min-h-11')
+  })
+
+  it('supports keyboard actions for mobile chat trigger and escape close', () => {
+    renderLayout()
+
+    const trigger = screen.getByRole('button', { name: /open the jangle chat/i })
+    fireEvent.keyDown(trigger, { key: 'Enter', code: 'Enter' })
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('dialog', { name: /the jangle mobile chat/i })).toBeInTheDocument()
+
+    fireEvent.keyDown(screen.getByRole('dialog', { name: /the jangle mobile chat/i }), { key: 'Escape', code: 'Escape' })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('keeps mobile drawer structural classes for responsive behavior', () => {
+    renderLayout()
+
+    const drawer = screen.getByTestId('mobile-chat-drawer')
+    expect(drawer).toHaveClass('fixed')
+    expect(drawer).toHaveClass('inset-x-3')
+    expect(drawer).toHaveClass('lg:hidden')
+  })
 })

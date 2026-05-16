@@ -4,6 +4,12 @@
 - Add comment reply/delete UI controls in post detail with interaction tests.
 
 ## Completed
+- Implemented Prompt 8 responsive and accessibility hardening pass with TDD-first workflow.
+- Added labeled search input semantics (`type=search`, explicit `aria-label`) and stronger keyboard focus visibility.
+- Increased touch target sizing for primary nav/chat controls to mobile-friendly minimum heights.
+- Added keyboard-triggered mobile chat behavior: Enter/Space toggle, Escape close, and dialog semantics for drawer.
+- Improved mobile nav wrapping so brand/actions/search remain usable on narrow widths.
+- Added accessibility-oriented tests for labeled controls, keyboard actions, and mobile structural class coverage.
 - Implemented Prompt 7 right sidebar chat UI in `Layout` with TDD-first workflow.
 - Added sticky desktop `The Jangle` chat card with pulse status dot, online count, and scrollable chat list.
 - Added chat message bubble rows with username + relative-time metadata styling.
@@ -30,11 +36,12 @@
 - Expanded `PostCard` tests to validate preview-strip behavior by post type and `Play Now` visibility.
 
 ## Tests
+- `npm test -- --run src/components/Layout.test.jsx` (failed first on missing Prompt 8 a11y/mobile semantics, then passed after updates).
 - `npm test -- --run src/components/Layout.test.jsx` (failed first on missing Prompt 7 chat UI, then passed after implementation).
 - `npm test -- --run` (initial run failed in `PostCard.test.jsx` due encoding issue causing duplicate emoji keys, then fixed).
 - `npm test -- --run src/components/PostCard.test.jsx src/components/Layout.test.jsx` (failed first on missing Prompt 6 hooks, then passed after implementation).
 - `npm test -- --run` (full frontend suite passed: 7 files, 31 tests).
 
 ## Blockers
-- No blockers for Prompt 7 implementation.
+- No blockers for Prompt 8 implementation.
 - Existing non-blocking warnings remain: React Router future flags and prior `act(...)` warning in `PostDetailPage` tests.
