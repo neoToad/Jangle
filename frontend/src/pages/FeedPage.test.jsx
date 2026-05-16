@@ -78,6 +78,67 @@ describe('FeedPage', () => {
     expect(screen.getByRole('button', { name: '+ Drop something' })).toBeInTheDocument()
   })
 
+  it('keeps create drop form hidden by default', async () => {
+    api.get.mockResolvedValue({
+      data: {
+        results: [
+          {
+            id: 42,
+            post_type: 'text',
+            title: 'Clickable Post',
+            body: 'Body',
+            reaction_counts: {},
+            vote_score: 0,
+          },
+        ],
+        next: null,
+      },
+    })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Clickable Post' })
+
+    expect(screen.queryByRole('heading', { name: 'Create Drop' })).not.toBeInTheDocument()
+  })
+
+  it('opens and closes create drop form when drop button is clicked', async () => {
+    api.get.mockResolvedValue({
+      data: {
+        results: [
+          {
+            id: 42,
+            post_type: 'text',
+            title: 'Clickable Post',
+            body: 'Body',
+            reaction_counts: {},
+            vote_score: 0,
+          },
+        ],
+        next: null,
+      },
+    })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Clickable Post' })
+
+    const dropButton = screen.getByRole('button', { name: '+ Drop something' })
+    fireEvent.click(dropButton)
+    expect(screen.getByRole('heading', { name: 'Create Drop' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByRole('heading', { name: 'Create Drop' })).not.toBeInTheDocument()
+  })
+
   it('uses Following as default active tab and switches active style on click', async () => {
     api.get.mockResolvedValue({
       data: {

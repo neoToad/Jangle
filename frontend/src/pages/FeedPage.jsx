@@ -15,7 +15,7 @@ const emptyForm = {
   file: null,
 }
 
-function CreatePostForm({ onCreated, isAuthed }) {
+function CreatePostForm({ onCreated, onCancel, isAuthed }) {
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
 
@@ -133,6 +133,13 @@ function CreatePostForm({ onCreated, isAuthed }) {
       >
         {submitting ? 'Posting...' : 'Create Drop'}
       </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="ml-2 rounded-full border border-jangle-border px-4 py-2 text-sm font-semibold text-jangle-textMuted hover:text-jangle-textPrimary"
+      >
+        Cancel
+      </button>
     </form>
   )
 }
@@ -146,6 +153,7 @@ export default function FeedPage() {
   const [nextUrl, setNextUrl] = useState(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [activeTab, setActiveTab] = useState('Following')
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   const loadPosts = async ({ reset } = { reset: false }) => {
     if (reset) {
@@ -223,13 +231,23 @@ export default function FeedPage() {
         </div>
         <button
           type="button"
+          onClick={() => setIsCreateOpen(true)}
           className="rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-semibold text-jangle-bg"
         >
           + Drop something
         </button>
       </div>
 
-      <CreatePostForm onCreated={() => loadPosts({ reset: true })} isAuthed={isAuthed} />
+      {isCreateOpen && (
+        <CreatePostForm
+          onCreated={async () => {
+            await loadPosts({ reset: true })
+            setIsCreateOpen(false)
+          }}
+          onCancel={() => setIsCreateOpen(false)}
+          isAuthed={isAuthed}
+        />
+      )}
 
       {!isAuthed && (
         <p className="rounded border border-jangle-accent/30 bg-jangle-accent/10 p-3 text-sm text-jangle-textMuted">
