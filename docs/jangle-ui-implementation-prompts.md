@@ -4,23 +4,6 @@ Use these prompts in order. Each prompt is scoped so an implementation agent can
 
 
 
-## Prompt 5: Reactions and Voting Interactions
-Implement local interaction mechanics from the reference.
-
-Requirements:
-- Emoji reaction pills with counts.
-- `+ React` button opens emoji picker popover.
-- Selecting an emoji increments that emoji count and closes picker.
-- Vote control with up/down toggle and computed score delta (`+1`, `-1`, reset on second click).
-- Comments count action in footer.
-
-Testing:
-- Add interaction tests for picker open/close and count increment.
-- Add vote tests for upvote, downvote, and untoggle behavior affecting displayed score.
-
-Definition of done:
-- Card interactions behave like the reference and remain deterministic in tests.
-
 ## Prompt 6: Live/Playing Indicators and Motion Polish
 Add status indicators and restrained animation details.
 

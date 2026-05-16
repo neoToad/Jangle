@@ -22,7 +22,7 @@ describe('Layout shell', () => {
     expect(screen.getByRole('navigation', { name: /primary/i })).toBeInTheDocument()
     expect(screen.getByText('jangle')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('search drops...')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /shake it/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /shake it/i })).toHaveClass('motion-shake-hover')
     expect(screen.getByRole('button', { name: /open profile menu/i })).toBeInTheDocument()
   })
 

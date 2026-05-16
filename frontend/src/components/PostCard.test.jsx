@@ -45,6 +45,8 @@ describe('PostCard', () => {
     const card = screen.getByTestId('post-card-1')
     expect(card).toHaveClass('border-jangle-border')
     expect(card).toHaveClass('shadow-[0_2px_12px_rgba(0,0,0,0.2)]')
+    expect(card).toHaveClass('motion-card-enter')
+    expect(card).toHaveClass('motion-card-hover')
 
     fireEvent.mouseEnter(card)
 
@@ -150,5 +152,25 @@ describe('PostCard', () => {
 
     fireEvent.click(downvote)
     expect(screen.getByText('38')).toBeInTheDocument()
+  })
+
+  it('shows LIVE indicator only when playing=true', () => {
+    const { rerender } = render(
+      <MemoryRouter>
+        <PostCard post={{ ...basePost, playing: true }} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('LIVE')).toBeInTheDocument()
+    expect(screen.getByTestId('live-dot-1')).toHaveClass('motion-pulse-dot')
+
+    rerender(
+      <MemoryRouter>
+        <PostCard post={{ ...basePost, playing: false }} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.queryByText('LIVE')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('live-dot-1')).not.toBeInTheDocument()
   })
 })

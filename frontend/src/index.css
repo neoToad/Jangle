@@ -18,3 +18,67 @@ body {
   background-color: #1a1614;
   color: #ede6d6;
 }
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.75);
+    opacity: 0.6;
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1px);
+  }
+  75% {
+    transform: translateX(1px);
+  }
+}
+
+.motion-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.motion-card-enter {
+  animation: card-in 220ms ease-out;
+}
+
+.motion-card-hover {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.motion-shake-hover:hover {
+  animation: shake-x 180ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-pulse-dot,
+  .motion-card-enter,
+  .motion-shake-hover:hover {
+    animation: none !important;
+  }
+
+  .motion-card-hover {
+    transition: none !important;
+  }
+}

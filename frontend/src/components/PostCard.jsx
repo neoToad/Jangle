@@ -42,7 +42,7 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
       data-testid={`post-card-${post.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`rounded-[20px] border bg-jangle-surface p-5 transition-all ${
+      className={`motion-card-enter motion-card-hover rounded-[20px] border bg-jangle-surface p-5 transition-all ${
         hovered
           ? 'border-jangle-tint shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]'
           : 'border-jangle-border shadow-[0_2px_12px_rgba(0,0,0,0.2)]'
@@ -88,9 +88,17 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
           }}
         >
           <div>
-            <p className="text-xs font-semibold" style={{ color: post.color || '#8faa8b' }}>
-              Playable in browser
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-semibold" style={{ color: post.color || '#8faa8b' }}>
+                Playable in browser
+              </p>
+              {post.playing && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-red-400/50 bg-red-500/10 px-2 py-0.5 text-[10px] font-bold tracking-wide text-red-300">
+                  <span data-testid={`live-dot-${post.id}`} className="motion-pulse-dot h-1.5 w-1.5 rounded-full bg-red-300" />
+                  LIVE
+                </span>
+              )}
+            </div>
             <p className="text-xs text-jangle-textMuted">{post.playCount ?? 0} people played</p>
           </div>
           <button

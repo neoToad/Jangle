@@ -43,7 +43,7 @@ export default function Layout() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="rounded-full border border-jangle-accent/30 bg-jangle-accent/15 px-4 py-2 text-sm font-semibold text-jangle-accent"
+              className="motion-shake-hover rounded-full border border-jangle-accent/30 bg-jangle-accent/15 px-4 py-2 text-sm font-semibold text-jangle-accent"
             >
               Shake it
             </button>
