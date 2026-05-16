@@ -1,23 +1,20 @@
 ## Next
-- Start Prompt 2 from `docs/jangle-ui-implementation-prompts.md`: feed header tabs and `+ Drop something` CTA with TDD.
-- Keep current shell/theme tokens stable while layering feed-specific controls.
-- Add focused `FeedPage` tests for tab labels, default active state, and active-state switching.
-- Decide whether to introduce reusable UI primitives (`PillButton`, `ShellCard`) before Prompt 3.
+- Start Prompt 3: extract a reusable `PostCard` base aligned to the Jangle reference card structure and styling.
+- Add TDD coverage for shared card sections (header/body/footer) and hover-state treatment.
+- Decide whether to isolate feed header into a dedicated component before Prompt 3 to keep `FeedPage` readable.
+- Consider filtering behavior per tab (`Following/Explore/Games`) once backend query options are defined.
 
 ## Completed
-- Implemented Prompt 1 with frontend TDD: wrote failing `Layout` shell tests first, then implemented minimum code to pass.
-- Added dark theme token support in Tailwind/global theme for: `bg`, `surface`, `border`, `accent`, `sage`, `textPrimary`, `textMuted`.
-- Wired typography to match design direction: Fraunces for display/logo and DM Sans for body.
-- Rebuilt app shell in `Layout` with sticky nav and required structure: wordmark, center search, right `Shake it` CTA, avatar button.
-- Added centered two-region main layout with feed column + right sidebar shell region.
-- Added warm radial background treatment and subtle SVG noise texture overlay.
-- Preserved auth entry points by moving guest links/logout controls into sidebar shell.
+- Implemented Prompt 2 with TDD: added failing feed-header tests, then shipped minimal UI/state changes to pass.
+- Added feed-level controls above cards: tabs `Following`, `Explore`, `Games` plus primary `+ Drop something` CTA.
+- Added active/inactive tab styling with rounded pill treatments and earthy token-based contrast.
+- Added responsive wrapping/layout behavior for the tab row and CTA on narrower widths.
+- Preserved existing feed behavior while introducing local `activeTab` state for interaction styling.
 
 ## Tests
-- `npm test -- --run src/components/Layout.test.jsx` (failed first, then passed after implementation).
-- `npm test -- --run src/pages/AuthFlow.test.jsx` (passed, validates logout/auth guard regression safety).
-- `npm test -- --run` (full frontend suite passed: 6 files, 22 tests).
+- `npm test -- --run src/pages/FeedPage.test.jsx` (failed first on missing controls, then passed after implementation).
+- `npm test -- --run` (full frontend suite passed: 6 files, 24 tests).
 
 ## Blockers
-- No blockers for Prompt 1 implementation.
-- Existing React Router future-flag warnings and one pre-existing `act(...)` warning in `PostDetailPage` tests remain non-blocking.
+- No blockers for Prompt 2 implementation.
+- Existing non-blocking warnings remain: React Router future flags and prior `act(...)` warning in `PostDetailPage` tests.

@@ -5,6 +5,8 @@ import { useAuthStore } from '../store/authStore'
 
 const EMOJIS = ['👍', '🔥', '😂', '😮', '❤️']
 
+const FEED_TABS = ['Following', 'Explore', 'Games']
+
 const emptyForm = {
   post_type: 'text',
   title: '',
@@ -267,6 +269,7 @@ export default function FeedPage() {
   const [error, setError] = useState('')
   const [nextUrl, setNextUrl] = useState(null)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [activeTab, setActiveTab] = useState('Following')
 
   const loadPosts = async ({ reset } = { reset: false }) => {
     if (reset) {
@@ -313,7 +316,33 @@ export default function FeedPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-semibold">Feed</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {FEED_TABS.map((tab) => {
+            const isActive = activeTab === tab
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                  isActive
+                    ? 'border-jangle-accent/40 bg-jangle-accent/15 text-jangle-accent'
+                    : 'border-jangle-border bg-transparent text-jangle-textMuted hover:text-jangle-textPrimary'
+                }`}
+              >
+                {tab}
+              </button>
+            )
+          })}
+        </div>
+        <button
+          type="button"
+          className="rounded-full border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-semibold text-jangle-bg"
+        >
+          + Drop something
+        </button>
+      </div>
 
       <CreatePostForm onCreated={() => loadPosts({ reset: true })} isAuthed={isAuthed} />
 

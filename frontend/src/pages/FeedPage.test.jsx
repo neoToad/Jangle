@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import FeedPage from './FeedPage'
@@ -43,5 +43,41 @@ describe('FeedPage', () => {
 
     const postLink = await screen.findByRole('link', { name: 'Clickable Post' })
     expect(postLink).toHaveAttribute('href', '/post/42')
+  })
+
+  it('renders feed header tabs and drop call-to-action', async () => {
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Clickable Post' })
+
+    expect(screen.getByRole('button', { name: 'Following' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Explore' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Games' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '+ Drop something' })).toBeInTheDocument()
+  })
+
+  it('uses Following as default active tab and switches active style on click', async () => {
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Clickable Post' })
+
+    const followingTab = screen.getByRole('button', { name: 'Following' })
+    const exploreTab = screen.getByRole('button', { name: 'Explore' })
+
+    expect(followingTab).toHaveClass('bg-jangle-accent/15')
+    expect(exploreTab).not.toHaveClass('bg-jangle-accent/15')
+
+    fireEvent.click(exploreTab)
+
+    expect(exploreTab).toHaveClass('bg-jangle-accent/15')
+    expect(followingTab).not.toHaveClass('bg-jangle-accent/15')
   })
 })

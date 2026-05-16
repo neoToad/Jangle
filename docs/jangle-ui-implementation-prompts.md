@@ -2,38 +2,7 @@
 
 Use these prompts in order. Each prompt is scoped so an implementation agent can complete it with TDD and produce a reviewable PR-sized change.
 
-## Prompt 1: Establish Theme Tokens and App Shell
-Implement the Jangle visual foundation in React + Tailwind to match `docs/jangle-feed.jsx` and `docs/jangle-planning.md`.
 
-Requirements:
-- Create/extend global theme tokens for dark mode with these values: `bg #1a1614`, `surface #252019`, `border #3a3228`, `accent #c9a87c`, `sage #8faa8b`, `textPrimary #ede6d6`, `textMuted #9c8f7e`.
-- Add warm radial background treatment and subtle texture support.
-- Wire typography: Fraunces for headings/logo, DM Sans for body.
-- Build sticky top nav shell with: left `jangle` wordmark, center search input, right `Shake it` CTA and avatar button.
-- Keep layout centered with feed column + right sidebar region.
-
-Testing:
-- Add frontend tests for nav rendering, search placeholder, and presence of shell regions.
-- Assert dark theme token classes/styles are applied to top-level shell.
-
-Definition of done:
-- App visually resembles the reference shell structure and passes tests.
-
-## Prompt 2: Build Feed Header and Tab Controls
-Implement feed-level controls above cards.
-
-Requirements:
-- Add tabs: `Following`, `Explore`, `Games` with active/inactive styling matching the mock.
-- Add `+ Drop something` primary CTA.
-- Preserve rounded pill treatments and earthy contrast.
-- Keep desktop spacing and responsive behavior for narrower widths.
-
-Testing:
-- Add RTL tests for tab labels, default active tab (`Following`), and CTA presence.
-- Add interaction test for switching active tab visual state.
-
-Definition of done:
-- Feed header controls match the target interaction and styling intent.
 
 ## Prompt 3: Implement Reusable PostCard Base
 Create a reusable post card component and render feed data.
@@ -100,7 +69,7 @@ Testing:
 Definition of done:
 - Status cues and motion polish are in place without harming usability.
 
-## Prompt 7: Implement “The Jangle” Chat Sidebar UI
+## Prompt 7: Implement ï¿½The Jangleï¿½ Chat Sidebar UI
 Create the right sidebar chat panel UI.
 
 Requirements:
