@@ -54,3 +54,44 @@ class UserUpdateViewTest(TestCase):
         auth_client(self.user).patch(reverse('users:user-update'), {'email': 'hack@example.com'})
         self.user.refresh_from_db()
         self.assertEqual(self.user.email, 'upd@example.com')
+
+
+class RegisterViewTest(TestCase):
+    def test_register_returns_201(self):
+        response = APIClient().post(
+            reverse('users:register'),
+            {
+                'username': 'colin',
+                'email': 'reg@example.com',
+                'password': 'SecurePass123!',
+                'confirm_password': 'SecurePass123!',
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_register_persists_user(self):
+        APIClient().post(
+            reverse('users:register'),
+            {
+                'username': 'colin',
+                'email': 'save@example.com',
+                'password': 'SecurePass123!',
+                'confirm_password': 'SecurePass123!',
+            },
+            format='json',
+        )
+        self.assertTrue(User.objects.filter(email='save@example.com').exists())
+
+    def test_register_password_mismatch_returns_400(self):
+        response = APIClient().post(
+            reverse('users:register'),
+            {
+                'username': 'colin',
+                'email': 'bad@example.com',
+                'password': 'SecurePass123!',
+                'confirm_password': 'Mismatch123!',
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer
+from users.serializers import RegisterSerializer
 
 User = get_user_model()
 
@@ -26,3 +27,31 @@ class UserSerializerTest(TestCase):
         serializer.is_valid()
         updated = serializer.save()
         self.assertEqual(updated.email, 'serial@example.com')
+
+
+class RegisterSerializerTest(TestCase):
+    def test_valid_payload_creates_user(self):
+        serializer = RegisterSerializer(
+            data={
+                'username': 'colin',
+                'email': 'new@example.com',
+                'password': 'SecurePass123!',
+                'confirm_password': 'SecurePass123!',
+            }
+        )
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        user = serializer.save()
+        self.assertEqual(user.email, 'new@example.com')
+        self.assertTrue(user.check_password('SecurePass123!'))
+
+    def test_password_mismatch_invalid(self):
+        serializer = RegisterSerializer(
+            data={
+                'username': 'colin',
+                'email': 'new@example.com',
+                'password': 'SecurePass123!',
+                'confirm_password': 'Mismatch123!',
+            }
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('Passwords do not match.', serializer.errors['non_field_errors'])

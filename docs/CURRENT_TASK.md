@@ -1,19 +1,16 @@
 ## Next
-- Start auth TDD with failing tests for `LoginPage` behaviors.
-- Add failing tests for `RegisterPage` behaviors and validation.
-- Implement minimal auth UI/API wiring to satisfy tests.
-- Add protected + guest-only route guards and logout flow.
-- Run targeted auth tests, then full frontend Vitest suite.
+- Recreate frontend service with dev override and verify it binds to `localhost:5174`.
+- Run backend auth tests once DB service is confirmed reachable in local env.
 
 ## Completed
-- Reviewed historical `docs/CURRENT_TASK.md` entries from git history.
-- Cross-checked historical next items against current frontend/backend code.
-- Added `docs/TODO.md` containing remaining unfinished work only.
-- Kept auth implementation as the immediate active priority.
+- Resolved recurring port collision risk between base and dev compose frontend services.
+- Updated `docker-compose.dev.yml` frontend host-port mapping from `5173:5173` to `5174:5173`.
+- Kept base `docker-compose.yml` frontend mapping unchanged (`5173:80`).
+- This allows regular and dev variants to run without competing for host port 5173.
 
 ## Tests
-- No automated tests were added or run in this documentation-only task.
-- Next implementation task should begin with failing frontend auth tests.
+- No application tests run for this config-only change.
+- Functional verification step pending: `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d` then open `http://localhost:5174`.
 
 ## Blockers
-- None currently identified.
+- None.
