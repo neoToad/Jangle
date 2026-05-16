@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import Layout from './Layout'
@@ -41,5 +41,50 @@ describe('Layout shell', () => {
     const appShell = screen.getByTestId('app-shell')
     expect(appShell).toHaveClass('bg-jangle-bg')
     expect(appShell).toHaveClass('text-jangle-textPrimary')
+  })
+
+  it('renders initial chat messages', () => {
+    renderLayout()
+
+    expect(screen.getByText('mosswood')).toBeInTheDocument()
+    expect(screen.getByText('yo the garden build is up')).toBeInTheDocument()
+    expect(screen.getByText('hazel.ink')).toBeInTheDocument()
+  })
+
+  it('sends a chat message with send button and clears input', () => {
+    renderLayout()
+
+    const input = screen.getByRole('textbox', { name: /^chat message$/i })
+    fireEvent.change(input, { target: { value: 'hello jangle' } })
+    fireEvent.click(screen.getByRole('button', { name: /send chat message/i }))
+
+    expect(screen.getByText('hello jangle')).toBeInTheDocument()
+    expect(screen.getByText('you')).toBeInTheDocument()
+    expect(input).toHaveValue('')
+  })
+
+  it('sends a chat message with Enter key', () => {
+    renderLayout()
+
+    const input = screen.getByRole('textbox', { name: /^chat message$/i })
+    fireEvent.change(input, { target: { value: 'enter send' } })
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
+
+    expect(screen.getByText('enter send')).toBeInTheDocument()
+    expect(input).toHaveValue('')
+  })
+
+  it('toggles mobile chat drawer from trigger button', () => {
+    renderLayout()
+
+    const trigger = screen.getByRole('button', { name: /open the jangle chat/i })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByTestId('mobile-chat-drawer')).toHaveClass('translate-y-0')
+
+    fireEvent.click(trigger)
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
   })
 })

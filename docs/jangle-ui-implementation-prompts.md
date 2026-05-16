@@ -4,39 +4,6 @@ Use these prompts in order. Each prompt is scoped so an implementation agent can
 
 
 
-## Prompt 6: Live/Playing Indicators and Motion Polish
-Add status indicators and restrained animation details.
-
-Requirements:
-- Show `LIVE` chip on playing posts only.
-- Add pulsing status dot animation token reused by live elements.
-- Add subtle card entrance/hover transitions and optional shake hover on `Shake it` button.
-- Keep motion accessible (respect reduced motion preference if project already supports it).
-
-Testing:
-- Add tests ensuring LIVE indicator renders only when `playing=true`.
-- Add class/style assertions for animation hooks without brittle timing checks.
-
-Definition of done:
-- Status cues and motion polish are in place without harming usability.
-
-## Prompt 7: Implement �The Jangle� Chat Sidebar UI
-Create the right sidebar chat panel UI.
-
-Requirements:
-- Sticky sidebar card with header (`The Jangle`, online count, pulse dot).
-- Scrollable message list with username, relative time, and message bubble styling.
-- Input + send button row at bottom.
-- Add local optimistic send behavior: Enter key or click send appends `you` message and clears input.
-- On small screens, convert sidebar to a collapsed or bottom-drawer trigger (simple first pass acceptable).
-
-Testing:
-- Add tests for initial message rendering.
-- Add send-message tests for click and Enter key behavior.
-- Add responsive behavior test if your setup supports viewport switching; otherwise test class toggles.
-
-Definition of done:
-- Sidebar mirrors reference layout and supports basic local chat interaction.
 
 ## Prompt 8: Responsive and Accessibility Hardening
 Perform pass focused on mobile layout and a11y semantics.
