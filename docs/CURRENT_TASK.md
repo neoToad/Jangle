@@ -1,4 +1,7 @@
 ## Next
+- Fix feed comment count mismatch so feed cards render real comment totals from API data.
+- Add backend serializer/view contract support for `comment_count` with tests.
+- Add frontend adapter/feed regression tests for non-zero comment totals.
 - Implement post-detail styling parity in `frontend/src/pages/PostDetailPage.jsx` so detail layout matches feed and site theme.
 - Add tests that enforce Jangle token classes and prevent regression to legacy `slate/white` containers.
 - Restyle post-detail comments and live chat sections while preserving existing interaction behavior.
@@ -40,6 +43,12 @@
   - optional shared styling primitives and mapped detail metadata parity.
   - comments/chat restyle, responsive polish, and regression cleanup.
 - Added unresolved post-detail style parity implementation tasks to `docs/TODO.md` High Priority.
+- Investigated feed comment totals and confirmed root cause: frontend expects `comment_count` but backend post payload does not provide it.
+- Created `docs/FEED_COMMENT_COUNT_FIX_PLAN.md` with a TDD rollout for:
+  - frontend adapter contract tests.
+  - backend serializer/view `comment_count` support.
+  - integration/regression/performance validation.
+- Added unresolved comment-count fix tasks to `docs/TODO.md` High Priority.
 
 ## Tests
 - No tests run in this docs-only planning task.

@@ -1,6 +1,9 @@
 # TODO
 
 ## High Priority
+- Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
+- Add backend serializer/view tests to lock comment count semantics and payload presence for feed responses.
+- Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.
 - Implement post-detail styling parity with feed/Jangle theme in `frontend/src/pages/PostDetailPage.jsx` using TDD coverage.
 - Replace legacy `slate/white` post-detail container styling with shared token-based classes and add regression tests.
 - Restyle post-detail comments and live chat sections to match site design language without changing behavior.
