@@ -67,20 +67,6 @@ If you are **not** using Docker for Postgres/Redis, set:
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 ```
 
-App URLs:
-- Frontend: `http://localhost:5174`
-- Backend API: `http://localhost:8000/api/`
-
-## Docker (Full Stack)
-
-### Build and run everything
-
-From project root:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
-```
-
 This starts:
 - `backend` (Django API)
 - `frontend` (Vite dev server in container)
@@ -122,7 +108,13 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 Use the project seed management command to generate fake Janglers, Drops, comments, reactions, and chat messages:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py seed_data
+docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py seed_db
+```
+
+Reset and reseed from scratch:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend python manage.py seed_db --reset
 ```
 
 If your local branch uses a different seed command name, list available commands with:
