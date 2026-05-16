@@ -155,6 +155,7 @@ export default function FeedPage() {
   const [activeTab, setActiveTab] = useState('Following')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isNearBottom, setIsNearBottom] = useState(false)
+  const [canShowLoadMore, setCanShowLoadMore] = useState(false)
 
   const loadPosts = async ({ reset } = { reset: false }) => {
     if (reset) {
@@ -190,9 +191,17 @@ export default function FeedPage() {
         return
       }
 
-      const threshold = 24
-      const viewportBottom = window.scrollY + window.innerHeight
-      const pageBottom = document.documentElement.scrollHeight
+      const threshold = 140
+      const scrollingEl =
+        document.scrollingElement || document.documentElement || document.body
+      const scrollTop = Math.max(
+        window.scrollY || 0,
+        window.pageYOffset || 0,
+        scrollingEl?.scrollTop || 0,
+      )
+      const viewportHeight = window.innerHeight || scrollingEl?.clientHeight || 0
+      const pageBottom = scrollingEl?.scrollHeight || document.documentElement.scrollHeight || 0
+      const viewportBottom = scrollTop + viewportHeight
       setIsNearBottom(viewportBottom >= pageBottom - threshold)
     }
 
@@ -204,6 +213,22 @@ export default function FeedPage() {
       window.removeEventListener('resize', updateBottomState)
     }
   }, [nextUrl, posts.length, loading, loadingMore])
+
+  useEffect(() => {
+    if (!nextUrl) {
+      setCanShowLoadMore(false)
+      return
+    }
+    if (isNearBottom) {
+      setCanShowLoadMore(true)
+    }
+  }, [nextUrl, isNearBottom])
+
+  useEffect(() => {
+    if (loadingMore) {
+      setCanShowLoadMore(false)
+    }
+  }, [loadingMore])
 
   const onVote = async (postId, value) => {
     if (!isAuthed) return
@@ -290,7 +315,7 @@ export default function FeedPage() {
         )}
       </div>
 
-      {nextUrl && isNearBottom && (
+      {nextUrl && canShowLoadMore && (
         <button
           type="button"
           onClick={loadMore}

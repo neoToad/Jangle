@@ -331,4 +331,66 @@ describe('FeedPage', () => {
       expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument()
     })
   })
+
+  it('keeps load more visible after it appears even if page height increases', async () => {
+    Object.defineProperty(window, 'innerHeight', {
+      value: 600,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(window, 'scrollY', {
+      value: 0,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 2000,
+      configurable: true,
+      writable: true,
+    })
+
+    api.get.mockResolvedValue({
+      data: {
+        results: [
+          {
+            id: 42,
+            post_type: 'text',
+            title: 'Sticky Load More Post',
+            body: 'Body',
+            reaction_counts: {},
+            vote_score: 0,
+          },
+        ],
+        next: '/api/posts/?page=2',
+      },
+    })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await screen.findByRole('link', { name: 'Sticky Load More Post' })
+
+    Object.defineProperty(window, 'scrollY', {
+      value: 1410,
+      configurable: true,
+      writable: true,
+    })
+    fireEvent.scroll(window)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument()
+    })
+
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 2140,
+      configurable: true,
+      writable: true,
+    })
+    fireEvent.scroll(window)
+
+    expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument()
+  })
 })
