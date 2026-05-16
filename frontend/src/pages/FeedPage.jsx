@@ -2,51 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../lib/api'
 import PostCard from '../components/PostCard'
 import { useAuthStore } from '../store/authStore'
+import { mapFeedPost, selectFeedItems, selectFeedNext } from '../adapters/posts'
 
 const FEED_TABS = ['Following', 'Explore', 'Games']
-
-const SEEDED_POSTS = [
-  {
-    id: 'seed-1',
-    type: 'game',
-    author: 'mosswood',
-    avatar: '??',
-    time: '23 minutes ago',
-    title: 'Tiny Garden Sim',
-    description: 'A relaxing little game where you grow things and water them. No fail state, just vibes.',
-    reactions: { seed: 14, heart: 9, spark: 6 },
-    votes: 38,
-    comments: 7,
-    color: '#8faa8b',
-  },
-  {
-    id: 'seed-2',
-    type: 'writing',
-    author: 'hazel.ink',
-    avatar: '??',
-    time: '1 hour ago',
-    title: 'On Making Things Nobody Asked For',
-    description:
-      'A short essay about creating stuff with no clear audience and why that can become your most meaningful work.',
-    reactions: { gold: 22, fire: 11, eyes: 8 },
-    votes: 54,
-    comments: 19,
-    color: '#c9a87c',
-  },
-  {
-    id: 'seed-3',
-    type: 'youtube',
-    author: 'driftwood_tv',
-    avatar: '??',
-    time: '3 hours ago',
-    title: 'The Last Video Store in My City',
-    description: "A short documentary about the last Blockbuster-style store still operating. It's beautiful.",
-    reactions: { cry: 17, love: 13, film: 5 },
-    votes: 29,
-    comments: 11,
-    color: '#a87c9e',
-  },
-]
 
 const emptyForm = {
   post_type: 'text',
@@ -55,29 +13,6 @@ const emptyForm = {
   youtube_url: '',
   file_type: 'image',
   file: null,
-}
-
-function mapPostType(post) {
-  if (post.post_type === 'youtube') return 'youtube'
-  if (post.post_type === 'file' && post.file_type === 'game') return 'game'
-  return 'writing'
-}
-
-function mapApiPost(post) {
-  const type = mapPostType(post)
-  return {
-    id: post.id,
-    type,
-    author: post.author?.username || post.author_name || 'jangler',
-    avatar: post.author?.avatar_emoji || '•',
-    time: 'recently',
-    title: post.title,
-    description: post.body || post.youtube_url || 'Shared a new drop.',
-    reactions: post.reaction_counts || {},
-    votes: post.vote_score ?? 0,
-    comments: post.comment_count ?? 0,
-    color: type === 'game' ? '#8faa8b' : type === 'youtube' ? '#a87c9e' : '#c9a87c',
-  }
 }
 
 function CreatePostForm({ onCreated, isAuthed }) {
@@ -221,13 +156,14 @@ export default function FeedPage() {
       const url = reset || !nextUrl ? '/api/posts/' : nextUrl
       const response = await api.get(url)
       const data = response.data
-      const items = Array.isArray(data) ? data : data.results || []
-      const next = Array.isArray(data) ? null : data.next
+      const items = selectFeedItems(data)
+      const next = selectFeedNext(data)
       setNextUrl(next)
-      const normalizedItems = items.map(mapApiPost)
+      const normalizedItems = items.map(mapFeedPost)
       setPosts((prev) => (reset ? normalizedItems : [...prev, ...normalizedItems]))
     } catch {
       setError('Could not load posts.')
+      if (reset) setPosts([])
     } finally {
       setLoading(false)
       setLoadingMore(false)
@@ -239,13 +175,13 @@ export default function FeedPage() {
   }, [])
 
   const onVote = async (postId, value) => {
-    if (!isAuthed || String(postId).startsWith('seed-')) return
+    if (!isAuthed) return
     await api.post(`/api/interactions/posts/${postId}/votes/`, { value })
     await loadPosts({ reset: true })
   }
 
   const onReact = async (postId, emoji) => {
-    if (!isAuthed || String(postId).startsWith('seed-')) return
+    if (!isAuthed) return
     await api.post(`/api/interactions/posts/${postId}/reactions/`, { emoji })
     await loadPosts({ reset: true })
   }
@@ -255,8 +191,6 @@ export default function FeedPage() {
     setLoadingMore(true)
     await loadPosts()
   }
-
-  const visiblePosts = posts.length > 0 ? posts : SEEDED_POSTS
 
   return (
     <section className="space-y-4">
@@ -302,7 +236,7 @@ export default function FeedPage() {
         {loading ? (
           <p className="text-sm text-jangle-textMuted">Loading posts...</p>
         ) : (
-          visiblePosts.map((post) => (
+          posts.map((post) => (
             <PostCard key={post.id} post={post} onVote={onVote} onReact={onReact} isAuthed={isAuthed} />
           ))
         )}
@@ -321,4 +255,3 @@ export default function FeedPage() {
     </section>
   )
 }
-
