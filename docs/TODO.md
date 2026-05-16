@@ -1,24 +1,23 @@
 # TODO
 
 ## High Priority
-- Implement full auth UI and flows:
-- Build `LoginPage` form + validation + submit/loading/error states.
-- Build `RegisterPage` form + confirm-password validation + API error handling.
-- Wire login/register API calls and token lifecycle handling in frontend auth flow.
-- Add protected-route and guest-only route guards.
-- Add logout action and navigation UX.
-- Add frontend auth tests first (Vitest + RTL), then implement to green.
+- Add comment reply/delete UI controls in post detail, with interaction tests.
+- Add missing interaction 404 tests for non-existent or invalid reaction/vote targets.
+- Add chat history retrieval endpoint and initial message fetch in UI so chat persists on page load.
 
 ## Medium Priority
-- Add comment reply/delete UI controls in post detail, with interaction tests.
-- Add chat history retrieval endpoint and/or initial message fetch in UI (if chat persistence on page load is required).
-- Add missing interaction 404 tests for non-existent/invalid reaction or vote targets (if still absent).
+- Run full backend test suite before next backend feature merge.
+- Run full frontend Vitest suite after post-detail and chat follow-ups.
+- Add targeted tests for auth store token lifecycle and refresh interceptor behavior.
 
-## Quality / Verification
-- Run full frontend Vitest suite after auth and post-detail follow-ups are merged.
-- Add targeted tests for auth store + Axios token refresh interceptor behavior.
+## Admin / Moderation
+- Add admin list filters for chat models (room, author, created date).
+- Add admin actions for bulk message moderation (soft-delete/export).
+- Consider `ordering` and `date_hierarchy` for chat admin if message volume grows.
 
-## Lower Priority / Decision Needed
-- Decide whether comments should support real vote aggregation (currently placeholder `vote_score` behavior was noted historically).
+## Docs / Decisions
+- Update README/backend docs to reference `python manage.py seed_db` and `python manage.py seed_db --reset`.
+- Decide whether to add a dedicated follow relationship model on `User` for social-graph seeding.
+- Decide whether avatars should remain `ImageField`-backed files or move to a URL field.
 - Add concise API docs/examples for reactions and votes payloads.
 - Consider Docker Compose healthchecks for stronger startup readiness guarantees.
