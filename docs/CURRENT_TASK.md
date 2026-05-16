@@ -1,17 +1,30 @@
 ## Next
-- Run full frontend auth suite (`AuthFlow`, `LoginPage`, `RegisterPage`) to check for regressions after login contract alignment.
-- Optionally improve backend/UX messaging consistency for invalid email vs invalid credentials.
+- Confirm the seed command name and implementation (`seed_data` vs another command) so README seed instructions exactly match the codebase.
+- Run a full-stack smoke check with the Docker dev override to validate documented ports and startup commands.
+- Keep README updated as auth/chat APIs and environment keys evolve.
 
 ## Completed
-- Updated login request contract to match backend JWT expectations: send `email` + `password` to `/api/auth/token/`.
-- Updated login form UI from `Email or username` to `Email`, including required-field validation messaging.
-- Kept backend failure reason rendering (`non_field_errors` and `detail`) in place for better login error feedback.
-- Added/updated login tests first, confirmed failure, then implemented minimal code to pass.
+- Added a new root `README.md` with end-to-end developer onboarding for the Jangle platform.
+- Included project overview language using Janglers, Drops, and The Jangle.
+- Documented backend/frontend/database/real-time tech stack.
+- Added prerequisites with concrete tool/version expectations.
+- Revised local setup to Docker-first only; removed manual local venv/npm/runserver workflow.
+- Added Docker Compose workflows for build/up, down, and full volume reset.
+- Added Docker-based migration command via `docker compose ... exec backend python manage.py migrate`.
+- Added seeding section with `manage.py` command plus command discovery fallback.
+- Switched backend/frontend test commands to Docker `exec` variants.
+- Added WebSocket verification steps for local live chat behavior.
+- Added environment-variable reference tables for root `.env`, backend `.env`, and frontend runtime key usage.
 
 ## Tests
-- `npm test -- LoginPage.test.jsx --run` (frontend): passing (5/5).
-- Coverage includes required-field behavior, submit/loading, success redirect, `non_field_errors`, and backend `detail` rendering.
-- Verified test contract now asserts `email` is sent in login payload.
+- No code-level tests run for this task (documentation-only change).
+- Validation performed by cross-checking README commands/keys against:
+- `docker-compose.yml`
+- `docker-compose.dev.yml`
+- `backend/core/settings.py`
+- `backend/.env.example`
+- `.env.example`
+- `frontend/package.json`
 
 ## Blockers
-- None for login contract alignment; remaining work is broader auth-flow regression coverage.
+- Seed command does not appear in tracked source files yet; README currently documents `python manage.py seed_data` with `manage.py help` fallback.
