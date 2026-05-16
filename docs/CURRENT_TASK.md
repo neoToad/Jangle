@@ -1,30 +1,32 @@
 ## Next
-- Confirm the seed command name and implementation (`seed_data` vs another command) so README seed instructions exactly match the codebase.
-- Run a full-stack smoke check with the Docker dev override to validate documented ports and startup commands.
-- Keep README updated as auth/chat APIs and environment keys evolve.
+- Wire README/backend docs to reference `python manage.py seed_db` and `python manage.py seed_db --reset`.
+- Decide whether to add a dedicated follow relationship model on `User` to satisfy social-graph seeding fully.
+- Decide whether avatars should remain file-backed (`ImageField`) or move to a URL field for remote fake avatar URLs.
+- Optionally add a lightweight smoke test that executes `seed_db --reset` in CI.
 
 ## Completed
-- Added a new root `README.md` with end-to-end developer onboarding for the Jangle platform.
-- Included project overview language using Janglers, Drops, and The Jangle.
-- Documented backend/frontend/database/real-time tech stack.
-- Added prerequisites with concrete tool/version expectations.
-- Revised local setup to Docker-first only; removed manual local venv/npm/runserver workflow.
-- Added Docker Compose workflows for build/up, down, and full volume reset.
-- Added Docker-based migration command via `docker compose ... exec backend python manage.py migrate`.
-- Added seeding section with `manage.py` command plus command discovery fallback.
-- Switched backend/frontend test commands to Docker `exec` variants.
-- Added WebSocket verification steps for local live chat behavior.
-- Added environment-variable reference tables for root `.env`, backend `.env`, and frontend runtime key usage.
+- Added TDD coverage for a new `seed_db` management command in `backend/core/test_seed_db.py`.
+- Verified initial failure case (`Unknown command: seed_db`) before implementation.
+- Implemented `seed_db` command at `backend/posts/management/commands/seed_db.py`.
+- Added `--reset` support to wipe seeded app data and reseed in one command.
+- Implemented idempotent behavior: command skips when user/post data already exists.
+- Ensured global chat room `The Jangle` is always created via `get_or_create`, even when seed is skipped.
+- Added factory_boy + Faker factories in `backend/core/factories.py` for users/posts/comments/reactions/votes/chat entities.
+- Seeded realistic distribution targets: 25 users, 50 posts split by type, 80 comments, and 60 chat messages.
+- Added hardcoded real YouTube ID pool and generated valid `youtube_url` values.
+- Added image and minimal HTML5 game file generation for file posts.
+- Seeded mixed top-level/threaded comments (roughly one-third replies).
+- Seeded reactions across posts/comments with unique-target constraints respected.
+- Seeded votes across posts with `value in {-1, 1}` and unique `(user, post)` pairs.
+- Marked a subset of posts/comments as `is_removed=True` to exercise soft-delete paths.
+- Marked posts from 2-3 users as pinned via `is_pinned=True`.
+- Backfilled created timestamps across all seeded entities over the past ~60 days.
 
 ## Tests
-- No code-level tests run for this task (documentation-only change).
-- Validation performed by cross-checking README commands/keys against:
-- `docker-compose.yml`
-- `docker-compose.dev.yml`
-- `backend/core/settings.py`
-- `backend/.env.example`
-- `.env.example`
-- `frontend/package.json`
+- Ran: `pytest core\\test_seed_db.py -q`
+- Result: 4 passed
+- Covered behaviors: initial seed shape/counts, idempotent rerun, `--reset` reseed, and global room creation when seed is skipped.
 
 ## Blockers
-- Seed command does not appear in tracked source files yet; README currently documents `python manage.py seed_data` with `manage.py help` fallback.
+- Current schema has no follow/follower model or `User` self-referential relation, so sparse follow-graph seeding cannot be implemented yet.
+- Current `User.avatar` is an `ImageField`, not a URL field; fake avatars are generated as files rather than URL strings.
