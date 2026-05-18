@@ -117,9 +117,9 @@ export default function PostDetailPage() {
     <section className="space-y-6">
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <article className="rounded border border-slate-300 bg-white p-4">
-        <h1 className="text-2xl font-semibold">{post?.title || `Post #${id}`}</h1>
-        <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{post?.body || ''}</p>
+      <article className="rounded-[20px] border border-jangle-border bg-jangle-surface p-5 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
+        <h1 className="font-display text-2xl font-semibold text-jangle-textPrimary">{post?.title || `Post #${id}`}</h1>
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-jangle-textMuted">{post?.body || ''}</p>
       </article>
 
       <section className="space-y-3 rounded border border-slate-300 bg-white p-4">

@@ -138,4 +138,58 @@ describe('PostDetailPage', () => {
     ws.onmessage({ data: JSON.stringify({ message: 'Incoming', author_id: 99, room: 'post-42' }) })
     expect(await screen.findByText(/Incoming/)).toBeInTheDocument()
   })
+
+  it('uses Jangle token classes for the primary post card shell', async () => {
+    renderPage()
+
+    const heading = await screen.findByRole('heading', { name: 'Post title' })
+    const postContainer = heading.closest('article')
+
+    expect(postContainer).toHaveClass('bg-jangle-surface')
+    expect(postContainer).toHaveClass('border-jangle-border')
+    expect(postContainer.className).toMatch(/\brounded/)
+  })
+
+  it('uses Jangle theme classes on comments and chat sections', async () => {
+    renderPage()
+
+    const commentsHeading = await screen.findByRole('heading', { name: 'Comments' })
+    const chatHeading = await screen.findByRole('heading', { name: 'Live Chat' })
+    const commentsSection = commentsHeading.closest('section')
+    const chatSection = chatHeading.closest('section')
+
+    expect(commentsSection).toHaveClass('bg-jangle-surface')
+    expect(commentsSection).toHaveClass('border-jangle-border')
+    expect(chatSection).toHaveClass('bg-jangle-surface')
+    expect(chatSection).toHaveClass('border-jangle-border')
+  })
+
+  it('matches feed typography direction for key post content', async () => {
+    renderPage()
+
+    const title = await screen.findByRole('heading', { name: 'Post title' })
+    const body = screen.getByText('Full post body')
+
+    expect(title).toHaveClass('font-display')
+    expect(title).toHaveClass('text-jangle-textPrimary')
+    expect(body).toHaveClass('text-jangle-textMuted')
+  })
+
+  it('does not regress to legacy white and slate container classes', async () => {
+    renderPage()
+
+    const topHeading = await screen.findByRole('heading', { name: 'Post title' })
+    const commentsHeading = await screen.findByRole('heading', { name: 'Comments' })
+    const chatHeading = await screen.findByRole('heading', { name: 'Live Chat' })
+    const containers = [
+      topHeading.closest('article'),
+      commentsHeading.closest('section'),
+      chatHeading.closest('section'),
+    ]
+
+    containers.forEach((container) => {
+      expect(container).not.toHaveClass('bg-white')
+      expect(container.className).not.toMatch(/\bborder-slate-\S+/)
+    })
+  })
 })

@@ -9,14 +9,14 @@
 - Post detail uses separate markup and legacy `slate/white` utility styling in `frontend/src/pages/PostDetailPage.jsx`.
 - The style gap is structural: detail page does not reuse feed styling primitives/components.
 
-## Prompt 1: Styling Contract Tests (Fail First)
+## Prompt 1: Styling Contract Tests (Fail First)  *Done
 - Add failing tests in `frontend/src/pages/PostDetailPage.test.jsx` for:
   - top post container uses Jangle token classes (`bg-jangle-surface`, `border-jangle-border`, rounded card shell).
   - comments and chat sections use Jangle theme classes.
   - key post typography follows feed style direction.
 - Add a regression assertion that primary post/detail containers do not use legacy `bg-white` and `border-slate-*` classes.
 
-## Prompt 2: Align Top Post Visual Shell
+## Prompt 2: Align Top Post Visual Shell *Done
 - Implement minimal changes to make top post container match feed card language:
   - Jangle surface/background, border, radius, spacing, and shadow treatment.
   - consistent heading/body text classes with feed tokens.
