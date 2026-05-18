@@ -9,7 +9,7 @@
 - Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.
 - Implement post-detail styling parity with feed/Jangle theme in `frontend/src/pages/PostDetailPage.jsx` using TDD coverage.
 - Replace legacy `slate/white` post-detail container styling with shared token-based classes and add regression tests.
-- Restyle post-detail comments and live chat sections to match site design language without changing behavior.
+- Run broader frontend regression suite after post-detail style parity completion.
 - Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
 - Add backend chat REST contract and support for room message history/create endpoints with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
 - Add websocket consumer/routing for sidebar chat room events and integration tests for delivery/reconnect behavior.

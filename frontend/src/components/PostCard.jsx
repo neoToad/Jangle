@@ -1,5 +1,6 @@
 ﻿import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import PostCardFrame from './PostCardFrame'
 
 const TYPE_LABELS = {
   game: 'GAME',
@@ -38,14 +39,14 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
   }
 
   return (
-    <article
+    <PostCardFrame
       data-testid={`post-card-${post.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className={`motion-card-enter motion-card-hover rounded-[20px] border bg-jangle-surface p-5 ${
+      className={`motion-card-enter motion-card-hover ${
         hovered
           ? 'shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]'
-          : 'border-jangle-border shadow-[0_2px_12px_rgba(0,0,0,0.2)]'
+          : ''
       }`}
       style={{
         '--post-color': post.color || '#c9a87c',
@@ -202,6 +203,6 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
           </button>
         </div>
       </footer>
-    </article>
+    </PostCardFrame>
   )
 }

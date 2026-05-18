@@ -2,15 +2,23 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuthStore } from '../store/authStore'
+import PostCardFrame from '../components/PostCardFrame'
+import { mapDetailPost } from '../adapters/posts'
+
+const TYPE_LABELS = {
+  game: 'GAME',
+  writing: 'WRITING',
+  youtube: 'VIDEO',
+}
 
 function CommentItem({ comment }) {
   return (
     <li className="space-y-2">
-      <div className="rounded border border-slate-200 bg-slate-50 p-3">
+      <div className="rounded border border-jangle-border bg-jangle-surface p-3 text-jangle-textPrimary">
         <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
       </div>
       {Array.isArray(comment.replies) && comment.replies.length > 0 && (
-        <ul className="space-y-2 pl-4">
+        <ul className="space-y-2 rounded border border-jangle-border bg-jangle-bg p-2 pl-4 text-jangle-textMuted">
           {comment.replies.map((reply) => (
             <CommentItem key={reply.id} comment={reply} />
           ))}
@@ -41,6 +49,7 @@ export default function PostDetailPage() {
   const [error, setError] = useState('')
 
   const roomName = `post-${id}`
+  const detailPost = useMemo(() => (post ? mapDetailPost(post) : null), [post])
 
   const loadPost = async () => {
     const response = await api.get(`/api/posts/${id}/`)
@@ -117,15 +126,31 @@ export default function PostDetailPage() {
     <section className="space-y-6">
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <article className="rounded-[20px] border border-jangle-border bg-jangle-surface p-5 shadow-[0_2px_12px_rgba(0,0,0,0.2)]">
+      <PostCardFrame>
+        <header className="mb-3 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-jangle-border bg-jangle-bg text-sm">
+              {detailPost?.avatar || '.'}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-jangle-textPrimary">{detailPost?.author || 'jangler'}</span>
+                <span className="rounded-md border border-jangle-border bg-jangle-bg px-2 py-0.5 text-[10px] font-bold tracking-wide text-jangle-textMuted">
+                  {TYPE_LABELS[detailPost?.type] || 'POST'}
+                </span>
+              </div>
+              <p className="text-xs font-medium text-jangle-textMuted">{detailPost?.time || 'recently'}</p>
+            </div>
+          </div>
+        </header>
         <h1 className="font-display text-2xl font-semibold text-jangle-textPrimary">{post?.title || `Post #${id}`}</h1>
-        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-jangle-textMuted">{post?.body || ''}</p>
-      </article>
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-jangle-textMuted">{detailPost?.description || ''}</p>
+      </PostCardFrame>
 
-      <section className="space-y-3 rounded border border-slate-300 bg-white p-4">
-        <h2 className="text-lg font-semibold">Comments</h2>
+      <section className="space-y-3 rounded border border-jangle-border bg-jangle-surface p-4">
+        <h2 className="text-lg font-semibold text-jangle-textPrimary">Comments</h2>
 
-        {!isAuthed && <p className="text-sm text-slate-600">Log in to comment.</p>}
+        {!isAuthed && <p className="text-sm text-jangle-textMuted">Log in to comment.</p>}
 
         <form onSubmit={submitComment} className="space-y-2">
           <textarea
@@ -134,19 +159,19 @@ export default function PostDetailPage() {
             placeholder="Write a comment..."
             rows={3}
             disabled={!isAuthed}
-            className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
           />
           <button
             type="submit"
             disabled={!isAuthed}
-            className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-medium text-jangle-bg disabled:opacity-50"
           >
             Post Comment
           </button>
         </form>
 
         {comments.length === 0 ? (
-          <p className="text-sm text-slate-600">No comments yet.</p>
+          <p className="text-sm text-jangle-textMuted">No comments yet.</p>
         ) : (
           <ul className="space-y-3">
             {comments.map((comment) => (
@@ -156,16 +181,16 @@ export default function PostDetailPage() {
         )}
       </section>
 
-      <section className="space-y-3 rounded border border-slate-300 bg-white p-4">
-        <h2 className="text-lg font-semibold">Live Chat</h2>
-        {!isAuthed && <p className="text-sm text-slate-600">Log in to join chat.</p>}
+      <section className="space-y-3 rounded border border-jangle-border bg-jangle-surface p-4">
+        <h2 className="text-lg font-semibold text-jangle-textPrimary">Live Chat</h2>
+        {!isAuthed && <p className="text-sm text-jangle-textMuted">Log in to join chat.</p>}
 
-        <div className="max-h-72 space-y-2 overflow-y-auto rounded border border-slate-200 bg-slate-50 p-3">
+        <div className="max-h-72 space-y-2 overflow-y-auto rounded border border-jangle-border bg-jangle-bg p-3 text-jangle-textMuted">
           {chatMessages.length === 0 ? (
-            <p className="text-sm text-slate-600">No chat messages yet.</p>
+            <p className="text-sm text-jangle-textMuted">No chat messages yet.</p>
           ) : (
             chatMessages.map((message, index) => (
-              <p key={`${message.author_id}-${index}`} className="text-sm text-slate-800">
+              <p key={`${message.author_id}-${index}`} className="text-sm text-jangle-textPrimary">
                 <span className="font-semibold">User {message.author_id}:</span> {message.message}
               </p>
             ))
@@ -178,12 +203,12 @@ export default function PostDetailPage() {
             onChange={(event) => setChatInput(event.target.value)}
             placeholder="Type a chat message..."
             disabled={!isAuthed}
-            className="flex-1 rounded border border-slate-300 px-3 py-2 text-sm"
+            className="flex-1 rounded border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
           />
           <button
             type="submit"
             disabled={!isAuthed}
-            className="rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-medium text-jangle-bg disabled:opacity-50"
           >
             Send
           </button>

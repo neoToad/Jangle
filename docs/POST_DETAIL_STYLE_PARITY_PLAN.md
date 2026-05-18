@@ -22,17 +22,17 @@
   - consistent heading/body text classes with feed tokens.
 - Keep data loading and interaction logic unchanged in this prompt.
 
-## Prompt 3: Shared Styling Primitive (If Needed)
+## Prompt 3: Shared Styling Primitive (If Needed) *Done
 - Introduce a small shared presentational wrapper (e.g., `PostCardFrame`) if duplication is growing.
 - Reuse shared classes between `PostCard` and `PostDetailPage` to reduce future visual drift.
 - Add/update tests to protect shared class contract.
 
-## Prompt 4: Detail Data-to-UI Parity
+## Prompt 4: Detail Data-to-UI Parity *Done
 - Add tests for a mapped detail view model that aligns with feed card fields (`type`, `author`, `avatar`, `time`, etc.).
 - Create/extend adapter logic so detail page can render feed-consistent metadata without ad-hoc formatting.
 - Keep API contract unchanged unless needed.
 
-## Prompt 5: Comments Restyle
+## Prompt 5: Comments Restyle *Done
 - Add failing tests for comment containers and nested replies using Jangle token classes.
 - Replace legacy `slate` comment styles with token-based classes:
   - `bg-jangle-surface`/`bg-jangle-bg`
@@ -40,7 +40,7 @@
   - `text-jangle-textPrimary`/`text-jangle-textMuted`
 - Preserve current nested reply structure and readability.
 
-## Prompt 6: Live Chat Restyle
+## Prompt 6: Live Chat Restyle *Done
 - Add failing tests for live chat card/input/button classes to match site design language.
 - Replace legacy styles with sidebar/chat-consistent tokens and controls.
 - Preserve websocket send/receive behavior and auth gating.

@@ -64,6 +64,11 @@ describe('PostDetailPage', () => {
             post_type: 'text',
             title: 'Post title',
             body: 'Full post body',
+            created_at: '2026-05-01T12:34:56Z',
+            author: {
+              username: 'mosswood',
+              avatar_emoji: 'A',
+            },
             reaction_counts: {},
             vote_score: 0,
           },
@@ -94,6 +99,10 @@ describe('PostDetailPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Post title' })).toBeInTheDocument()
     expect(screen.getByText('Full post body')).toBeInTheDocument()
+    expect(screen.getByText(/A/)).toBeInTheDocument()
+    expect(screen.getByText(/mosswood/)).toBeInTheDocument()
+    expect(screen.getByText(/WRITING/)).toBeInTheDocument()
+    expect(screen.getByText('2026-05-01')).toBeInTheDocument()
     expect(await screen.findByText('Parent comment')).toBeInTheDocument()
     expect(await screen.findByText('Nested reply')).toBeInTheDocument()
   })
@@ -162,6 +171,49 @@ describe('PostDetailPage', () => {
     expect(commentsSection).toHaveClass('border-jangle-border')
     expect(chatSection).toHaveClass('bg-jangle-surface')
     expect(chatSection).toHaveClass('border-jangle-border')
+  })
+
+  it('uses Jangle token classes for comment cards and nested reply wrappers', async () => {
+    renderPage()
+
+    const parentComment = await screen.findByText('Parent comment')
+    const nestedReply = await screen.findByText('Nested reply')
+    const parentCard = parentComment.closest('div')
+    const nestedCard = nestedReply.closest('div')
+    const nestedRepliesList = nestedCard.closest('li')?.parentElement
+
+    expect(parentCard).toHaveClass('bg-jangle-surface')
+    expect(parentCard).toHaveClass('border-jangle-border')
+    expect(parentCard).toHaveClass('text-jangle-textPrimary')
+    expect(nestedCard).toHaveClass('bg-jangle-surface')
+    expect(nestedCard).toHaveClass('border-jangle-border')
+    expect(nestedCard).toHaveClass('text-jangle-textPrimary')
+    expect(nestedRepliesList).toHaveClass('bg-jangle-bg')
+    expect(nestedRepliesList).toHaveClass('border-jangle-border')
+    expect(nestedRepliesList).toHaveClass('text-jangle-textMuted')
+  })
+
+  it('uses sidebar-consistent Jangle token classes for live chat card and controls', async () => {
+    useAuthStore.setState({ accessToken: 'token-1' })
+    renderPage()
+
+    const chatHeading = await screen.findByRole('heading', { name: 'Live Chat' })
+    const chatSection = chatHeading.closest('section')
+    const chatInput = screen.getByPlaceholderText('Type a chat message...')
+    const sendButton = screen.getByRole('button', { name: 'Send' })
+    const chatList = screen.getByText('No chat messages yet.').closest('div')
+
+    expect(chatSection).toHaveClass('bg-jangle-surface')
+    expect(chatSection).toHaveClass('border-jangle-border')
+    expect(chatList).toHaveClass('bg-jangle-bg')
+    expect(chatList).toHaveClass('border-jangle-border')
+    expect(chatList).toHaveClass('text-jangle-textMuted')
+    expect(chatInput).toHaveClass('border-jangle-border')
+    expect(chatInput).toHaveClass('bg-jangle-bg')
+    expect(chatInput).toHaveClass('text-jangle-textPrimary')
+    expect(sendButton).toHaveClass('border-jangle-accent/40')
+    expect(sendButton).toHaveClass('bg-jangle-accent')
+    expect(sendButton).toHaveClass('text-jangle-bg')
   })
 
   it('matches feed typography direction for key post content', async () => {

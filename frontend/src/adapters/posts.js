@@ -4,20 +4,14 @@ const POST_VARIANT_COLORS = {
   youtube: '#a87c9e',
 }
 
-export function mapFeedPostType(post) {
-  if (post.post_type === 'youtube') return 'youtube'
-  if (post.post_type === 'file' && post.file_type === 'game') return 'game'
-  return 'writing'
-}
-
-export function mapFeedPost(post) {
+function mapPostBase(post) {
   const type = mapFeedPostType(post)
   return {
     id: post.id,
     type,
     author: post.author?.username || post.author_name || 'jangler',
     avatar: post.author?.avatar_emoji || '.',
-    time: 'recently',
+    time: post.created_at ? String(post.created_at).slice(0, 10) : 'recently',
     title: post.title,
     description: post.body || post.youtube_url || 'Shared a new drop.',
     reactions: post.reaction_counts || {},
@@ -25,6 +19,23 @@ export function mapFeedPost(post) {
     comments: post.comment_count ?? 0,
     color: POST_VARIANT_COLORS[type],
   }
+}
+
+export function mapFeedPostType(post) {
+  if (post.post_type === 'youtube') return 'youtube'
+  if (post.post_type === 'file' && post.file_type === 'game') return 'game'
+  return 'writing'
+}
+
+export function mapFeedPost(post) {
+  return {
+    ...mapPostBase(post),
+    time: 'recently',
+  }
+}
+
+export function mapDetailPost(post) {
+  return mapPostBase(post)
 }
 
 export function selectFeedItems(data) {
