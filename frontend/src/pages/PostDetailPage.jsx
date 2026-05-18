@@ -47,6 +47,7 @@ export default function PostDetailPage() {
   const [chatInput, setChatInput] = useState('')
   const [socket, setSocket] = useState(null)
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   const roomName = `post-${id}`
   const detailPost = useMemo(() => (post ? mapDetailPost(post) : null), [post])
@@ -68,9 +69,12 @@ export default function PostDetailPage() {
     const load = async () => {
       try {
         setError('')
+        setIsLoading(true)
         await Promise.all([loadPost(), loadComments()])
       } catch {
         if (active) setError('Could not load post details.')
+      } finally {
+        if (active) setIsLoading(false)
       }
     }
 
@@ -123,8 +127,13 @@ export default function PostDetailPage() {
   }
 
   return (
-    <section className="space-y-6">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+    <section className="space-y-4 sm:space-y-6">
+      {isLoading && <p className="text-sm text-jangle-textMuted">Loading post details...</p>}
+      {error && (
+        <p className="rounded border border-jangle-accent/30 bg-jangle-accent/10 p-3 text-sm text-jangle-textMuted">
+          {error}
+        </p>
+      )}
 
       <PostCardFrame>
         <header className="mb-3 flex items-start justify-between gap-3">
@@ -147,7 +156,7 @@ export default function PostDetailPage() {
         <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-jangle-textMuted">{detailPost?.description || ''}</p>
       </PostCardFrame>
 
-      <section className="space-y-3 rounded border border-jangle-border bg-jangle-surface p-4">
+      <section className="space-y-3 rounded border border-jangle-border bg-jangle-surface p-3 sm:p-4">
         <h2 className="text-lg font-semibold text-jangle-textPrimary">Comments</h2>
 
         {!isAuthed && <p className="text-sm text-jangle-textMuted">Log in to comment.</p>}
@@ -159,12 +168,12 @@ export default function PostDetailPage() {
             placeholder="Write a comment..."
             rows={3}
             disabled={!isAuthed}
-            className="w-full rounded border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
+            className="min-h-11 w-full rounded border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
           />
           <button
             type="submit"
             disabled={!isAuthed}
-            className="rounded border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-medium text-jangle-bg disabled:opacity-50"
+            className="min-h-11 rounded border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-medium text-jangle-bg disabled:opacity-50"
           >
             Post Comment
           </button>
@@ -181,7 +190,7 @@ export default function PostDetailPage() {
         )}
       </section>
 
-      <section className="space-y-3 rounded border border-jangle-border bg-jangle-surface p-4">
+      <section className="space-y-3 rounded border border-jangle-border bg-jangle-surface p-3 sm:p-4">
         <h2 className="text-lg font-semibold text-jangle-textPrimary">Live Chat</h2>
         {!isAuthed && <p className="text-sm text-jangle-textMuted">Log in to join chat.</p>}
 
@@ -197,18 +206,18 @@ export default function PostDetailPage() {
           )}
         </div>
 
-        <form onSubmit={sendChat} className="flex gap-2">
+        <form onSubmit={sendChat} className="flex flex-col gap-2 sm:flex-row">
           <input
             value={chatInput}
             onChange={(event) => setChatInput(event.target.value)}
             placeholder="Type a chat message..."
             disabled={!isAuthed}
-            className="flex-1 rounded border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
+            className="min-h-11 flex-1 rounded border border-jangle-border bg-jangle-bg px-3 py-2 text-sm text-jangle-textPrimary placeholder:text-jangle-textMuted"
           />
           <button
             type="submit"
             disabled={!isAuthed}
-            className="rounded border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-medium text-jangle-bg disabled:opacity-50"
+            className="min-h-11 rounded border border-jangle-accent/40 bg-jangle-accent px-4 py-2 text-sm font-medium text-jangle-bg disabled:opacity-50"
           >
             Send
           </button>

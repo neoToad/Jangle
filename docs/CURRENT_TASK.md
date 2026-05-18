@@ -1,7 +1,13 @@
 ## Next
-- Run broader frontend regression tests once post-detail style parity is complete.
+- None.
 
 ## Completed
+- Added failing tests for loading/error state styling and mobile-safe control sizing in `frontend/src/pages/PostDetailPage.test.jsx`.
+- Added failing tests for token-consistent empty states in comments/chat sections.
+- Implemented explicit loading state in `frontend/src/pages/PostDetailPage.jsx` with token-consistent loading copy.
+- Restyled error state to tokenized bordered alert classes (`border-jangle-accent/30`, `bg-jangle-accent/10`, `text-jangle-textMuted`).
+- Added `min-h-11` to comment/chat submit controls and inputs for mobile-safe tap targets.
+- Applied responsive spacing/form polish in post detail (`space-y-4 sm:space-y-6`, `p-3 sm:p-4`, chat form `flex-col sm:flex-row`) to keep small-screen layout stable.
 - Added failing test coverage in `frontend/src/pages/PostDetailPage.test.jsx` for live chat shell/message-list/input/button token contracts.
 - Confirmed new live chat assertions failed for legacy `bg-white` / `border-slate-*` classes before implementation.
 - Replaced legacy live chat styles in `frontend/src/pages/PostDetailPage.jsx` with sidebar-consistent token classes for:
@@ -27,8 +33,8 @@
 - Kept API contract unchanged; only frontend adapter and presentation mapping were modified.
 
 ## Tests
-- `npm run test -- --run src/pages/PostDetailPage.test.jsx` (outside sandbox): failing first with legacy chat styles after adding Prompt 6 tests.
-- `npm run test -- --run src/pages/PostDetailPage.test.jsx` (outside sandbox): passing after live chat token restyle (9 passed).
+- `npm run test -- --run src/pages/PostDetailPage.test.jsx` (outside sandbox): failing first after Prompt 7 test additions (missing loading state + missing `min-h-11` classes).
+- `npm run test -- --run src/pages/PostDetailPage.test.jsx` (outside sandbox): passing after Prompt 7 implementation (11 passed).
 
 ## Blockers
 - None.

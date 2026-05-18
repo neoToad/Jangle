@@ -244,4 +244,88 @@ describe('PostDetailPage', () => {
       expect(container.className).not.toMatch(/\bborder-slate-\S+/)
     })
   })
+
+  it('uses token-consistent loading and error states', async () => {
+    let resolvePost
+    let resolveComments
+    api.get.mockImplementation((url) => {
+      if (url === '/api/posts/42/') {
+        return new Promise((resolve) => {
+          resolvePost = resolve
+        })
+      }
+      if (url === '/api/interactions/posts/42/comments/') {
+        return new Promise((resolve) => {
+          resolveComments = resolve
+        })
+      }
+      return Promise.reject(new Error(`Unhandled GET ${url}`))
+    })
+
+    renderPage()
+    const loading = await screen.findByText('Loading post details...')
+    expect(loading).toHaveClass('text-jangle-textMuted')
+
+    resolvePost({
+      data: {
+        id: 42,
+        post_type: 'text',
+        title: 'Post title',
+        body: 'Full post body',
+        created_at: '2026-05-01T12:34:56Z',
+        author: { username: 'mosswood', avatar_emoji: 'A' },
+        reaction_counts: {},
+        vote_score: 0,
+      },
+    })
+    resolveComments({ data: { results: [] } })
+    await screen.findByRole('heading', { name: 'Post title' })
+
+    api.get.mockRejectedValueOnce(new Error('boom'))
+    renderPage()
+    const error = await screen.findByText('Could not load post details.')
+    expect(error).toHaveClass('border-jangle-accent/30')
+    expect(error).toHaveClass('bg-jangle-accent/10')
+    expect(error).toHaveClass('text-jangle-textMuted')
+  })
+
+  it('uses token styling for empty states and mobile-safe sizing on controls', async () => {
+    useAuthStore.setState({ accessToken: 'token-1' })
+    api.get.mockImplementation((url) => {
+      if (url === '/api/posts/42/') {
+        return Promise.resolve({
+          data: {
+            id: 42,
+            post_type: 'text',
+            title: 'Post title',
+            body: 'Full post body',
+            created_at: '2026-05-01T12:34:56Z',
+            author: { username: 'mosswood', avatar_emoji: 'A' },
+            reaction_counts: {},
+            vote_score: 0,
+          },
+        })
+      }
+      if (url === '/api/interactions/posts/42/comments/') {
+        return Promise.resolve({ data: { results: [] } })
+      }
+      return Promise.reject(new Error(`Unhandled GET ${url}`))
+    })
+
+    renderPage()
+
+    const emptyComments = await screen.findByText('No comments yet.')
+    const emptyChat = await screen.findByText('No chat messages yet.')
+    const commentInput = screen.getByPlaceholderText('Write a comment...')
+    const commentButton = screen.getByRole('button', { name: 'Post Comment' })
+    const chatInput = screen.getByPlaceholderText('Type a chat message...')
+    const chatButton = screen.getByRole('button', { name: 'Send' })
+
+    expect(emptyComments).toHaveClass('text-jangle-textMuted')
+    expect(emptyChat).toHaveClass('text-jangle-textMuted')
+    expect(commentInput).toHaveClass('min-h-11')
+    expect(commentButton).toHaveClass('min-h-11')
+    expect(chatInput).toHaveClass('min-h-11')
+    expect(chatButton).toHaveClass('min-h-11')
+  })
 })

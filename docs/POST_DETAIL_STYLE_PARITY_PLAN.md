@@ -45,7 +45,7 @@
 - Replace legacy styles with sidebar/chat-consistent tokens and controls.
 - Preserve websocket send/receive behavior and auth gating.
 
-## Prompt 7: States + Responsive Polish
+## Prompt 7: States + Responsive Polish *Done
 - Add failing tests for:
   - loading/error/empty states using token-consistent styling.
   - mobile-safe control sizing (`min-h-11`) where appropriate.
