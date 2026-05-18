@@ -28,9 +28,20 @@ export function mapFeedPostType(post) {
 }
 
 export function mapFeedPost(post) {
+  const isYouTube = post.post_type === 'youtube'
+  const isGameFile = post.post_type === 'file' && post.file_type === 'game'
+  const youtubeUrl = isYouTube ? post.youtube_url || null : null
+  const gameFileUrl = isGameFile ? post.file || null : null
+
   return {
     ...mapPostBase(post),
     time: 'recently',
+    mediaKind: isYouTube ? 'youtube' : isGameFile ? 'game' : null,
+    mediaUrl: youtubeUrl || gameFileUrl,
+    youtubeUrl,
+    gameFileUrl,
+    gameFileName: isGameFile ? post.file_name || null : null,
+    gameFileSize: isGameFile ? post.file_size ?? null : null,
   }
 }
 

@@ -34,6 +34,59 @@ describe('posts adapter', () => {
     })
   })
 
+  it('exposes canonical youtube media fields for embed usage', () => {
+    const mapped = mapFeedPost({
+      id: 1,
+      post_type: 'youtube',
+      title: 'One more clip',
+      youtube_url: 'https://youtu.be/dQw4w9WgXcQ',
+    })
+
+    expect(mapped).toMatchObject({
+      mediaKind: 'youtube',
+      mediaUrl: 'https://youtu.be/dQw4w9WgXcQ',
+      youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+    })
+    expect(mapped.gameFileUrl).toBeNull()
+  })
+
+  it('exposes playable file fields for game posts', () => {
+    const mapped = mapFeedPost({
+      id: 2,
+      post_type: 'file',
+      file_type: 'game',
+      file: 'https://cdn.example.com/games/runner.html',
+      file_size: 2048,
+      file_name: 'runner.html',
+      title: 'Runner',
+    })
+
+    expect(mapped).toMatchObject({
+      mediaKind: 'game',
+      mediaUrl: 'https://cdn.example.com/games/runner.html',
+      gameFileUrl: 'https://cdn.example.com/games/runner.html',
+      gameFileName: 'runner.html',
+      gameFileSize: 2048,
+    })
+    expect(mapped.youtubeUrl).toBeNull()
+  })
+
+  it('keeps null-safe media defaults for non-media posts', () => {
+    const mapped = mapFeedPost({
+      id: 3,
+      post_type: 'text',
+      title: 'Words only',
+      body: 'No media here',
+    })
+
+    expect(mapped.mediaKind).toBeNull()
+    expect(mapped.mediaUrl).toBeNull()
+    expect(mapped.youtubeUrl).toBeNull()
+    expect(mapped.gameFileUrl).toBeNull()
+    expect(mapped.gameFileName).toBeNull()
+    expect(mapped.gameFileSize).toBeNull()
+  })
+
   it('maps backend detail shape to feed-consistent detail view model fields', () => {
     const mapped = mapDetailPost({
       id: 42,

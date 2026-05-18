@@ -20,7 +20,7 @@
   - if embedded play is safe/allowed, open inline iframe panel; otherwise open file URL in new tab.
   - missing file URL shows disabled state and explanatory copy.
 
-## Prompt 1: Frontend Adapter Contract (Tests First)
+## Prompt 1: Frontend Adapter Contract (Tests First) [COMPLETED]
 - Add failing tests in `frontend/src/adapters/posts.test.js` for mapped media fields:
   - YouTube posts expose canonical media URL/id for embed usage.
   - Game/file posts expose playable file URL/metadata.

@@ -1,14 +1,15 @@
 # TODO
 
 ## High Priority
+- Prompt 2 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): add failing `PostCard` tests for YouTube inline toggle/open/collapse/fallback and implement minimal behavior.
+- Prompt 3 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): add safe YouTube URL parsing helper tests and implementation.
+- Prompt 4 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): implement deterministic game `Play Now` behavior with tests.
 - Implement functional YouTube inline playback in `frontend/src/components/PostCard.jsx` with adapter and component test coverage.
 - Implement functional game `Play Now` behavior in feed cards (inline or new-tab policy) with explicit tests.
 - Add media URL parsing/safety guardrails for feed embeds and playable links.
 - Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
 - Add backend serializer/view tests to lock comment count semantics and payload presence for feed responses.
 - Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.
-- Implement post-detail styling parity with feed/Jangle theme in `frontend/src/pages/PostDetailPage.jsx` using TDD coverage.
-- Replace legacy `slate/white` post-detail container styling with shared token-based classes and add regression tests.
 - Run broader frontend regression suite after post-detail style parity completion.
 - Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
 - Add backend chat REST contract and support for room message history/create endpoints with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
@@ -25,6 +26,7 @@
 - Add comment reply/delete UI controls in post detail, with interaction tests.
 - Add missing interaction 404 tests for non-existent or invalid reaction/vote targets.
 - Add chat history retrieval endpoint and initial message fetch in UI so chat persists on page load.
+- Resolve React Testing Library `act(...)` warning in `src/pages/PostDetailPage.test.jsx` websocket message test.
 
 ## Medium Priority
 - Add empty-feed UI copy state for successful API responses with zero posts.

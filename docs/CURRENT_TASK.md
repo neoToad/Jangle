@@ -1,15 +1,23 @@
 ## Next
-- None.
+- Prompt 2 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: add failing `PostCard` tests for YouTube inline toggle/open/collapse/fallback and implement minimal behavior.
+- Prompt 3 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: add safe YouTube URL parsing helper tests and implementation.
+- Prompt 4 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: implement deterministic game `Play Now` behavior with tests.
 
 ## Completed
-- Prompt 5 complete: comment containers and nested replies migrated from legacy slate classes to Jangle token classes with failing-first test coverage.
-- Prompt 6 complete: live chat shell/list/input/button restyled to sidebar-consistent Jangle tokens while preserving websocket send/receive and auth gating behavior.
-- Prompt 7 complete: added loading/error/empty token state tests and implementation; added `min-h-11` to mobile controls and responsive spacing/layout polish for small screens.
-- Prompt 8 complete: ran post-detail related frontend regression tests and verified no remaining legacy one-off classes in post-detail implementation path.
+- Prompt 1 complete from `docs/FEED_MEDIA_INTERACTION_PLAN.md`.
+- Added failing-first adapter tests in `frontend/src/adapters/posts.test.js` for:
+  - YouTube canonical media fields.
+  - Game file playable URL/metadata fields.
+  - Null-safe defaults for non-media posts.
+- Updated `frontend/src/adapters/posts.js` `mapFeedPost` to include:
+  - `mediaKind`, `mediaUrl`
+  - `youtubeUrl`
+  - `gameFileUrl`, `gameFileName`, `gameFileSize`
 
 ## Tests
-- `npm run test -- --run src/pages/PostDetailPage.test.jsx src/adapters/posts.test.js src/components/PostCardFrame.test.jsx` (outside sandbox): passing (17 passed).
-- `rg -n "slate-|bg-white|text-red-600|one-off|legacy" frontend/src/pages/PostDetailPage.jsx frontend/src/pages/PostDetailPage.test.jsx frontend/src/components/PostCardFrame.jsx frontend/src/adapters/posts.js -S`: no remaining legacy classes in implementation files.
+- `npm run test -- --run src/adapters/posts.test.js` (outside sandbox):
+  - Verified failing state first: 3 failing tests for missing media fields.
+  - After implementation: passing (7 passed).
 
 ## Blockers
 - None.
