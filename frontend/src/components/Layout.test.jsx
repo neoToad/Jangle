@@ -1,14 +1,18 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import Layout from './Layout'
+import { useAuthStore } from '../store/authStore'
 
-function renderLayout() {
+function renderLayout(initialEntries = ['/']) {
   return render(
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter initialEntries={initialEntries}>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<div>Feed Content</div>} />
+          <Route path="/profile/:username" element={<div>Profile Route</div>} />
+          <Route path="/login" element={<div>Login Route</div>} />
+          <Route path="/register" element={<div>Register Route</div>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -16,6 +20,10 @@ function renderLayout() {
 }
 
 describe('Layout shell', () => {
+  beforeEach(() => {
+    useAuthStore.setState({ accessToken: null, refreshToken: null, currentUser: null })
+  })
+
   it('renders jangle nav with search and primary actions', () => {
     renderLayout()
 
@@ -117,5 +125,76 @@ describe('Layout shell', () => {
     expect(drawer).toHaveClass('fixed')
     expect(drawer).toHaveClass('inset-x-3')
     expect(drawer).toHaveClass('lg:hidden')
+  })
+
+  it('opens profile menu on click and keyboard and exposes aria semantics', async () => {
+    renderLayout()
+
+    const trigger = screen.getByRole('button', { name: /open profile menu/i })
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu')
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+    fireEvent.keyDown(trigger, { key: 'Enter', code: 'Enter' })
+
+    expect(await screen.findByRole('menu', { name: /profile menu/i })).toBeInTheDocument()
+    expect(trigger).toHaveAttribute('aria-expanded', 'true')
+
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: /profile menu/i })).not.toBeInTheDocument()
+    })
+    expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('closes profile menu on outside click and escape', async () => {
+    renderLayout()
+
+    const trigger = screen.getByRole('button', { name: /open profile menu/i })
+    fireEvent.click(trigger)
+    expect(await screen.findByRole('menu', { name: /profile menu/i })).toBeInTheDocument()
+
+    fireEvent.mouseDown(document.body)
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: /profile menu/i })).not.toBeInTheDocument()
+    })
+
+    fireEvent.click(trigger)
+    expect(await screen.findByRole('menu', { name: /profile menu/i })).toBeInTheDocument()
+    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' })
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: /profile menu/i })).not.toBeInTheDocument()
+    })
+  })
+
+  it('renders guest profile menu items', async () => {
+    renderLayout()
+
+    fireEvent.click(screen.getByRole('button', { name: /open profile menu/i }))
+
+    expect(await screen.findByRole('menuitem', { name: /log in/i })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /register/i })).toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: /view profile/i })).not.toBeInTheDocument()
+  })
+
+  it('renders authenticated profile menu items and navigates to profile route', async () => {
+    useAuthStore.setState({
+      accessToken: 'access-1',
+      refreshToken: 'refresh-1',
+      currentUser: { username: 'colin' },
+    })
+
+    renderLayout()
+
+    fireEvent.click(screen.getByRole('button', { name: /open profile menu/i }))
+
+    expect(await screen.findByRole('menuitem', { name: /view profile/i })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /settings/i })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /log out/i })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('menuitem', { name: /view profile/i }))
+
+    expect(await screen.findByText('Profile Route')).toBeInTheDocument()
   })
 })

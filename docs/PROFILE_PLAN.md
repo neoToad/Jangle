@@ -10,7 +10,7 @@
 - `frontend/src/pages/ProfilePage.jsx` is a placeholder header only.
 - Protected route already exists at `/profile/:username`.
 
-## Phase 1: Profile Menu MVP (Header)
+## Phase 1: Profile Menu MVP (Header) - Completed (2026-05-19)
 - Add tests first in `frontend/src/components/Layout.test.jsx`:
   - opens menu on click/keyboard.
   - closes on outside click and `Escape`.
@@ -22,7 +22,7 @@
   - Authenticated: `View profile`, `Settings` (placeholder), `Log out`.
   - Guest: `Log in`, `Register`.
 
-## Phase 2: Profile Page MVP
+## Phase 2: Profile Page MVP - Completed (2026-05-19)
 - Add tests first for `frontend/src/pages/ProfilePage.jsx`:
   - loading state.
   - successful profile render.

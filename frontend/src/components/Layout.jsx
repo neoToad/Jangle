@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 
@@ -89,14 +89,40 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
 export default function Layout() {
   const navigate = useNavigate()
   const accessToken = useAuthStore((state) => state.accessToken)
+  const currentUser = useAuthStore((state) => state.currentUser)
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const isAuthed = Boolean(accessToken)
   const [messages, setMessages] = useState(INITIAL_CHAT_MESSAGES)
   const [draftMessage, setDraftMessage] = useState('')
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false)
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const profileMenuRef = useRef(null)
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return undefined
+
+    const handlePointerDown = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false)
+      }
+    }
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsProfileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isProfileMenuOpen])
 
   const onLogout = () => {
     clearAuth()
+    setIsProfileMenuOpen(false)
     navigate('/login', { replace: true })
   }
 
@@ -149,13 +175,83 @@ export default function Layout() {
             >
               Shake it
             </button>
-            <button
-              type="button"
-              aria-label="Open profile menu"
-              className="min-h-11 min-w-11 rounded-full border border-jangle-sage/40 bg-jangle-sage/15 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
-            >
-              o
-            </button>
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                aria-label="Open profile menu"
+                aria-haspopup="menu"
+                aria-expanded={isProfileMenuOpen}
+                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    setIsProfileMenuOpen((prev) => !prev)
+                  }
+                }}
+                className="min-h-11 min-w-11 rounded-full border border-jangle-sage/40 bg-jangle-sage/15 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
+              >
+                o
+              </button>
+              {isProfileMenuOpen && (
+                <div
+                  role="menu"
+                  aria-label="Profile menu"
+                  className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-44 rounded-2xl border border-jangle-border bg-jangle-surface p-1.5 shadow-xl"
+                >
+                  {isAuthed ? (
+                    <>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          const username = currentUser?.username || 'me'
+                          setIsProfileMenuOpen(false)
+                          navigate(`/profile/${username}`)
+                        }}
+                        className="flex min-h-11 w-full items-center rounded-xl px-3 text-left text-sm text-jangle-textPrimary transition hover:bg-jangle-bg"
+                      >
+                        View profile
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="flex min-h-11 w-full items-center rounded-xl px-3 text-left text-sm text-jangle-textPrimary transition hover:bg-jangle-bg"
+                      >
+                        Settings
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={onLogout}
+                        className="flex min-h-11 w-full items-center rounded-xl px-3 text-left text-sm text-jangle-textPrimary transition hover:bg-jangle-bg"
+                      >
+                        Log out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        role="menuitem"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="flex min-h-11 w-full items-center rounded-xl px-3 text-sm text-jangle-textPrimary transition hover:bg-jangle-bg"
+                      >
+                        Log in
+                      </Link>
+                      <Link
+                        to="/register"
+                        role="menuitem"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                        className="flex min-h-11 w-full items-center rounded-xl px-3 text-sm text-jangle-textPrimary transition hover:bg-jangle-bg"
+                      >
+                        Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </nav>
       </header>
