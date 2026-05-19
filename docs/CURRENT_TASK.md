@@ -1,23 +1,26 @@
 ## Next
-- Prompt 2 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: add failing `PostCard` tests for YouTube inline toggle/open/collapse/fallback and implement minimal behavior.
-- Prompt 3 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: add safe YouTube URL parsing helper tests and implementation.
-- Prompt 4 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: implement deterministic game `Play Now` behavior with tests.
+- Prompt 6 in `docs/FEED_MEDIA_INTERACTION_PLAN.md`: add feed integration regression coverage in `frontend/src/pages/FeedPage.test.jsx` for media actions and interaction stability.
 
 ## Completed
-- Prompt 1 complete from `docs/FEED_MEDIA_INTERACTION_PLAN.md`.
-- Added failing-first adapter tests in `frontend/src/adapters/posts.test.js` for:
-  - YouTube canonical media fields.
-  - Game file playable URL/metadata fields.
-  - Null-safe defaults for non-media posts.
-- Updated `frontend/src/adapters/posts.js` `mapFeedPost` to include:
-  - `mediaKind`, `mediaUrl`
-  - `youtubeUrl`
-  - `gameFileUrl`, `gameFileName`, `gameFileSize`
+- Prompts 2-5 complete from `docs/FEED_MEDIA_INTERACTION_PLAN.md`.
+- Added failing-first tests in `frontend/src/components/PostCard.test.jsx` for:
+  - YouTube inline toggle open/collapse and invalid-link fallback.
+  - game `Play Now` inline/new-tab/missing-url states.
+  - iframe `sandbox`/`allow` guardrails and new-tab `rel` semantics.
+- Added `frontend/src/utils/media.test.js` and implemented `frontend/src/utils/media.js`:
+  - safe YouTube parsing for `watch`, `youtu.be`, `embed`.
+  - rejects malformed/non-http(s)/non-YouTube URLs for embeds.
+  - deterministic game launch policy (`inline` same-origin, otherwise `new-tab`).
+- Updated `frontend/src/components/PostCard.jsx` with real media behavior:
+  - `isYouTubeOpen` and `isGameOpen` local state.
+  - inline YouTube iframe rendering and collapse behavior.
+  - game inline iframe for safe same-origin URLs.
+  - external game launch via secure link attributes.
 
 ## Tests
-- `npm run test -- --run src/adapters/posts.test.js` (outside sandbox):
-  - Verified failing state first: 3 failing tests for missing media fields.
-  - After implementation: passing (7 passed).
+- `npm run test -- --run src/components/PostCard.test.jsx src/utils/media.test.js` (outside sandbox):
+  - Verified failing state first after adding tests.
+  - After implementation: passing (20 passed).
 
 ## Blockers
 - None.

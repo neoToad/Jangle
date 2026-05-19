@@ -1,12 +1,7 @@
 # TODO
 
 ## High Priority
-- Prompt 2 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): add failing `PostCard` tests for YouTube inline toggle/open/collapse/fallback and implement minimal behavior.
-- Prompt 3 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): add safe YouTube URL parsing helper tests and implementation.
-- Prompt 4 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): implement deterministic game `Play Now` behavior with tests.
-- Implement functional YouTube inline playback in `frontend/src/components/PostCard.jsx` with adapter and component test coverage.
-- Implement functional game `Play Now` behavior in feed cards (inline or new-tab policy) with explicit tests.
-- Add media URL parsing/safety guardrails for feed embeds and playable links.
+- Prompt 6 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): add/extend feed regression tests for mapped media fields, action states, and stable rerender behavior.
 - Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
 - Add backend serializer/view tests to lock comment count semantics and payload presence for feed responses.
 - Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.

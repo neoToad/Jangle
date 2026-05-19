@@ -27,7 +27,7 @@
   - Non-media posts keep null-safe defaults.
 - Update `mapFeedPost` to include required media fields.
 
-## Prompt 2: PostCard YouTube Inline (Tests First)
+## Prompt 2: PostCard YouTube Inline (Tests First) [COMPLETED]
 - Add failing tests in `frontend/src/components/PostCard.test.jsx`:
   - YouTube card renders trigger control.
   - clicking trigger mounts inline player region.
@@ -36,14 +36,14 @@
 - Implement minimal local state (`isYouTubeOpen`) and embed rendering.
 - Add accessible labels and `aria-expanded` semantics for the toggle.
 
-## Prompt 3: Safe YouTube URL Parsing
+## Prompt 3: Safe YouTube URL Parsing [COMPLETED]
 - Add unit tests for URL parsing helper:
   - supports `youtube.com/watch?v=...`, `youtu.be/...`, and existing embed links.
   - rejects malformed URLs.
 - Create helper to derive safe embed URL from raw input.
 - Ensure only allowed YouTube host patterns are embedded.
 
-## Prompt 4: PostCard Game Launch (Tests First)
+## Prompt 4: PostCard Game Launch (Tests First) [COMPLETED]
 - Add failing tests in `frontend/src/components/PostCard.test.jsx`:
   - `Play Now` is enabled when game URL exists.
   - click behavior opens inline panel or new tab based on selected MVP policy.
@@ -51,7 +51,7 @@
 - Implement `Play Now` action and UX state.
 - Keep behavior explicit and deterministic in tests.
 
-## Prompt 5: Security/Policy Guardrails
+## Prompt 5: Security/Policy Guardrails [COMPLETED]
 - Add tests and implementation for embed safety:
   - block non-http(s) schemes.
   - prevent arbitrary domain embedding for YouTube mode.

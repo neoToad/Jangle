@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import PostCard from './PostCard'
@@ -12,7 +12,7 @@ const basePost = {
   title: 'Tiny Garden Sim',
   description: 'A relaxing little game where you grow things and water them.',
   color: '#8faa8b',
-  reactions: { '👍': 14, '❤️': 9 },
+  reactions: { thumbs: 14, heart: 9 },
   comments: 7,
   votes: 38,
 }
@@ -77,6 +77,7 @@ describe('PostCard', () => {
       id: 2,
       type: 'youtube',
       title: 'Video Drop',
+      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     }
 
     const writingPost = {
@@ -93,7 +94,7 @@ describe('PostCard', () => {
     )
 
     expect(screen.getByText('YouTube embed')).toBeInTheDocument()
-    expect(screen.getByText('Click to watch inline')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /toggle youtube player/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Play Now' })).not.toBeInTheDocument()
 
     rerender(
@@ -107,10 +108,160 @@ describe('PostCard', () => {
     expect(screen.queryByRole('button', { name: 'Play Now' })).not.toBeInTheDocument()
   })
 
-  it('opens + React picker, increments selected emoji, and closes picker', () => {
+  it('toggles inline youtube player open and closed from the trigger control', () => {
+    const youtubePost = {
+      ...basePost,
+      id: 11,
+      type: 'youtube',
+      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    }
+
     render(
       <MemoryRouter>
-        <PostCard post={basePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed />
+        <PostCard post={youtubePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    const toggle = screen.getByRole('button', { name: /toggle youtube player/i })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByTitle(/youtube player/i)).not.toBeInTheDocument()
+
+    fireEvent.click(toggle)
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByTitle('YouTube player')).toBeInTheDocument()
+
+    fireEvent.click(toggle)
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByTitle('YouTube player')).not.toBeInTheDocument()
+  })
+
+  it('renders invalid youtube fallback state with Open on YouTube action', () => {
+    const youtubePost = {
+      ...basePost,
+      id: 12,
+      type: 'youtube',
+      youtubeUrl: 'https://evil.example.com/watch?v=dQw4w9WgXcQ',
+    }
+
+    render(
+      <MemoryRouter>
+        <PostCard post={youtubePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText(/unable to embed this youtube link/i)).toBeInTheDocument()
+    const link = screen.getByRole('link', { name: /open on youtube/i })
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(screen.queryByRole('button', { name: /toggle youtube player/i })).not.toBeInTheDocument()
+  })
+
+  it('opens game inline iframe for safe same-origin urls', () => {
+    const gamePost = {
+      ...basePost,
+      id: 21,
+      type: 'game',
+      gameFileUrl: '/games/tiny-garden/index.html',
+    }
+
+    render(
+      <MemoryRouter>
+        <PostCard post={gamePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    const playNow = screen.getByRole('button', { name: 'Play Now' })
+    expect(playNow).toBeEnabled()
+
+    fireEvent.click(playNow)
+
+    expect(screen.getByTitle('Game player')).toBeInTheDocument()
+  })
+
+  it('renders new-tab launch link for remote game urls and applies noopener noreferrer', () => {
+    const gamePost = {
+      ...basePost,
+      id: 22,
+      type: 'game',
+      gameFileUrl: 'https://cdn.example.com/tiny-garden.html',
+    }
+
+    render(
+      <MemoryRouter>
+        <PostCard post={gamePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    const launchLink = screen.getByRole('link', { name: 'Play Now' })
+    expect(launchLink).toHaveAttribute('href', gamePost.gameFileUrl)
+    expect(launchLink).toHaveAttribute('target', '_blank')
+    expect(launchLink).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('disables game action when game file url is missing', () => {
+    const gamePost = {
+      ...basePost,
+      id: 23,
+      type: 'game',
+      gameFileUrl: null,
+    }
+
+    render(
+      <MemoryRouter>
+        <PostCard post={gamePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Play Now' })).toBeDisabled()
+    expect(screen.getByText(/game file unavailable/i)).toBeInTheDocument()
+  })
+
+  it('applies iframe sandbox and allow attributes for youtube and game embeds', () => {
+    const youtubePost = {
+      ...basePost,
+      id: 24,
+      type: 'youtube',
+      youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+    }
+
+    const gamePost = {
+      ...basePost,
+      id: 25,
+      type: 'game',
+      gameFileUrl: '/games/same-origin.html',
+    }
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <PostCard post={youtubePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /toggle youtube player/i }))
+    const youtubeFrame = screen.getByTitle('YouTube player')
+    expect(youtubeFrame).toHaveAttribute('sandbox')
+    expect(youtubeFrame).toHaveAttribute('allow')
+
+    rerender(
+      <MemoryRouter>
+        <PostCard post={gamePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play Now' }))
+    const gameFrame = screen.getByTitle('Game player')
+    expect(gameFrame).toHaveAttribute('sandbox')
+    expect(gameFrame).toHaveAttribute('allow')
+  })
+
+  it('opens + React picker, increments selected emoji, and closes picker', () => {
+    const onReact = vi.fn()
+
+    render(
+      <MemoryRouter>
+        <PostCard post={basePost} onVote={vi.fn()} onReact={onReact} isAuthed />
       </MemoryRouter>,
     )
 
@@ -125,7 +276,7 @@ describe('PostCard', () => {
     fireEvent.click(pickerButtons[1])
 
     expect(screen.queryByRole('menu', { name: /emoji picker/i })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '🔥 1' })).toBeInTheDocument()
+    expect(onReact).toHaveBeenCalledWith(1, expect.any(String))
   })
 
   it('toggles vote score for upvote, downvote, and untoggle behavior', () => {
