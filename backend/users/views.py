@@ -33,8 +33,10 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
 
-def find_user_by_public_username(username: str):
+def find_user_by_public_username(username: str, request_user=None):
     username_lower = username.lower()
+    if username_lower == 'me' and request_user and getattr(request_user, 'is_authenticated', False):
+        return request_user
     for user in User.objects.all().prefetch_related('followers', 'following', 'posts'):
         if user.public_username == username_lower:
             return user
@@ -46,20 +48,20 @@ class PublicProfileView(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
 
     def get_object(self):
-        return find_user_by_public_username(self.kwargs['username'])
+        return find_user_by_public_username(self.kwargs['username'], request_user=self.request.user)
 
 
 class ProfileFollowView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, username):
-        target = find_user_by_public_username(username)
+        target = find_user_by_public_username(username, request_user=request.user)
         if target.id == request.user.id:
             return Response({'detail': 'Cannot follow yourself.'}, status=status.HTTP_400_BAD_REQUEST)
         request.user.following.add(target)
         return Response({'is_following': True}, status=status.HTTP_200_OK)
 
     def delete(self, request, username):
-        target = find_user_by_public_username(username)
+        target = find_user_by_public_username(username, request_user=request.user)
         request.user.following.remove(target)
         return Response({'is_following': False}, status=status.HTTP_200_OK)

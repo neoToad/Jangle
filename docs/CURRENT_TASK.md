@@ -3,6 +3,7 @@
 - Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
 
 ## Completed
+- Fixed profile 404 when navigating from header `View profile` by resolving `/api/profiles/me/` to the authenticated user in backend profile lookup.
 - Implemented backend profile contract with tests in `backend/users/test_models.py`, `backend/users/test_serializers.py`, and `backend/users/test_views.py`.
 - Added backend profile APIs for `/api/profiles/:username/` and `/api/profiles/:username/follow/`, including follow relationship constraints and migration `backend/users/migrations/0002_follow_user_following_and_more.py`.
 - Expanded profile page post-MVP behavior in `frontend/src/pages/ProfilePage.jsx` with tabs, edit-own-profile flow, and follow/unfollow actions plus frontend tests.
@@ -19,6 +20,7 @@
 - `npm run test -- --run src/components/Layout.test.jsx src/pages/ProfilePage.test.jsx` (pass: 18 tests).
 - `npm run test -- --run src/pages/ProfilePage.test.jsx` (pass: 7 tests).
 - `DJANGO_SETTINGS_MODULE=core.settings_test python manage.py test users.test_models users.test_serializers users.test_views -v 2` (pass: 39 tests).
+- `DJANGO_SETTINGS_MODULE=core.settings_test python manage.py test users.test_views.PublicProfileViewTest -v 2` (pass: 5 tests).
 
 ## Blockers
 - None.

@@ -86,6 +86,11 @@ class PublicProfileViewTest(TestCase):
         response = auth_client(self.viewer).get(reverse('users:public-profile', kwargs={'username': 'mosswood'}))
         self.assertTrue(response.data['is_following'])
 
+    def test_profile_read_supports_me_alias_for_authenticated_user(self):
+        response = auth_client(self.user).get(reverse('users:public-profile', kwargs={'username': 'me'}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], 'mosswood')
+
 
 class ProfileFollowViewTest(TestCase):
     def setUp(self):
