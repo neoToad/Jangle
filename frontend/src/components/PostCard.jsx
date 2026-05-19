@@ -10,17 +10,17 @@ const TYPE_LABELS = {
 }
 
 const TYPE_ICONS = {
-  game: '?',
-  writing: '?',
-  youtube: '?',
+  game: '▶',
+  writing: '✦',
+  youtube: '◈',
 }
 
 const REACTION_OPTIONS = [
-  { id: 'thumbs-up', symbol: '??' },
-  { id: 'fire', symbol: '??' },
-  { id: 'laugh', symbol: '??' },
-  { id: 'wow', symbol: '??' },
-  { id: 'heart', symbol: '??' },
+  { id: 'thumbs-up', symbol: '👍' },
+  { id: 'fire', symbol: '🔥' },
+  { id: 'laugh', symbol: '😂' },
+  { id: 'wow', symbol: '😮' },
+  { id: 'heart', symbol: '❤️' },
 ]
 const EMBED_SANDBOX = 'allow-scripts allow-same-origin allow-presentation allow-popups'
 const EMBED_ALLOW =

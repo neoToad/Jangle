@@ -2,6 +2,10 @@
 - Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
 
 ## Completed
+- Restored emoji/icon rendering in `frontend/src/components/PostCard.jsx`:
+  - `TYPE_ICONS` now uses `▶`, `✦`, `◈` instead of placeholder `?`.
+  - `REACTION_OPTIONS` now uses real emoji (`👍`, `🔥`, `😂`, `😮`, `❤️`) instead of `??`.
+- Added regression coverage in `frontend/src/components/PostCard.test.jsx` to ensure emoji picker does not render `??` placeholders.
 - Prompt 8 complete from `docs/FEED_MEDIA_INTERACTION_PLAN.md`.
 - Updated `frontend/src/components/PostCard.test.jsx` with failing-first UX polish coverage for:
   - compact loading and recovery copy for inline YouTube playback.
@@ -18,7 +22,7 @@
 - Marked prompt 8 as complete in `docs/FEED_MEDIA_INTERACTION_PLAN.md`.
 
 ## Tests
-- `npm run test -- --run src/components/PostCard.test.jsx` (outside sandbox): passing (16 passed).
+- `npm run test -- --run src/components/PostCard.test.jsx` (outside sandbox): passing (17 passed).
 - `npm run test -- --run src/pages/FeedPage.test.jsx` (outside sandbox): passing (13 passed).
 
 ## Blockers

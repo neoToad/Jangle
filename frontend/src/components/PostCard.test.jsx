@@ -354,6 +354,19 @@ describe('PostCard', () => {
     expect(onReact).toHaveBeenCalledWith(1, expect.any(String))
   })
 
+  it('renders emoji picker options without placeholder question marks', () => {
+    render(
+      <MemoryRouter>
+        <PostCard post={basePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: '+ React' }))
+    const picker = screen.getByRole('menu', { name: /emoji picker/i })
+    expect(within(picker).queryByRole('button', { name: '??' })).not.toBeInTheDocument()
+    expect(within(picker).getByRole('button', { name: '🔥' })).toBeInTheDocument()
+  })
+
   it('toggles vote score for upvote, downvote, and untoggle behavior', () => {
     render(
       <MemoryRouter>
