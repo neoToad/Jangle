@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from users.models import Follow
 
 User = get_user_model()
 
@@ -41,3 +42,23 @@ class UserModelTest(TestCase):
     def test_created_at_auto_set(self):
         user = User.objects.create_user(email='ts@example.com', password='pass')
         self.assertIsNotNone(user.created_at)
+
+    def test_public_username_defaults_to_email_local_part(self):
+        user = User.objects.create_user(email='Moss.Wood@example.com', password='pass')
+        self.assertEqual(user.public_username, 'moss.wood')
+
+
+class FollowModelTest(TestCase):
+    def setUp(self):
+        self.follower = User.objects.create_user(email='follower@example.com', password='pass')
+        self.following = User.objects.create_user(email='following@example.com', password='pass')
+
+    def test_unique_follower_following_pair(self):
+        Follow.objects.create(follower=self.follower, following=self.following)
+
+        with self.assertRaises(IntegrityError):
+            Follow.objects.create(follower=self.follower, following=self.following)
+
+    def test_cannot_follow_self(self):
+        with self.assertRaises(IntegrityError):
+            Follow.objects.create(follower=self.follower, following=self.follower)

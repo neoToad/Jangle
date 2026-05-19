@@ -29,3 +29,37 @@ class RegisterSerializer(serializers.Serializer):
             email=validated_data['email'],
             password=validated_data['password'],
         )
+
+
+class PublicProfileSerializer(serializers.Serializer):
+    username = serializers.CharField(source='public_username', read_only=True)
+    display_name = serializers.CharField(read_only=True)
+    bio = serializers.CharField(read_only=True)
+    avatar = serializers.SerializerMethodField()
+    post_count = serializers.SerializerMethodField()
+    follower_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+
+    def get_avatar(self, obj):
+        if not obj.avatar:
+            return ''
+        try:
+            return obj.avatar.url
+        except ValueError:
+            return ''
+
+    def get_post_count(self, obj):
+        return obj.posts.count()
+
+    def get_follower_count(self, obj):
+        return obj.followers.count()
+
+    def get_following_count(self, obj):
+        return obj.following.count()
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if not request or not getattr(request.user, 'is_authenticated', False):
+            return False
+        return obj.followers.filter(id=request.user.id).exists()

@@ -11,7 +11,6 @@
 - Implement functional feed tab behavior for `Following`, `Explore`, and `Games` in `frontend/src/pages/FeedPage.jsx` with TDD coverage.
 - Add backend feed mode API contract support for `/api/posts/?feed=...` with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.
-- Add or confirm backend profile API contract tests (`test_models.py`, `test_serializers.py`, `test_views.py`) and endpoint support.
 - Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
@@ -33,7 +32,6 @@
 ## Docs / Decisions
 - Revisit seeded data strategy so placeholder content mirrors backend reaction emoji format exactly.
 - Update README/backend docs to reference `python manage.py seed_db` and `python manage.py seed_db --reset`.
-- Decide whether to add a dedicated follow relationship model on `User` for social-graph seeding.
 - Decide whether avatars should remain `ImageField`-backed files or move to a URL field.
 - Add concise API docs/examples for reactions and votes payloads.
 - Consider Docker Compose healthchecks for stronger startup readiness guarantees.

@@ -32,14 +32,14 @@
 - MVP data fields:
   - `username`, `display_name`, `bio`, `avatar`, `post_count`, `follower_count`, `following_count`.
 
-## Phase 3: Backend Profile Contract
+## Phase 3: Backend Profile Contract - Completed (2026-05-19)
 - Add/confirm Django + DRF tests first:
   - `test_models.py`: profile field constraints/defaults.
   - `test_serializers.py`: output shape and validation.
   - `test_views.py`: profile read endpoint, permissions, 404 behavior.
 - Implement minimal endpoint to satisfy frontend contract.
 
-## Phase 4: Profile Expansion (Post-MVP)
+## Phase 4: Profile Expansion (Post-MVP) - Completed (2026-05-19)
 - Profile tabs (posts and replies/likes if in scope).
 - Edit-own-profile flow.
 - Follow/unfollow if social graph is prioritized.

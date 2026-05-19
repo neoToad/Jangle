@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
+from posts.models import Post
 
 User = get_user_model()
 
@@ -54,6 +55,61 @@ class UserUpdateViewTest(TestCase):
         auth_client(self.user).patch(reverse('users:user-update'), {'email': 'hack@example.com'})
         self.user.refresh_from_db()
         self.assertEqual(self.user.email, 'upd@example.com')
+
+
+class PublicProfileViewTest(TestCase):
+    def setUp(self):
+        self.viewer = User.objects.create_user(email='viewer@example.com', password='pass')
+        self.user = User.objects.create_user(email='mosswood@example.com', password='pass', bio='Bio text')
+        self.user.first_name = 'Moss'
+        self.user.last_name = 'Wood'
+        self.user.save(update_fields=['first_name', 'last_name'])
+        Post.objects.create(author=self.user, post_type='text', title='One', body='Body')
+
+    def test_profile_read_returns_200_for_guest(self):
+        response = APIClient().get(reverse('users:public-profile', kwargs={'username': 'mosswood'}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_profile_read_contract_shape(self):
+        response = APIClient().get(reverse('users:public-profile', kwargs={'username': 'mosswood'}))
+        self.assertSetEqual(
+            set(response.data.keys()),
+            {'username', 'display_name', 'bio', 'avatar', 'post_count', 'follower_count', 'following_count', 'is_following'},
+        )
+
+    def test_profile_read_returns_404_for_unknown_username(self):
+        response = APIClient().get(reverse('users:public-profile', kwargs={'username': 'unknown'}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_profile_read_sets_is_following_for_authenticated_user(self):
+        self.user.followers.add(self.viewer)
+        response = auth_client(self.viewer).get(reverse('users:public-profile', kwargs={'username': 'mosswood'}))
+        self.assertTrue(response.data['is_following'])
+
+
+class ProfileFollowViewTest(TestCase):
+    def setUp(self):
+        self.viewer = User.objects.create_user(email='viewer@example.com', password='pass')
+        self.user = User.objects.create_user(email='mosswood@example.com', password='pass')
+
+    def test_follow_requires_authentication(self):
+        response = APIClient().post(reverse('users:profile-follow', kwargs={'username': 'mosswood'}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_follow_creates_relationship(self):
+        response = auth_client(self.viewer).post(reverse('users:profile-follow', kwargs={'username': 'mosswood'}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.viewer.following.filter(id=self.user.id).exists())
+
+    def test_unfollow_removes_relationship(self):
+        self.viewer.following.add(self.user)
+        response = auth_client(self.viewer).delete(reverse('users:profile-follow', kwargs={'username': 'mosswood'}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.viewer.following.filter(id=self.user.id).exists())
+
+    def test_cannot_follow_self(self):
+        response = auth_client(self.user).post(reverse('users:profile-follow', kwargs={'username': 'mosswood'}))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterViewTest(TestCase):
