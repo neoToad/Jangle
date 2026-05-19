@@ -10,17 +10,19 @@
 - Frontend fallback (`?? 0`) always applies, so every card shows `0`.
 
 ## Prompt 1: Frontend Contract Test (Fail First)
+Status: Completed on 2026-05-19.
 - Add failing tests in `frontend/src/adapters/posts.test.js` that prove:
   - `mapFeedPost` uses backend `comment_count` when present.
-  - mapping supports any agreed alias (if backend compatibility key is needed).
+  - mapping supports agreed API key `comment_count` (no alias required in current contract).
   - fallback to `0` only when comment count field is truly absent.
 - Confirm failure is due to backend payload mismatch.
 
 ## Prompt 2: Backend Serializer Contract Test (Fail First)
+Status: Completed on 2026-05-19.
 - Add failing tests in `backend/posts/test_serializers.py`:
   - serialized post includes `comment_count`.
   - count excludes removed comments if model semantics require it.
-  - count reflects nested reply policy explicitly (top-level-only vs all comments).
+  - count reflects nested reply policy explicitly (all comments including replies).
 - Keep policy explicit in tests to avoid future ambiguity.
 
 ## Prompt 3: Backend Implementation

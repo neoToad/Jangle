@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from posts.models import Post
 from posts.serializers import PostSerializer
-from interactions.models import Reaction, Vote
+from interactions.models import Comment, Reaction, Vote
 
 User = get_user_model()
 
@@ -84,3 +84,22 @@ class PostSerializerTest(TestCase):
         s = PostSerializer(data={'post_type': 'file', 'file_type': 'game', 'title': 'Runner'})
         self.assertFalse(s.is_valid())
         self.assertIn('file', s.errors)
+
+    def test_includes_comment_count_field(self):
+        data = PostSerializer(self.post).data
+        self.assertIn('comment_count', data)
+        self.assertEqual(data['comment_count'], 0)
+
+    def test_comment_count_excludes_removed_comments(self):
+        Comment.objects.create(post=self.post, author=self.user, body='keep me')
+        Comment.objects.create(post=self.post, author=self.user, body='remove me', is_removed=True)
+
+        data = PostSerializer(self.post).data
+        self.assertEqual(data['comment_count'], 1)
+
+    def test_comment_count_includes_replies(self):
+        parent = Comment.objects.create(post=self.post, author=self.user, body='parent')
+        Comment.objects.create(post=self.post, author=self.user, body='reply', parent=parent)
+
+        data = PostSerializer(self.post).data
+        self.assertEqual(data['comment_count'], 2)

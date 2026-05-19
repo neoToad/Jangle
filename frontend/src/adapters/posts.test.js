@@ -140,4 +140,25 @@ describe('posts adapter', () => {
       color: '#c9a87c',
     })
   })
+
+  it('uses backend comment_count when present', () => {
+    const mapped = mapFeedPost({
+      id: 10,
+      post_type: 'text',
+      title: 'Has comments',
+      comment_count: 6,
+    })
+
+    expect(mapped.comments).toBe(6)
+  })
+
+  it('falls back comments to 0 only when comment count is absent', () => {
+    const mapped = mapFeedPost({
+      id: 11,
+      post_type: 'text',
+      title: 'No comment field',
+    })
+
+    expect(mapped.comments).toBe(0)
+  })
 })
