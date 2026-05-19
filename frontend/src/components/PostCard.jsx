@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+ï»¿import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import PostCardFrame from './PostCardFrame'
 import { getSafeGameMedia, getSafeYouTubeEmbed } from '../utils/media'
@@ -23,7 +23,8 @@ const REACTION_OPTIONS = [
   { id: 'heart', symbol: '??' },
 ]
 const EMBED_SANDBOX = 'allow-scripts allow-same-origin allow-presentation allow-popups'
-const EMBED_ALLOW = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen'
+const EMBED_ALLOW =
+  'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen'
 
 export default function PostCard({ post, onVote, onReact, isAuthed }) {
   const [hovered, setHovered] = useState(false)
@@ -32,10 +33,15 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
   const [voteValue, setVoteValue] = useState(0)
   const [isYouTubeOpen, setIsYouTubeOpen] = useState(false)
   const [isGameOpen, setIsGameOpen] = useState(false)
+  const [isYouTubeLoading, setIsYouTubeLoading] = useState(false)
+  const [isYouTubeError, setIsYouTubeError] = useState(false)
+  const [isGameLoading, setIsGameLoading] = useState(false)
+  const [isGameError, setIsGameError] = useState(false)
 
   const reactionEntries = Object.entries(reactions).filter(([, count]) => count > 0)
   const displayedScore = (post.votes ?? 0) + voteValue
-  const safeYouTube = post.type === 'youtube' ? getSafeYouTubeEmbed(post.youtubeUrl || post.mediaUrl) : null
+  const safeYouTube =
+    post.type === 'youtube' ? getSafeYouTubeEmbed(post.youtubeUrl || post.mediaUrl) : null
   const safeGame = post.type === 'game' ? getSafeGameMedia(post.gameFileUrl || post.mediaUrl) : null
 
   const toggleVote = (value) => {
@@ -52,15 +58,38 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
     onReact(post.id, emoji)
   }
 
+  const toggleYouTube = () => {
+    if (isYouTubeOpen) {
+      setIsYouTubeOpen(false)
+      setIsYouTubeLoading(false)
+      setIsYouTubeError(false)
+      return
+    }
+    setIsYouTubeLoading(true)
+    setIsYouTubeError(false)
+    setIsYouTubeOpen(true)
+  }
+
+  const toggleGameInline = () => {
+    if (!safeGame) return
+    if (isGameOpen) {
+      setIsGameOpen(false)
+      setIsGameLoading(false)
+      setIsGameError(false)
+      return
+    }
+    setIsGameLoading(true)
+    setIsGameError(false)
+    setIsGameOpen(true)
+  }
+
   return (
     <PostCardFrame
       data-testid={`post-card-${post.id}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={`motion-card-enter motion-card-hover ${
-        hovered
-          ? 'shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]'
-          : ''
+        hovered ? 'shadow-[0_0_28px_var(--post-color-glow),0_6px_22px_rgba(0,0,0,0.35)]' : ''
       }`}
       style={{
         '--post-color': post.color || '#c9a87c',
@@ -71,13 +100,13 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
       <header className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full border border-jangle-border bg-jangle-bg text-sm">
-            {post.avatar || '•'}
+            {post.avatar || '.'}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-jangle-textPrimary">{post.author || 'unknown'}</span>
               <span className="rounded-md border border-jangle-border bg-jangle-bg px-2 py-0.5 text-[10px] font-bold tracking-wide text-jangle-textMuted">
-                {TYPE_ICONS[post.type] || '•'} {TYPE_LABELS[post.type] || 'POST'}
+                {TYPE_ICONS[post.type] || '.'} {TYPE_LABELS[post.type] || 'POST'}
               </span>
             </div>
             <p className="text-xs font-medium text-jangle-textMuted">{post.time || 'recently'}</p>
@@ -110,13 +139,19 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
                 </p>
                 {post.playing && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-red-400/50 bg-red-500/10 px-2 py-0.5 text-[10px] font-bold tracking-wide text-red-300">
-                    <span data-testid={`live-dot-${post.id}`} className="motion-pulse-dot h-1.5 w-1.5 rounded-full bg-red-300" />
+                    <span
+                      data-testid={`live-dot-${post.id}`}
+                      className="motion-pulse-dot h-1.5 w-1.5 rounded-full bg-red-300"
+                    />
                     LIVE
                   </span>
                 )}
               </div>
               <p className="text-xs text-jangle-textMuted">{post.playCount ?? 0} people played</p>
               {!safeGame && <p className="text-xs text-jangle-textMuted">Game file unavailable.</p>}
+              {safeGame?.mode === 'new-tab' && (
+                <p className="text-xs text-jangle-textMuted">Launches in a new tab.</p>
+              )}
             </div>
             {safeGame?.mode === 'new-tab' ? (
               <a
@@ -131,7 +166,7 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
             ) : (
               <button
                 type="button"
-                onClick={() => safeGame && setIsGameOpen((prev) => !prev)}
+                onClick={toggleGameInline}
                 disabled={!safeGame}
                 className="rounded-lg px-3 py-1.5 text-xs font-semibold text-jangle-bg disabled:cursor-not-allowed disabled:opacity-60"
                 style={{ backgroundColor: post.color || '#8faa8b' }}
@@ -142,12 +177,46 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
           </div>
           {safeGame?.mode === 'inline' && isGameOpen && (
             <div className="mb-4 overflow-hidden rounded-xl border border-jangle-border">
+              {isGameLoading && (
+                <p className="border-b border-jangle-border bg-jangle-bg px-3 py-2 text-xs text-jangle-textMuted">
+                  Opening game...
+                </p>
+              )}
+              {isGameError && (
+                <div className="border-b border-jangle-border bg-jangle-bg px-3 py-2 text-xs text-jangle-textMuted">
+                  <span>Game failed to load. Try opening in a new tab. </span>
+                  <a
+                    href={safeGame.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-jangle-textPrimary underline"
+                  >
+                    Open game in new tab
+                  </a>
+                </div>
+              )}
+              <div className="border-b border-jangle-border bg-jangle-bg px-3 py-2 text-xs text-jangle-textMuted">
+                <span>If it fails, open in a new tab. </span>
+                <a
+                  href={safeGame.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-jangle-textPrimary underline"
+                >
+                  Open game in new tab
+                </a>
+              </div>
               <iframe
                 title="Game player"
                 src={safeGame.url}
                 className="h-72 w-full"
                 sandbox={EMBED_SANDBOX}
                 allow={EMBED_ALLOW}
+                onLoad={() => setIsGameLoading(false)}
+                onError={() => {
+                  setIsGameLoading(false)
+                  setIsGameError(true)
+                }}
               />
             </div>
           )}
@@ -166,7 +235,10 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
             <div className="flex items-center gap-3">
               <div
                 className="flex h-10 w-10 items-center justify-center rounded-lg text-sm"
-                style={{ backgroundColor: `${post.color || '#a87c9e'}33`, color: post.color || '#a87c9e' }}
+                style={{
+                  backgroundColor: `${post.color || '#a87c9e'}33`,
+                  color: post.color || '#a87c9e',
+                }}
               >
                 ?
               </div>
@@ -177,7 +249,7 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
                 {safeYouTube ? (
                   <button
                     type="button"
-                    onClick={() => setIsYouTubeOpen((prev) => !prev)}
+                    onClick={toggleYouTube}
                     aria-expanded={isYouTubeOpen}
                     className="text-xs text-jangle-textMuted underline"
                     aria-label="Toggle YouTube player"
@@ -187,6 +259,7 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
                 ) : (
                   <p className="text-xs text-jangle-textMuted">Unable to embed this YouTube link.</p>
                 )}
+                {safeYouTube && <p className="text-xs text-jangle-textMuted">Inline playback in card.</p>}
               </div>
             </div>
             {!safeYouTube && (
@@ -204,6 +277,35 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
           </div>
           {safeYouTube && isYouTubeOpen && (
             <div className="mb-4 overflow-hidden rounded-xl border border-jangle-border">
+              {isYouTubeLoading && (
+                <p className="border-b border-jangle-border bg-jangle-bg px-3 py-2 text-xs text-jangle-textMuted">
+                  Loading video...
+                </p>
+              )}
+              {isYouTubeError && (
+                <div className="border-b border-jangle-border bg-jangle-bg px-3 py-2 text-xs text-jangle-textMuted">
+                  <span>Video failed to load. Open on YouTube. </span>
+                  <a
+                    href={post.youtubeUrl || post.mediaUrl || 'https://www.youtube.com'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-jangle-textPrimary underline"
+                  >
+                    Open on YouTube
+                  </a>
+                </div>
+              )}
+              <div className="border-b border-jangle-border bg-jangle-bg px-3 py-2 text-xs text-jangle-textMuted">
+                <span>If it fails, open on YouTube. </span>
+                <a
+                  href={post.youtubeUrl || post.mediaUrl || 'https://www.youtube.com'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-jangle-textPrimary underline"
+                >
+                  Open on YouTube
+                </a>
+              </div>
               <iframe
                 title="YouTube player"
                 src={safeYouTube.embedUrl}
@@ -211,6 +313,11 @@ export default function PostCard({ post, onVote, onReact, isAuthed }) {
                 sandbox={EMBED_SANDBOX}
                 allow={EMBED_ALLOW}
                 allowFullScreen
+                onLoad={() => setIsYouTubeLoading(false)}
+                onError={() => {
+                  setIsYouTubeLoading(false)
+                  setIsYouTubeError(true)
+                }}
               />
             </div>
           )}

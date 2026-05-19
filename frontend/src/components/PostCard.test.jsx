@@ -178,6 +178,7 @@ describe('PostCard', () => {
     fireEvent.click(playNow)
 
     expect(screen.getByTitle('Game player')).toBeInTheDocument()
+    expect(screen.getByText('Opening game...')).toBeInTheDocument()
   })
 
   it('renders new-tab launch link for remote game urls and applies noopener noreferrer', () => {
@@ -254,6 +255,80 @@ describe('PostCard', () => {
     const gameFrame = screen.getByTitle('Game player')
     expect(gameFrame).toHaveAttribute('sandbox')
     expect(gameFrame).toHaveAttribute('allow')
+  })
+
+  it('shows compact loading and recovery copy for inline youtube media', () => {
+    const youtubePost = {
+      ...basePost,
+      id: 26,
+      type: 'youtube',
+      youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+    }
+
+    render(
+      <MemoryRouter>
+        <PostCard post={youtubePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /toggle youtube player/i }))
+    expect(screen.getByText('Loading video...')).toBeInTheDocument()
+    expect(screen.getByText('If it fails, open on YouTube.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /open on youtube/i })).toBeInTheDocument()
+  })
+
+  it('shows compact loading and recovery copy for inline game media', () => {
+    const gamePost = {
+      ...basePost,
+      id: 27,
+      type: 'game',
+      gameFileUrl: '/games/tiny-garden/index.html',
+    }
+
+    render(
+      <MemoryRouter>
+        <PostCard post={gamePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play Now' }))
+    expect(screen.getByText('Opening game...')).toBeInTheDocument()
+    expect(screen.getByText('If it fails, open in a new tab.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /open game in new tab/i })).toHaveAttribute(
+      'href',
+      '/games/tiny-garden/index.html',
+    )
+  })
+
+  it('shows concise helper text for external and inline launch modes', () => {
+    const externalGamePost = {
+      ...basePost,
+      id: 28,
+      type: 'game',
+      gameFileUrl: 'https://cdn.example.com/tiny-garden.html',
+    }
+    const youtubePost = {
+      ...basePost,
+      id: 29,
+      type: 'youtube',
+      youtubeUrl: 'https://youtu.be/dQw4w9WgXcQ',
+    }
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <PostCard post={externalGamePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Launches in a new tab.')).toBeInTheDocument()
+
+    rerender(
+      <MemoryRouter>
+        <PostCard post={youtubePost} onVote={vi.fn()} onReact={vi.fn()} isAuthed={false} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Inline playback in card.')).toBeInTheDocument()
   })
 
   it('opens + React picker, increments selected emoji, and closes picker', () => {

@@ -155,6 +155,21 @@ Quick local check:
 WebSocket route pattern used by the app:
 - `/ws/chat/<room_name>/?token=<jwt_access_token>`
 
+## Feed Media Behavior
+
+- YouTube drops support inline playback in feed cards when the URL resolves to a supported YouTube host (`youtube.com`, `m.youtube.com`, `youtu.be`).
+- Unsupported or unembeddable YouTube links show a safe `Open on YouTube` fallback action.
+- Game file drops support:
+  - inline iframe launch for safe same-origin game URLs.
+  - secure new-tab launch for external game URLs (`target=\"_blank\"` + `rel=\"noopener noreferrer\"`).
+- Inline media iframes use explicit sandbox/allow attributes for safer embedding.
+- Feed cards include compact media status copy:
+  - YouTube: `Loading video...` and fallback hint to open on YouTube.
+  - Game: `Opening game...` and fallback hint to open in a new tab.
+- Backend creation contract enforces:
+  - YouTube post type requires a valid YouTube URL.
+  - game file posts require a file payload.
+
 ## Environment Variables Reference
 
 ### Root `.env` (Docker Compose / frontend build args)
