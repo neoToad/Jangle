@@ -60,6 +60,24 @@ class PostListCreateViewTest(TestCase):
         post = Post.objects.get(title='Mine')
         self.assertEqual(post.author, self.user)
 
+    def test_create_youtube_post_requires_valid_youtube_url(self):
+        response = auth_client(self.user).post(
+            self.list_url,
+            {'post_type': 'youtube', 'title': 'Clip', 'youtube_url': 'https://example.com/watch?v=abc'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('youtube_url', response.data)
+
+    def test_create_game_post_requires_file(self):
+        response = auth_client(self.user).post(
+            self.list_url,
+            {'post_type': 'file', 'file_type': 'game', 'title': 'Runner'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('file', response.data)
+
 
 class PostRetrieveViewTest(TestCase):
     def setUp(self):

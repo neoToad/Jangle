@@ -229,9 +229,9 @@ describe('FeedPage', () => {
     )
 
     expect(await screen.findByRole('link', { name: 'Writing Post' })).toBeInTheDocument()
-    expect(screen.getByText(/✦ WRITING/)).toBeInTheDocument()
-    expect(screen.getByText(/◈ VIDEO/)).toBeInTheDocument()
-    expect(screen.getByText(/▶ GAME/)).toBeInTheDocument()
+    expect(screen.getByText(/\bWRITING\b/)).toBeInTheDocument()
+    expect(screen.getByText(/\bVIDEO\b/)).toBeInTheDocument()
+    expect(screen.getByText(/\bGAME\b/)).toBeInTheDocument()
     expect(screen.getByText('YouTube embed')).toBeInTheDocument()
     expect(screen.getByText('Playable in browser')).toBeInTheDocument()
   })
@@ -392,5 +392,133 @@ describe('FeedPage', () => {
     fireEvent.scroll(window)
 
     expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument()
+  })
+
+  it('maps media fields and keeps vote/react/comment controls functional', async () => {
+    api.get.mockResolvedValue({
+      data: {
+        results: [
+          {
+            id: 11,
+            post_type: 'youtube',
+            title: 'Guide Video',
+            youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            reaction_counts: { '🔥': 1 },
+            vote_score: 4,
+            comment_count: 3,
+          },
+          {
+            id: 12,
+            post_type: 'file',
+            file_type: 'game',
+            title: 'Runner',
+            file: '/games/runner/index.html',
+            reaction_counts: {},
+            vote_score: 0,
+            comment_count: 2,
+          },
+        ],
+        next: null,
+      },
+    })
+    api.post.mockResolvedValue({ data: {} })
+
+    useAuthStore.setState({ accessToken: 'token', refreshToken: 'refresh', currentUser: { id: 1 } })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('link', { name: 'Guide Video' })).toBeInTheDocument()
+    expect(screen.getByText('Click to watch inline')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play Now' })).toBeEnabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle YouTube player' }))
+    expect(screen.getByTitle('YouTube player')).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: '+ React' })[0])
+    const emojiPicker = screen.getByRole('menu', { name: 'Emoji picker' })
+    const emojiButtons = emojiPicker.querySelectorAll('button')
+    fireEvent.click(emojiButtons[0])
+    expect(api.post).toHaveBeenCalledWith(
+      '/api/interactions/posts/11/reactions/',
+      expect.objectContaining({ emoji: expect.any(String) }),
+    )
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Upvote' })[0])
+    expect(api.post).toHaveBeenCalledWith('/api/interactions/posts/11/votes/', { value: 1 })
+
+    expect(screen.getByRole('button', { name: 'Comments 3' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Comments 2' })).toBeInTheDocument()
+  })
+
+  it('keeps media action states stable after load more rerender', async () => {
+    Object.defineProperty(window, 'innerHeight', {
+      value: 600,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(window, 'scrollY', {
+      value: 1410,
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 2000,
+      configurable: true,
+      writable: true,
+    })
+
+    api.get
+      .mockResolvedValueOnce({
+        data: {
+          results: [
+            {
+              id: 21,
+              post_type: 'youtube',
+              title: 'First Video',
+              youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+              reaction_counts: {},
+              vote_score: 0,
+            },
+          ],
+          next: '/api/posts/?page=2',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          results: [
+            {
+              id: 22,
+              post_type: 'file',
+              file_type: 'game',
+              title: 'Second Game',
+              file: '/games/second/index.html',
+              reaction_counts: {},
+              vote_score: 0,
+            },
+          ],
+          next: null,
+        },
+      })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('link', { name: 'First Video' })).toBeInTheDocument()
+    fireEvent.scroll(window)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }))
+    expect(await screen.findByRole('link', { name: 'Second Game' })).toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: 'Toggle YouTube player' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play Now' })).toBeEnabled()
+    expect(screen.getAllByRole('button', { name: 'Comments 0' })).toHaveLength(2)
   })
 })

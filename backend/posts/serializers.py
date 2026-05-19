@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from posts.models import Post
 from django.db.models import Sum
+from urllib.parse import urlparse
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -26,3 +27,23 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_vote_score(self, obj):
         return obj.votes.aggregate(total=Sum('value'))['total'] or 0
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        post_type = attrs.get('post_type', getattr(self.instance, 'post_type', None))
+        youtube_url = attrs.get('youtube_url', getattr(self.instance, 'youtube_url', None))
+        file_type = attrs.get('file_type', getattr(self.instance, 'file_type', None))
+        file_value = attrs.get('file', getattr(self.instance, 'file', None))
+
+        if post_type == 'youtube':
+            if not youtube_url:
+                raise serializers.ValidationError({'youtube_url': 'This field is required for YouTube posts.'})
+            host = (urlparse(str(youtube_url)).hostname or '').lower()
+            allowed_hosts = {'youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be', 'www.youtu.be'}
+            if host not in allowed_hosts:
+                raise serializers.ValidationError({'youtube_url': 'Enter a valid YouTube URL.'})
+
+        if post_type == 'file' and file_type == 'game' and not file_value:
+            raise serializers.ValidationError({'file': 'This field is required for game file posts.'})
+
+        return attrs

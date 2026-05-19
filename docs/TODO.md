@@ -1,7 +1,6 @@
 # TODO
 
 ## High Priority
-- Prompt 6 (`docs/FEED_MEDIA_INTERACTION_PLAN.md`): add/extend feed regression tests for mapped media fields, action states, and stable rerender behavior.
 - Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
 - Add backend serializer/view tests to lock comment count semantics and payload presence for feed responses.
 - Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.

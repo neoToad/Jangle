@@ -67,3 +67,20 @@ class PostSerializerTest(TestCase):
 
         data = PostSerializer(self.post).data
         self.assertEqual(data['vote_score'], 1)
+
+    def test_youtube_post_requires_youtube_url(self):
+        s = PostSerializer(data={'post_type': 'youtube', 'title': 'Clip'})
+        self.assertFalse(s.is_valid())
+        self.assertIn('youtube_url', s.errors)
+
+    def test_youtube_post_rejects_non_youtube_domain(self):
+        s = PostSerializer(
+            data={'post_type': 'youtube', 'title': 'Clip', 'youtube_url': 'https://example.com/watch?v=abc'}
+        )
+        self.assertFalse(s.is_valid())
+        self.assertIn('youtube_url', s.errors)
+
+    def test_game_file_post_requires_file(self):
+        s = PostSerializer(data={'post_type': 'file', 'file_type': 'game', 'title': 'Runner'})
+        self.assertFalse(s.is_valid())
+        self.assertIn('file', s.errors)

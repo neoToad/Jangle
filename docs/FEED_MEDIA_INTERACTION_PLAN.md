@@ -58,14 +58,14 @@
   - apply `sandbox` and `allow` attrs on iframes.
 - If opening new tab for game files, ensure `rel="noopener noreferrer"` is used.
 
-## Prompt 6: Feed Integration Regression
+## Prompt 6: Feed Integration Regression [COMPLETED]
 - Add/extend feed tests in `frontend/src/pages/FeedPage.test.jsx`:
   - mapped posts include media fields and render proper action states.
   - interaction does not break vote/react/comment controls.
   - load-more and rerender preserve stable behavior.
 - Verify no regressions in existing post card rendering variants.
 
-## Prompt 7: Optional Backend Contract Tightening
+## Prompt 7: Optional Backend Contract Tightening [COMPLETED]
 - If needed, add backend serializer tests ensuring media URL fields are always present for relevant post types.
 - Add validation/error semantics for invalid YouTube links and missing game files at creation time.
 - Keep this prompt scoped to contract consistency, not full media processing.
