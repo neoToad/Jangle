@@ -137,6 +137,12 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml exec backend pyte
 docker compose -f docker-compose.yml -f docker-compose.dev.yml exec frontend npm test
 ```
 
+For a single non-watch pass (better for CI/manual checks), use:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml exec frontend npm test -- --run
+```
+
 Run one frontend test file:
 
 ```bash

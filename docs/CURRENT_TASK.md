@@ -1,8 +1,9 @@
 ## Next
-- Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
-- Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
+- None currently queued in this task file; see `docs/TODO.md` for active backlog.
 
 ## Completed
+- Added README frontend testing guidance for a single non-watch Docker Vitest run:
+  `docker compose -f docker-compose.yml -f docker-compose.dev.yml exec frontend npm test -- --run`.
 - Fixed profile 404 when navigating from header `View profile` by resolving `/api/profiles/me/` to the authenticated user in backend profile lookup.
 - Implemented backend profile contract with tests in `backend/users/test_models.py`, `backend/users/test_serializers.py`, and `backend/users/test_views.py`.
 - Added backend profile APIs for `/api/profiles/:username/` and `/api/profiles/:username/follow/`, including follow relationship constraints and migration `backend/users/migrations/0002_follow_user_following_and_more.py`.
@@ -17,6 +18,7 @@
 - Preserved remaining high-impact workstreams: feed behavior, chat, profile, post-detail parity, QA, and docs decisions.
 
 ## Tests
+- Not run (docs-only change).
 - `npm run test -- --run src/components/Layout.test.jsx src/pages/ProfilePage.test.jsx` (pass: 18 tests).
 - `npm run test -- --run src/pages/ProfilePage.test.jsx` (pass: 7 tests).
 - `DJANGO_SETTINGS_MODULE=core.settings_test python manage.py test users.test_models users.test_serializers users.test_views -v 2` (pass: 39 tests).
