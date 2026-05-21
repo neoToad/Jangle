@@ -176,6 +176,19 @@ WebSocket route pattern used by the app:
   - YouTube post type requires a valid YouTube URL.
   - game file posts require a file payload.
 
+## Feed Query Modes
+
+`GET /api/posts/` accepts optional `feed` query parameter:
+
+- `feed=following`
+  - authenticated users: posts from followed authors.
+  - guests: auto-fallback to explore dataset ordering.
+- `feed=explore`
+  - discovery feed ordered by engagement score, then recency.
+- `feed=games`
+  - only game posts (`post_type=file` and `file_type=game`).
+- invalid `feed` values return `400` with a `feed` validation error.
+
 ## Environment Variables Reference
 
 ### Root `.env` (Docker Compose / frontend build args)

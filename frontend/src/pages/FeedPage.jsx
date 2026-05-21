@@ -173,6 +173,7 @@ export default function FeedPage() {
   const [isNearBottom, setIsNearBottom] = useState(false)
   const [canShowLoadMore, setCanShowLoadMore] = useState(false)
   const latestRequestRef = useRef(0)
+  const effectiveTabKey = !isAuthed && activeTab === 'following' ? 'explore' : activeTab
 
   const loadPosts = async ({ reset, tabKey } = { reset: false, tabKey: 'following' }) => {
     const requestId = latestRequestRef.current + 1
@@ -185,7 +186,8 @@ export default function FeedPage() {
       setCanShowLoadMore(false)
     }
     try {
-      const selectedTab = FEED_TABS.find((tab) => tab.key === tabKey) || FEED_TABS[0]
+      const requestedTabKey = !isAuthed && tabKey === 'following' ? 'explore' : tabKey
+      const selectedTab = FEED_TABS.find((tab) => tab.key === requestedTabKey) || FEED_TABS[0]
       const url = reset || !nextUrl ? `/api/posts/?feed=${selectedTab.feed}` : nextUrl
       const response = await api.get(url)
       if (latestRequestRef.current !== requestId) return
@@ -334,9 +336,14 @@ export default function FeedPage() {
       )}
 
       {!isAuthed && (
-        <p className="rounded border border-jangle-accent/30 bg-jangle-accent/10 p-3 text-sm text-jangle-textMuted">
-          Log in to create Drops, vote, and react.
-        </p>
+        <div className="space-y-2">
+          <p className="rounded border border-jangle-accent/30 bg-jangle-accent/10 p-3 text-sm text-jangle-textMuted">
+            Log in to create Drops, vote, and react.
+          </p>
+          {activeTab === 'following' && (
+            <p className="text-xs text-jangle-textMuted">Showing Explore posts until you log in.</p>
+          )}
+        </div>
       )}
 
       {error && <p className="text-sm text-red-300">{error}</p>}
@@ -345,7 +352,7 @@ export default function FeedPage() {
         {loading ? (
           <p className="text-sm text-jangle-textMuted">Loading posts...</p>
         ) : posts.length === 0 ? (
-          <p className="text-sm text-jangle-textMuted">{EMPTY_STATE_BY_TAB[activeTab]}</p>
+          <p className="text-sm text-jangle-textMuted">{EMPTY_STATE_BY_TAB[effectiveTabKey]}</p>
         ) : (
           posts.map((post) => (
             <PostCard key={post.id} post={post} onVote={onVote} onReact={onReact} isAuthed={isAuthed} />

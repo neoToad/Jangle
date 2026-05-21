@@ -8,6 +8,8 @@
 - Add websocket consumer/routing for sidebar chat room events and integration tests for delivery/reconnect behavior.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.
 - Re-run backend feed mode tests for prompts 3-6 after database host `db` is reachable in local test environment.
+- Re-run backend feed mode tests for prompts 7-8 after database host `db` is reachable in local test environment.
+- Re-run frontend `FeedPage.test.jsx` after resolving Vitest sandbox path access to `frontend/vite.config.js`.
 - Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.

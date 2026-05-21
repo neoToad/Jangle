@@ -39,7 +39,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if feed_mode == 'following':
             user = self.request.user
             if not user.is_authenticated:
-                return base_queryset.none()
+                return base_queryset.order_by('-created_at', '-id')
             return base_queryset.filter(author__in=user.following.all()).order_by('-created_at', '-id')
         raise ValidationError({'feed': 'Invalid feed mode. Use following, explore, or games.'})
 

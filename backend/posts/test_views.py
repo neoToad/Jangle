@@ -142,13 +142,14 @@ class PostListCreateViewTest(TestCase):
         self.assertIn('Followed post', titles)
         self.assertNotIn('Not followed post', titles)
 
-    def test_feed_following_returns_empty_list_for_guest(self):
+    def test_feed_following_for_guest_falls_back_to_explore(self):
         followed_author = make_user('followed-guest@example.com')
-        Post.objects.create(author=followed_author, post_type='text', title='Guest cannot see this')
+        Post.objects.create(author=followed_author, post_type='text', title='Guest fallback post')
 
         response = APIClient().get(f'{self.list_url}?feed=following')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['results'], [])
+        titles = [p['title'] for p in response.data['results']]
+        self.assertIn('Guest fallback post', titles)
 
     def test_feed_following_returns_empty_when_user_follows_nobody(self):
         other_author = make_user('other-nofollows@example.com')
@@ -196,6 +197,18 @@ class PostListCreateViewTest(TestCase):
         for item in second_page.data['results']:
             self.assertEqual(item['post_type'], 'file')
             self.assertEqual(item['file_type'], 'game')
+
+    def test_feed_games_pagination_has_no_duplicate_posts_across_pages(self):
+        for i in range(25):
+            Post.objects.create(author=self.user, post_type='file', file_type='game', title=f'Game dup {i}')
+
+        first_page = APIClient().get(f'{self.list_url}?feed=games')
+        second_page = APIClient().get(first_page.data['next'])
+        first_ids = {item['id'] for item in first_page.data['results']}
+        second_ids = {item['id'] for item in second_page.data['results']}
+        self.assertTrue(first_ids)
+        self.assertTrue(second_ids)
+        self.assertTrue(first_ids.isdisjoint(second_ids))
 
     def test_feed_invalid_value_returns_400(self):
         response = APIClient().get(f'{self.list_url}?feed=invalid')

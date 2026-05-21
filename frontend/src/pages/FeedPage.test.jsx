@@ -522,10 +522,11 @@ describe('FeedPage', () => {
     expect(screen.getAllByRole('button', { name: 'Comments 0' })).toHaveLength(2)
   })
 
-  it('fetches following feed by default and updates URL query when switching tabs', async () => {
+  it('fetches following feed by default for authenticated users and updates URL query when switching tabs', async () => {
     api.get.mockResolvedValue({
       data: { results: [], next: null },
     })
+    useAuthStore.setState({ accessToken: 'token', refreshToken: 'refresh', currentUser: { id: 1 } })
 
     window.history.pushState({}, '', '/')
 
@@ -546,6 +547,21 @@ describe('FeedPage', () => {
       expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=explore')
     })
     expect(window.location.search).toBe('?tab=explore')
+  })
+
+  it('uses explore feed as guest fallback when following tab is active', async () => {
+    api.get.mockResolvedValue({ data: { results: [], next: null } })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=explore')
+    })
+    expect(screen.getByText('Showing Explore posts until you log in.')).toBeInTheDocument()
   })
 
   it('resets pagination and replaces list when switching tabs', async () => {

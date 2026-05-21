@@ -1,9 +1,20 @@
 ## Next
-- Decide and document guest fallback policy for `feed=following` (`none` vs `explore` behavior) for prompt 7.
-- Implement feed tabs Prompt 8 hardening tests for invalid params, pagination boundaries, and rapid tab switch race coverage.
-- Re-run backend feed tests for prompts 3-6 once local DB host `db` is reachable.
+- Re-run backend feed tests for prompts 7-8 once local DB host `db` is reachable.
+- Re-run frontend `FeedPage.test.jsx` once Vitest config path access issue is resolved in this sandbox.
 
 ## Completed
+- Implemented feed tabs Prompt 7 (auth + fallback policy):
+  - selected auto-fallback policy: guest `Following` uses explore feed dataset.
+  - updated backend `PostViewSet` so `feed=following` for guests returns explore-ordered results.
+  - added backend regression test asserting guest fallback includes explore posts.
+  - added frontend regression test asserting guest `Following` fetches `/api/posts/?feed=explore`.
+  - added frontend guest copy: `Showing Explore posts until you log in.`
+- Implemented feed tabs Prompt 8 (hardening + docs):
+  - retained invalid feed regression (`400` + `feed` field).
+  - retained rapid tab switch stale-response regression in `FeedPage.test.jsx`.
+  - added backend pagination duplication regression for games feed (no overlap across pages).
+  - added concise API docs in `README.md` for `feed=following|explore|games` semantics.
+- Updated `docs/FEED_TABS_IMPLEMENTATION_PLAN.md` to mark Prompts 7 and 8 completed on 2026-05-21.
 - Implemented feed tabs Prompt 1 (frontend tab contract):
   - added FeedPage tests for tab-specific fetch params, URL query sync, history back behavior, and cross-tab pagination reset.
   - updated `frontend/src/pages/FeedPage.jsx` to map tabs to query/feed keys and fetch tab-specific datasets.
@@ -32,8 +43,9 @@
 - Updated `docs/FEED_TABS_IMPLEMENTATION_PLAN.md` to mark Prompts 5 and 6 completed on 2026-05-21.
 
 ## Tests
-- `npm run test -- --run src/pages/FeedPage.test.jsx` (pass: 19 tests).
-- `python manage.py test posts.test_views.PostListCreateViewTest -v 2` (blocked: `db` host name not resolvable in current environment).
+- `npm run test -- --run src/pages/FeedPage.test.jsx` (blocked in sandbox: Vitest startup could not resolve `frontend/vite.config.js` due path access denied).
+- `python manage.py test posts.test_views.PostListCreateViewTest -v 2` (blocked: PostgreSQL host `db` not resolvable in current environment).
 
 ## Blockers
 - Backend test environment cannot resolve PostgreSQL host `db` (`OperationalError: could not translate host name "db" to address`).
+- Frontend Vitest startup cannot access required config path in this sandbox (`Cannot read directory "../../.."`).
