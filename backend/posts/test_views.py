@@ -178,6 +178,25 @@ class PostListCreateViewTest(TestCase):
         titles = [p['title'] for p in response.data['results']]
         self.assertEqual(titles, ['Game included'])
 
+    def test_feed_games_pagination_keeps_feed_param_and_filters_each_page(self):
+        for i in range(25):
+            Post.objects.create(author=self.user, post_type='file', file_type='game', title=f'Game {i}')
+        Post.objects.create(author=self.user, post_type='text', title='Should never appear')
+
+        first_page = APIClient().get(f'{self.list_url}?feed=games')
+        self.assertEqual(first_page.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(first_page.data['next'])
+        self.assertIn('feed=games', first_page.data['next'])
+        for item in first_page.data['results']:
+            self.assertEqual(item['post_type'], 'file')
+            self.assertEqual(item['file_type'], 'game')
+
+        second_page = APIClient().get(first_page.data['next'])
+        self.assertEqual(second_page.status_code, status.HTTP_200_OK)
+        for item in second_page.data['results']:
+            self.assertEqual(item['post_type'], 'file')
+            self.assertEqual(item['file_type'], 'game')
+
     def test_feed_invalid_value_returns_400(self):
         response = APIClient().get(f'{self.list_url}?feed=invalid')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import PostCard from '../components/PostCard'
@@ -11,6 +11,11 @@ const FEED_TABS = [
   { label: 'Games', key: 'games', feed: 'games' },
 ]
 const VALID_TAB_KEYS = new Set(FEED_TABS.map((tab) => tab.key))
+const EMPTY_STATE_BY_TAB = {
+  following: 'No posts from followed creators yet.',
+  explore: 'No explore posts yet. Check back soon.',
+  games: 'No game drops yet.',
+}
 
 const emptyForm = {
   post_type: 'text',
@@ -167,8 +172,11 @@ export default function FeedPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isNearBottom, setIsNearBottom] = useState(false)
   const [canShowLoadMore, setCanShowLoadMore] = useState(false)
+  const latestRequestRef = useRef(0)
 
   const loadPosts = async ({ reset, tabKey } = { reset: false, tabKey: 'following' }) => {
+    const requestId = latestRequestRef.current + 1
+    latestRequestRef.current = requestId
     if (reset) {
       setLoading(true)
       setError('')
@@ -180,6 +188,7 @@ export default function FeedPage() {
       const selectedTab = FEED_TABS.find((tab) => tab.key === tabKey) || FEED_TABS[0]
       const url = reset || !nextUrl ? `/api/posts/?feed=${selectedTab.feed}` : nextUrl
       const response = await api.get(url)
+      if (latestRequestRef.current !== requestId) return
       const data = response.data
       const items = selectFeedItems(data)
       const next = selectFeedNext(data)
@@ -187,9 +196,11 @@ export default function FeedPage() {
       const normalizedItems = items.map(mapFeedPost)
       setPosts((prev) => (reset ? normalizedItems : [...prev, ...normalizedItems]))
     } catch {
+      if (latestRequestRef.current !== requestId) return
       setError('Could not load posts.')
       if (reset) setPosts([])
     } finally {
+      if (latestRequestRef.current !== requestId) return
       setLoading(false)
       setLoadingMore(false)
     }
@@ -333,6 +344,8 @@ export default function FeedPage() {
       <div className="space-y-3">
         {loading ? (
           <p className="text-sm text-jangle-textMuted">Loading posts...</p>
+        ) : posts.length === 0 ? (
+          <p className="text-sm text-jangle-textMuted">{EMPTY_STATE_BY_TAB[activeTab]}</p>
         ) : (
           posts.map((post) => (
             <PostCard key={post.id} post={post} onVote={onVote} onReact={onReact} isAuthed={isAuthed} />

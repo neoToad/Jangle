@@ -7,7 +7,7 @@
 - Add backend chat REST contract and support for room message history/create endpoints with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
 - Add websocket consumer/routing for sidebar chat room events and integration tests for delivery/reconnect behavior.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.
-- Re-run backend feed mode tests for prompts 3-4 after database host `db` is reachable in local test environment.
+- Re-run backend feed mode tests for prompts 3-6 after database host `db` is reachable in local test environment.
 - Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
@@ -17,7 +17,6 @@
 - Resolve React Testing Library `act(...)` warning in `src/pages/PostDetailPage.test.jsx` websocket message test.
 
 ## Medium Priority
-- Add empty-feed UI copy state for successful API responses with zero posts.
 - Run full backend test suite before next backend feature merge.
 - Add targeted tests for auth store token lifecycle and refresh interceptor behavior.
 

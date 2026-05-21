@@ -51,11 +51,13 @@ Status: Completed on 2026-05-21
 - Keep query efficient and add regression coverage for order stability.
 
 ## Prompt 5: Games Feed Filtering
+Status: Completed on 2026-05-21
 - Add failing tests for inclusion/exclusion rules.
 - Implement filter for game-relevant content (at minimum `post_type=file` + `file_type=game`).
 - Validate same pagination/load-more behavior as other feed modes.
 
 ## Prompt 6: Frontend UX States Per Tab
+Status: Completed on 2026-05-21
 - Add failing tests for tab-specific loading/error/empty states.
 - Ensure stale responses from previous tabs do not overwrite active tab results.
 - Ensure `Load more` continues using current tab parameters.

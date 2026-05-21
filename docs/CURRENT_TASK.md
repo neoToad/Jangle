@@ -1,7 +1,7 @@
 ## Next
-- Implement feed tabs Prompt 5 (`Games` filtering hardening) with TDD in frontend + backend.
-- Implement feed tabs Prompt 6 (tab-specific loading/error/empty states) with stale-response protection.
 - Decide and document guest fallback policy for `feed=following` (`none` vs `explore` behavior) for prompt 7.
+- Implement feed tabs Prompt 8 hardening tests for invalid params, pagination boundaries, and rapid tab switch race coverage.
+- Re-run backend feed tests for prompts 3-6 once local DB host `db` is reachable.
 
 ## Completed
 - Implemented feed tabs Prompt 1 (frontend tab contract):
@@ -22,9 +22,17 @@
   - added deterministic tie-breaker regression test for equal engagement and timestamp ordering.
   - updated explore queryset to annotate reaction/vote/comment engagement score and order by `-engagement_score`, `-created_at`, `-id`.
 - Updated `docs/FEED_TABS_IMPLEMENTATION_PLAN.md` to mark Prompts 3 and 4 completed on 2026-05-21.
+- Implemented feed tabs Prompt 5 (games feed filtering hardening):
+  - added backend pagination regression test to ensure `feed=games` keeps filtering across pages and preserves `feed=games` in `next` links.
+  - validated frontend games-tab load-more flow uses tab-scoped pagination URL.
+- Implemented feed tabs Prompt 6 (frontend tab UX states and race protection):
+  - added tab-specific empty-state copy for `following`, `explore`, and `games` feeds.
+  - added stale-response protection so earlier tab responses cannot overwrite active-tab results.
+  - added frontend tests for empty-state copy, stale-response guard, and games-tab load-more behavior.
+- Updated `docs/FEED_TABS_IMPLEMENTATION_PLAN.md` to mark Prompts 5 and 6 completed on 2026-05-21.
 
 ## Tests
-- `npm run test -- --run src/pages/FeedPage.test.jsx` (pass: 16 tests).
+- `npm run test -- --run src/pages/FeedPage.test.jsx` (pass: 19 tests).
 - `python manage.py test posts.test_views.PostListCreateViewTest -v 2` (blocked: `db` host name not resolvable in current environment).
 
 ## Blockers

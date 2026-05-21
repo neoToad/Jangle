@@ -619,4 +619,99 @@ describe('FeedPage', () => {
       expect(screen.getByRole('button', { name: 'Games' })).toHaveClass('bg-jangle-accent/15')
     })
   })
+
+  it('shows tab-specific empty-state copy', async () => {
+    api.get.mockResolvedValue({ data: { results: [], next: null } })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText('No posts from followed creators yet.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Explore' }))
+    expect(await screen.findByText('No explore posts yet. Check back soon.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Games' }))
+    expect(await screen.findByText('No game drops yet.')).toBeInTheDocument()
+  })
+
+  it('ignores stale response from previous tab after rapid tab switch', async () => {
+    let resolveFollowing
+    const followingPromise = new Promise((resolve) => {
+      resolveFollowing = resolve
+    })
+
+    api.get
+      .mockReturnValueOnce(followingPromise)
+      .mockResolvedValueOnce({
+        data: {
+          results: [
+            { id: 301, post_type: 'text', title: 'Explore fresh', body: 'body', reaction_counts: {}, vote_score: 0 },
+          ],
+          next: null,
+        },
+      })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Explore' }))
+    expect(await screen.findByRole('link', { name: 'Explore fresh' })).toBeInTheDocument()
+
+    resolveFollowing({
+      data: {
+        results: [
+          { id: 302, post_type: 'text', title: 'Following stale', body: 'body', reaction_counts: {}, vote_score: 0 },
+        ],
+        next: null,
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.queryByRole('link', { name: 'Following stale' })).not.toBeInTheDocument()
+    })
+  })
+
+  it('load more on games tab continues using games pagination parameters', async () => {
+    Object.defineProperty(window, 'innerHeight', { value: 600, configurable: true, writable: true })
+    Object.defineProperty(window, 'scrollY', { value: 1410, configurable: true, writable: true })
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 2000, configurable: true, writable: true })
+
+    api.get
+      .mockResolvedValueOnce({ data: { results: [], next: null } })
+      .mockResolvedValueOnce({
+        data: {
+          results: [{ id: 401, post_type: 'file', file_type: 'game', title: 'Game one', reaction_counts: {}, vote_score: 0 }],
+          next: '/api/posts/?feed=games&page=2',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          results: [{ id: 402, post_type: 'file', file_type: 'game', title: 'Game two', reaction_counts: {}, vote_score: 0 }],
+          next: null,
+        },
+      })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Games' }))
+    expect(await screen.findByRole('link', { name: 'Game one' })).toBeInTheDocument()
+
+    fireEvent.scroll(window)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }))
+
+    expect(await screen.findByRole('link', { name: 'Game two' })).toBeInTheDocument()
+    expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=games&page=2')
+  })
 })
