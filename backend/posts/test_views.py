@@ -1,4 +1,6 @@
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
+from django.db import connection
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -89,6 +91,42 @@ class PostListCreateViewTest(TestCase):
         payload = response.data['results'][0]
         self.assertIn('comment_count', payload)
         self.assertEqual(payload['comment_count'], 1)
+
+    def test_comment_count_updates_after_comment_create_and_feed_refetch(self):
+        post = self._make_post(title='Refresh Count')
+        detail_url = reverse('posts:post-detail', args=[post.pk])
+        comment_create_url = reverse('interactions:comment-list-create', args=[post.pk])
+
+        first_list = APIClient().get(self.list_url)
+        self.assertEqual(first_list.status_code, status.HTTP_200_OK)
+        self.assertEqual(first_list.data['results'][0]['comment_count'], 0)
+
+        detail_response = APIClient().get(detail_url)
+        self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
+
+        create_response = auth_client(self.user).post(
+            comment_create_url, {'body': 'new comment'}, format='json'
+        )
+        self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+
+        second_list = APIClient().get(self.list_url)
+        self.assertEqual(second_list.status_code, status.HTTP_200_OK)
+        self.assertEqual(second_list.data['results'][0]['comment_count'], 1)
+
+    def test_list_avoids_per_post_comment_count_queries(self):
+        posts = [self._make_post(title=f'Post {i}') for i in range(3)]
+        for post in posts:
+            Comment.objects.create(post=post, author=self.user, body='c1')
+
+        with CaptureQueriesContext(connection) as ctx:
+            response = APIClient().get(self.list_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        comment_table_queries = [
+            q for q in ctx.captured_queries if 'interactions_comment' in q['sql'].lower()
+        ]
+        # DRF pagination can add a second aggregate query, but count queries should not scale per post.
+        self.assertLessEqual(len(comment_table_queries), 2)
 
 
 class PostRetrieveViewTest(TestCase):

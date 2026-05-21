@@ -1,9 +1,8 @@
 # TODO
 
 ## High Priority
-- Validate feed query-count performance after `comment_count` annotation to ensure no material regression.
-- Verify comment count refresh behavior from post detail creation flow back to feed refresh.
 - Run broader frontend regression suite after post-detail style parity completion.
+- Decide whether to resolve or defer FeedPage Vitest `act(...)` warnings in `frontend/src/pages/FeedPage.test.jsx`.
 - Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
 - Add backend chat REST contract and support for room message history/create endpoints with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
 - Add websocket consumer/routing for sidebar chat room events and integration tests for delivery/reconnect behavior.
