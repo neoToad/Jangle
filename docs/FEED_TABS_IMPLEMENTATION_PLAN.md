@@ -10,6 +10,7 @@
 - Feed API path is currently generic (`/api/posts/`) without tab semantics in UI logic.
 
 ## Prompt 1: Frontend Tab Contract (Tests First)
+Status: Completed on 2026-05-21
 - Add failing tests in `frontend/src/pages/FeedPage.test.jsx`:
   - default selected tab is `Following`.
   - each tab triggers a fetch using tab-specific query params.
@@ -19,6 +20,7 @@
 - Implement minimal tab mapping and state reset logic in `FeedPage.jsx`.
 
 ## Prompt 2: Backend Feed Mode Contract (Tests First)
+Status: Completed on 2026-05-21
 - Add failing DRF tests (split by file):
   - `test_views.py`: `/api/posts/?feed=following|explore|games` behavior.
   - `test_serializers.py`: stable response shape across feed modes.

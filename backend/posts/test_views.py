@@ -128,6 +128,44 @@ class PostListCreateViewTest(TestCase):
         # DRF pagination can add a second aggregate query, but count queries should not scale per post.
         self.assertLessEqual(len(comment_table_queries), 2)
 
+    def test_feed_following_returns_only_followed_authors_for_authenticated_user(self):
+        followed_author = make_user('followed@example.com')
+        other_author = make_user('other-following@example.com')
+        self.user.following.add(followed_author)
+        Post.objects.create(author=followed_author, post_type='text', title='Followed post')
+        Post.objects.create(author=other_author, post_type='text', title='Not followed post')
+
+        response = auth_client(self.user).get(f'{self.list_url}?feed=following')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        titles = [p['title'] for p in response.data['results']]
+        self.assertIn('Followed post', titles)
+        self.assertNotIn('Not followed post', titles)
+
+    def test_feed_explore_returns_discovery_posts(self):
+        self._make_post(title='Explore text')
+        Post.objects.create(author=self.user, post_type='file', file_type='game', title='Explore game')
+
+        response = APIClient().get(f'{self.list_url}?feed=explore')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        titles = [p['title'] for p in response.data['results']]
+        self.assertIn('Explore text', titles)
+        self.assertIn('Explore game', titles)
+
+    def test_feed_games_returns_only_game_file_posts(self):
+        Post.objects.create(author=self.user, post_type='file', file_type='game', title='Game included')
+        Post.objects.create(author=self.user, post_type='file', file_type='image', title='Image excluded')
+        self._make_post(title='Text excluded')
+
+        response = APIClient().get(f'{self.list_url}?feed=games')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        titles = [p['title'] for p in response.data['results']]
+        self.assertEqual(titles, ['Game included'])
+
+    def test_feed_invalid_value_returns_400(self):
+        response = APIClient().get(f'{self.list_url}?feed=invalid')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('feed', response.data)
+
 
 class PostRetrieveViewTest(TestCase):
     def setUp(self):

@@ -103,3 +103,14 @@ class PostSerializerTest(TestCase):
 
         data = PostSerializer(self.post).data
         self.assertEqual(data['comment_count'], 2)
+
+    def test_feed_mode_response_shape_fields_are_stable(self):
+        post = Post.objects.create(author=self.user, post_type='file', file_type='game', title='Game shape')
+        data = PostSerializer(post).data
+        expected_fields = {
+            'id', 'author', 'post_type', 'title', 'body',
+            'youtube_url', 'file', 'file_type',
+            'created_at', 'updated_at', 'is_pinned',
+            'reaction_counts', 'vote_score', 'comment_count',
+        }
+        self.assertEqual(set(data.keys()), expected_fields)

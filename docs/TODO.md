@@ -6,8 +6,6 @@
 - Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
 - Add backend chat REST contract and support for room message history/create endpoints with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
 - Add websocket consumer/routing for sidebar chat room events and integration tests for delivery/reconnect behavior.
-- Implement functional feed tab behavior for `Following`, `Explore`, and `Games` in `frontend/src/pages/FeedPage.jsx` with TDD coverage.
-- Add backend feed mode API contract support for `/api/posts/?feed=...` with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.
 - Prompt 11: wire sidebar `The Jangle` chat panel to backend `api/chat/` endpoint when routes are implemented.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.

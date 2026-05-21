@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import PostCard from '../components/PostCard'
 import { useAuthStore } from '../store/authStore'
 import { mapFeedPost, selectFeedItems, selectFeedNext } from '../adapters/posts'
 
-const FEED_TABS = ['Following', 'Explore', 'Games']
+const FEED_TABS = [
+  { label: 'Following', key: 'following', feed: 'following' },
+  { label: 'Explore', key: 'explore', feed: 'explore' },
+  { label: 'Games', key: 'games', feed: 'games' },
+]
+const VALID_TAB_KEYS = new Set(FEED_TABS.map((tab) => tab.key))
 
 const emptyForm = {
   post_type: 'text',
@@ -147,23 +153,32 @@ function CreatePostForm({ onCreated, onCancel, isAuthed }) {
 export default function FeedPage() {
   const accessToken = useAuthStore((state) => state.accessToken)
   const isAuthed = useMemo(() => Boolean(accessToken), [accessToken])
+  const [searchParams, setSearchParams] = useSearchParams()
+  const readTabFromQuery = () => {
+    const tabParam = (searchParams.get('tab') || '').toLowerCase()
+    return VALID_TAB_KEYS.has(tabParam) ? tabParam : 'following'
+  }
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [nextUrl, setNextUrl] = useState(null)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [activeTab, setActiveTab] = useState('Following')
+  const [activeTab, setActiveTab] = useState(readTabFromQuery)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isNearBottom, setIsNearBottom] = useState(false)
   const [canShowLoadMore, setCanShowLoadMore] = useState(false)
 
-  const loadPosts = async ({ reset } = { reset: false }) => {
+  const loadPosts = async ({ reset, tabKey } = { reset: false, tabKey: 'following' }) => {
     if (reset) {
       setLoading(true)
       setError('')
+      setPosts([])
+      setNextUrl(null)
+      setCanShowLoadMore(false)
     }
     try {
-      const url = reset || !nextUrl ? '/api/posts/' : nextUrl
+      const selectedTab = FEED_TABS.find((tab) => tab.key === tabKey) || FEED_TABS[0]
+      const url = reset || !nextUrl ? `/api/posts/?feed=${selectedTab.feed}` : nextUrl
       const response = await api.get(url)
       const data = response.data
       const items = selectFeedItems(data)
@@ -181,8 +196,18 @@ export default function FeedPage() {
   }
 
   useEffect(() => {
-    loadPosts({ reset: true })
-  }, [])
+    const queryTab = readTabFromQuery()
+    if (queryTab !== activeTab) {
+      setActiveTab(queryTab)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (searchParams.get('tab') !== activeTab) {
+      setSearchParams({ tab: activeTab })
+    }
+    loadPosts({ reset: true, tabKey: activeTab })
+  }, [activeTab])
 
   useEffect(() => {
     const updateBottomState = () => {
@@ -233,13 +258,13 @@ export default function FeedPage() {
   const onVote = async (postId, value) => {
     if (!isAuthed) return
     await api.post(`/api/interactions/posts/${postId}/votes/`, { value })
-    await loadPosts({ reset: true })
+    await loadPosts({ reset: true, tabKey: activeTab })
   }
 
   const onReact = async (postId, emoji) => {
     if (!isAuthed) return
     await api.post(`/api/interactions/posts/${postId}/reactions/`, { emoji })
-    await loadPosts({ reset: true })
+    await loadPosts({ reset: true, tabKey: activeTab })
   }
 
   const loadMore = async () => {
@@ -260,19 +285,19 @@ export default function FeedPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {FEED_TABS.map((tab) => {
-            const isActive = activeTab === tab
+            const isActive = activeTab === tab.key
             return (
               <button
-                key={tab}
+                key={tab.key}
                 type="button"
-                onClick={() => setActiveTab(tab)}
+                onClick={() => setActiveTab(tab.key)}
                 className={`rounded-full border px-4 py-1.5 text-sm transition ${
                   isActive
                     ? 'border-jangle-accent/40 bg-jangle-accent/15 text-jangle-accent'
                     : 'border-jangle-border bg-transparent text-jangle-textMuted hover:text-jangle-textPrimary'
                 }`}
               >
-                {tab}
+                {tab.label}
               </button>
             )
           })}
@@ -289,7 +314,7 @@ export default function FeedPage() {
       {isCreateOpen && (
         <CreatePostForm
           onCreated={async () => {
-            await loadPosts({ reset: true })
+            await loadPosts({ reset: true, tabKey: activeTab })
             setIsCreateOpen(false)
           }}
           onCancel={() => setIsCreateOpen(false)}

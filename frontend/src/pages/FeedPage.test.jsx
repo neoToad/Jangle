@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import FeedPage from './FeedPage'
 import { api } from '../lib/api'
@@ -520,5 +520,103 @@ describe('FeedPage', () => {
     expect(screen.getByRole('button', { name: 'Toggle YouTube player' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Play Now' })).toBeEnabled()
     expect(screen.getAllByRole('button', { name: 'Comments 0' })).toHaveLength(2)
+  })
+
+  it('fetches following feed by default and updates URL query when switching tabs', async () => {
+    api.get.mockResolvedValue({
+      data: { results: [], next: null },
+    })
+
+    window.history.pushState({}, '', '/')
+
+    render(
+      <BrowserRouter>
+        <FeedPage />
+      </BrowserRouter>,
+    )
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=following')
+    })
+    expect(window.location.search).toBe('?tab=following')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Explore' }))
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=explore')
+    })
+    expect(window.location.search).toBe('?tab=explore')
+  })
+
+  it('resets pagination and replaces list when switching tabs', async () => {
+    api.get
+      .mockResolvedValueOnce({
+        data: {
+          results: [{ id: 101, post_type: 'text', title: 'Following one', body: 'body', reaction_counts: {}, vote_score: 0 }],
+          next: '/api/posts/?feed=following&page=2',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          results: [{ id: 102, post_type: 'text', title: 'Following two', body: 'body', reaction_counts: {}, vote_score: 0 }],
+          next: null,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          results: [{ id: 201, post_type: 'text', title: 'Explore one', body: 'body', reaction_counts: {}, vote_score: 0 }],
+          next: null,
+        },
+      })
+
+    Object.defineProperty(window, 'innerHeight', { value: 600, configurable: true, writable: true })
+    Object.defineProperty(window, 'scrollY', { value: 1410, configurable: true, writable: true })
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 2000, configurable: true, writable: true })
+
+    render(
+      <MemoryRouter>
+        <FeedPage />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByRole('link', { name: 'Following one' })).toBeInTheDocument()
+    fireEvent.scroll(window)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Load more' })).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }))
+    expect(await screen.findByRole('link', { name: 'Following two' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Explore' }))
+    expect(await screen.findByRole('link', { name: 'Explore one' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Following one' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Following two' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument()
+  })
+
+  it('syncs active tab from URL and responds to browser back/forward', async () => {
+    api.get.mockResolvedValue({ data: { results: [], next: null } })
+    window.history.pushState({}, '', '/?tab=games')
+
+    render(
+      <BrowserRouter>
+        <FeedPage />
+      </BrowserRouter>,
+    )
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=games')
+    })
+    expect(screen.getByRole('button', { name: 'Games' })).toHaveClass('bg-jangle-accent/15')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Following' }))
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=following')
+    })
+
+    window.history.back()
+    window.dispatchEvent(new PopStateEvent('popstate'))
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Games' })).toHaveClass('bg-jangle-accent/15')
+    })
   })
 })

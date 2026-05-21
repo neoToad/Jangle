@@ -1,15 +1,22 @@
 ## Next
-- Run broader frontend regression suite after post-detail style parity completion.
-- Decide whether to resolve or defer existing FeedPage `act(...)` warning noise in Vitest output.
+- Implement feed tabs Prompt 3 (`Following` guest/auth semantics) with TDD in frontend + backend.
+- Decide and document guest fallback policy for `feed=following` (`none` vs `explore` behavior).
+- Run backend feed mode tests once local DB host `db` is reachable in the test environment.
 
 ## Completed
-- Added `backend/.coveragerc` to define Django backend coverage behavior.
-- Configured coverage source targets: `chat`, `interactions`, `posts`, `users`, `core`.
-- Added omit rules for migrations, tests, `manage.py`, settings variants, ASGI/WSGI, and cache directories.
-- Added reporting defaults: `show_missing = True`, `skip_covered = True`, and practical `exclude_lines` patterns.
+- Implemented feed tabs Prompt 1 (frontend tab contract):
+  - added FeedPage tests for tab-specific fetch params, URL query sync, history back behavior, and cross-tab pagination reset.
+  - updated `frontend/src/pages/FeedPage.jsx` to map tabs to query/feed keys and fetch tab-specific datasets.
+  - synchronized active tab with URL query (`?tab=following|explore|games`).
+- Implemented feed modes Prompt 2 (backend API contract):
+  - added `posts/test_views.py` coverage for `feed=following|explore|games` and invalid feed behavior.
+  - added `posts/test_serializers.py` response-shape contract test for stable payload fields.
+  - updated `posts/views.py` queryset branching for `following`, `explore`, and `games`; invalid feed returns 400.
+- Updated `docs/FEED_TABS_IMPLEMENTATION_PLAN.md` to mark Prompts 1 and 2 completed on 2026-05-21.
 
 ## Tests
-- Not run (config/documentation-only change).
+- `npm run test -- --run src/pages/FeedPage.test.jsx` (pass: 16 tests).
+- `python manage.py test posts.test_views posts.test_serializers -v 2` (blocked: `db` host name not resolvable in current environment).
 
 ## Blockers
-- None.
+- Backend test environment cannot resolve PostgreSQL host `db` (`OperationalError: could not translate host name "db" to address`).
