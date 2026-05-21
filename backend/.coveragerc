@@ -1,0 +1,28 @@
+[run]
+branch = True
+source =
+    chat
+    interactions
+    posts
+    users
+    core
+omit =
+    */migrations/*
+    */test_*.py
+    */tests.py
+    */conftest.py
+    manage.py
+    core/settings*.py
+    core/asgi.py
+    core/wsgi.py
+    */__pycache__/*
+    */.pytest_cache/*
+
+[report]
+show_missing = True
+skip_covered = True
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    raise NotImplementedError
+    if __name__ == "__main__":
