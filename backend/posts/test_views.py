@@ -1,13 +1,14 @@
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 from django.db import connection
+from django.utils import timezone
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from posts.models import Post
-from interactions.models import Comment
+from interactions.models import Comment, Reaction, Vote
 
 User = get_user_model()
 
@@ -141,6 +142,22 @@ class PostListCreateViewTest(TestCase):
         self.assertIn('Followed post', titles)
         self.assertNotIn('Not followed post', titles)
 
+    def test_feed_following_returns_empty_list_for_guest(self):
+        followed_author = make_user('followed-guest@example.com')
+        Post.objects.create(author=followed_author, post_type='text', title='Guest cannot see this')
+
+        response = APIClient().get(f'{self.list_url}?feed=following')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], [])
+
+    def test_feed_following_returns_empty_when_user_follows_nobody(self):
+        other_author = make_user('other-nofollows@example.com')
+        Post.objects.create(author=other_author, post_type='text', title='No-follow candidate')
+
+        response = auth_client(self.user).get(f'{self.list_url}?feed=following')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], [])
+
     def test_feed_explore_returns_discovery_posts(self):
         self._make_post(title='Explore text')
         Post.objects.create(author=self.user, post_type='file', file_type='game', title='Explore game')
@@ -165,6 +182,37 @@ class PostListCreateViewTest(TestCase):
         response = APIClient().get(f'{self.list_url}?feed=invalid')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('feed', response.data)
+
+    def test_feed_explore_orders_by_engagement_then_recency(self):
+        older_high = Post.objects.create(author=self.user, post_type='text', title='Older high engagement')
+        newer_low = Post.objects.create(author=self.user, post_type='text', title='Newer low engagement')
+        other_user = make_user('engagement2@example.com')
+
+        # High engagement: 2 votes + 2 reactions + 1 visible comment = 5
+        Vote.objects.create(user=self.user, post=older_high, value=1)
+        Vote.objects.create(user=other_user, post=older_high, value=1)
+        Reaction.objects.create(user=self.user, post=older_high, emoji='🔥')
+        Reaction.objects.create(user=other_user, post=older_high, emoji='👍')
+        Comment.objects.create(post=older_high, author=self.user, body='engaged')
+
+        # Low engagement: only one vote = 1
+        Vote.objects.create(user=self.user, post=newer_low, value=1)
+
+        response = APIClient().get(f'{self.list_url}?feed=explore')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        titles = [p['title'] for p in response.data['results']]
+        self.assertEqual(titles[:2], ['Older high engagement', 'Newer low engagement'])
+
+    def test_feed_explore_uses_deterministic_tiebreaker_on_equal_scores(self):
+        first = Post.objects.create(author=self.user, post_type='text', title='Tie first')
+        second = Post.objects.create(author=self.user, post_type='text', title='Tie second')
+        fixed_ts = timezone.now()
+        Post.objects.filter(pk__in=[first.pk, second.pk]).update(created_at=fixed_ts)
+
+        response = APIClient().get(f'{self.list_url}?feed=explore')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        titles = [p['title'] for p in response.data['results']]
+        self.assertEqual(titles[:2], ['Tie second', 'Tie first'])
 
 
 class PostRetrieveViewTest(TestCase):

@@ -33,6 +33,7 @@ Status: Completed on 2026-05-21
 - Implement queryset branching while preserving pagination behavior.
 
 ## Prompt 3: Following Feed Semantics
+Status: Completed on 2026-05-21
 - If follow relationship exists, integrate it into feed queryset.
 - If missing, add follow model with:
   - `follower`, `following`, unique pair constraint.
@@ -44,6 +45,7 @@ Status: Completed on 2026-05-21
   - authenticated vs guest behavior is explicit and consistent.
 
 ## Prompt 4: Explore Ranking
+Status: Completed on 2026-05-21
 - Add failing tests that prove ranking intent (engagement + recency).
 - Implement pragmatic v1 ordering with deterministic tie-breakers.
 - Keep query efficient and add regression coverage for order stability.
