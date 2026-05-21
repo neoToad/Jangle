@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from posts.models import Post
+from interactions.models import Comment
 
 User = get_user_model()
 
@@ -77,6 +78,17 @@ class PostListCreateViewTest(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('file', response.data)
+
+    def test_list_includes_comment_count(self):
+        post = self._make_post(title='Counted')
+        Comment.objects.create(post=post, author=self.user, body='one')
+        Comment.objects.create(post=post, author=self.user, body='two', is_removed=True)
+
+        response = APIClient().get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = response.data['results'][0]
+        self.assertIn('comment_count', payload)
+        self.assertEqual(payload['comment_count'], 1)
 
 
 class PostRetrieveViewTest(TestCase):

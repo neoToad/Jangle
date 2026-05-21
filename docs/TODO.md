@@ -1,9 +1,8 @@
 # TODO
 
 ## High Priority
-- Fix feed comment count contract mismatch by adding backend `comment_count` and wiring frontend mapping/tests.
-- Add backend serializer/view tests to lock comment count semantics and payload presence for feed responses.
-- Add frontend adapter/feed regression tests ensuring `Comments N` reflects API values instead of defaulting to `0`.
+- Validate feed query-count performance after `comment_count` annotation to ensure no material regression.
+- Verify comment count refresh behavior from post detail creation flow back to feed refresh.
 - Run broader frontend regression suite after post-detail style parity completion.
 - Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by REST history + websocket updates, with TDD coverage.
 - Add backend chat REST contract and support for room message history/create endpoints with DRF tests split by `test_models.py`, `test_serializers.py`, and `test_views.py`.

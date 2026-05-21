@@ -26,6 +26,7 @@ Status: Completed on 2026-05-19.
 - Keep policy explicit in tests to avoid future ambiguity.
 
 ## Prompt 3: Backend Implementation
+Status: Completed on 2026-05-21.
 - Add `comment_count` field to `PostSerializer`:
   - use annotation on queryset (`Count('comments', filter=...)`) or serializer method.
   - avoid N+1 query patterns for feed lists.
@@ -33,6 +34,7 @@ Status: Completed on 2026-05-19.
 - Preserve existing response fields and pagination behavior.
 
 ## Prompt 4: Frontend Adapter Hardening
+Status: Completed on 2026-05-21.
 - Update `frontend/src/adapters/posts.js` only if needed for compatibility:
   - consume `comment_count` as primary source.
   - optional temporary alias support if multiple API shapes exist during rollout.

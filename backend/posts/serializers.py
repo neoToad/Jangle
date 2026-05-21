@@ -8,6 +8,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(read_only=True)
     reaction_counts = serializers.SerializerMethodField()
     vote_score = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -15,7 +16,7 @@ class PostSerializer(serializers.ModelSerializer):
             'id', 'author', 'post_type', 'title', 'body',
             'youtube_url', 'file', 'file_type',
             'created_at', 'updated_at', 'is_pinned',
-            'reaction_counts', 'vote_score',
+            'reaction_counts', 'vote_score', 'comment_count',
         ]
         read_only_fields = ['id', 'author', 'created_at', 'updated_at']
 
@@ -27,6 +28,13 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_vote_score(self, obj):
         return obj.votes.aggregate(total=Sum('value'))['total'] or 0
+
+    def get_comment_count(self, obj):
+        # Prefer queryset annotation for list/detail performance; fallback for direct serializer use.
+        annotated_value = getattr(obj, 'comment_count', None)
+        if annotated_value is not None:
+            return annotated_value
+        return obj.comments.filter(is_removed=False).count()
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
