@@ -625,7 +625,7 @@ describe('FeedPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Following' }))
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=following')
+      expect(api.get).toHaveBeenCalledWith('/api/posts/?feed=explore')
     })
 
     window.history.back()
@@ -645,7 +645,7 @@ describe('FeedPage', () => {
       </MemoryRouter>,
     )
 
-    expect(await screen.findByText('No posts from followed creators yet.')).toBeInTheDocument()
+    expect(await screen.findByText('No explore posts yet. Check back soon.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Explore' }))
     expect(await screen.findByText('No explore posts yet. Check back soon.')).toBeInTheDocument()
