@@ -12,9 +12,12 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         feed_mode = (self.request.query_params.get('feed') or 'explore').lower()
+        valid_comment_filter = Q(comments__is_removed=False) & (
+            Q(comments__parent__isnull=True) | Q(comments__parent__post=F('pk'))
+        )
         base_queryset = (
             Post.objects.filter(is_removed=False)
-            .annotate(comment_count=Count('comments', filter=Q(comments__is_removed=False), distinct=True))
+            .annotate(comment_count=Count('comments', filter=valid_comment_filter, distinct=True))
         )
         if feed_mode == 'explore':
             return (
@@ -23,7 +26,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     reaction_count=Count('reactions', distinct=True),
                     vote_count=Count('votes', distinct=True),
                     active_comment_count=Count(
-                        'comments', filter=Q(comments__is_removed=False), distinct=True
+                        'comments', filter=valid_comment_filter, distinct=True
                     ),
                 )
                 .annotate(

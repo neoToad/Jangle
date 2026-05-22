@@ -109,6 +109,16 @@ class CommentListCreateViewTest(TestCase):
         reply = Comment.objects.get(body='Reply text')
         self.assertEqual(reply.parent, parent)
 
+    def test_create_reply_rejects_parent_from_different_post(self):
+        other_post = make_post(self.user)
+        foreign_parent = Comment.objects.create(post=other_post, author=self.user, body='Foreign parent')
+
+        response = auth_client(self.user).post(
+            self.url, {'body': 'Bad reply', 'parent': foreign_parent.pk}, format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('parent', response.data)
+
 
 class CommentDestroyViewTest(TestCase):
     def setUp(self):

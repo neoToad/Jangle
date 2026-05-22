@@ -2,6 +2,11 @@
 - None.
 
 ## Completed
+- Fixed reply visibility/count mismatch caused by cross-post orphan replies:
+  - added backend validation to reject creating replies whose parent belongs to a different post.
+  - constrained comment counting to same-post thread-valid comments (`top-level` or parent on same post).
+  - constrained nested reply serialization to same-post replies.
+  - verified reported post now resolves to `comment_count = 4` (matching visible top-level thread items).
 - Fixed explore-feed `comment_count` inflation bug causing mismatched card counts:
   - added regression test proving `comment_count` must not inflate when reactions/votes joins are present.
   - updated post queryset annotation to use distinct comment counting.
@@ -42,6 +47,8 @@
   - expected guest `Following` empty state to show explore copy.
 
 ## Tests
+- `docker compose exec backend python manage.py test interactions.test_views.CommentListCreateViewTest.test_create_reply_rejects_parent_from_different_post posts.test_views.PostListCreateViewTest.test_feed_explore_comment_count_excludes_cross_post_orphan_replies posts.test_views.PostListCreateViewTest.test_feed_explore_comment_count_not_inflated_by_reactions_and_votes_joins posts.test_serializers.PostSerializerTest.test_comment_count_excludes_cross_post_orphan_replies -v 1 --noinput` (pass: 4 passed).
+- `docker compose exec backend python manage.py test posts.test_views interactions.test_views interactions.test_serializers posts.test_serializers -v 1 --noinput` (pass: 88 passed).
 - `docker compose exec backend python manage.py test posts.test_views.PostListCreateViewTest.test_feed_explore_comment_count_not_inflated_by_reactions_and_votes_joins -v 1 --noinput` (pass: 1 passed).
 - `docker compose exec backend python manage.py test posts.test_views interactions.test_views interactions.test_serializers -v 1` (pass: 68 passed).
 - `python backend/manage.py test interactions.test_serializers interactions.test_views -v 2` (blocked: DB host `db` not resolvable in this shell environment).

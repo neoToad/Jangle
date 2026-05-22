@@ -104,6 +104,15 @@ class PostSerializerTest(TestCase):
         data = PostSerializer(self.post).data
         self.assertEqual(data['comment_count'], 2)
 
+    def test_comment_count_excludes_cross_post_orphan_replies(self):
+        other_post = Post.objects.create(author=self.user, post_type='text', title='Other')
+        foreign_parent = Comment.objects.create(post=other_post, author=self.user, body='foreign parent')
+        Comment.objects.create(post=self.post, author=self.user, body='top level')
+        Comment.objects.create(post=self.post, author=self.user, body='orphan reply', parent=foreign_parent)
+
+        data = PostSerializer(self.post).data
+        self.assertEqual(data['comment_count'], 1)
+
     def test_feed_mode_response_shape_fields_are_stable(self):
         post = Post.objects.create(author=self.user, post_type='file', file_type='game', title='Game shape')
         data = PostSerializer(post).data

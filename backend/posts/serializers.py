@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from posts.models import Post
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from urllib.parse import urlparse
 
 
@@ -34,7 +34,9 @@ class PostSerializer(serializers.ModelSerializer):
         annotated_value = getattr(obj, 'comment_count', None)
         if annotated_value is not None:
             return annotated_value
-        return obj.comments.filter(is_removed=False).count()
+        return obj.comments.filter(is_removed=False).filter(
+            Q(parent__isnull=True) | Q(parent__post=obj)
+        ).count()
 
     def validate(self, attrs):
         attrs = super().validate(attrs)

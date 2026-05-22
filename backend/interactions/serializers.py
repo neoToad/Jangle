@@ -25,8 +25,20 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'post', 'author', 'created_at']
 
     def get_replies(self, obj):
-        qs = obj.replies.filter(is_removed=False).select_related('author').order_by('created_at', 'id')
+        qs = (
+            obj.replies.filter(is_removed=False, post=obj.post)
+            .select_related('author')
+            .order_by('created_at', 'id')
+        )
         return CommentSerializer(qs, many=True).data
+
+    def validate_parent(self, parent):
+        if parent is None:
+            return parent
+        post_id = self.context.get('view').kwargs.get('post_id') if self.context.get('view') else None
+        if post_id is not None and parent.post_id != int(post_id):
+            raise serializers.ValidationError('Parent comment must belong to the same post.')
+        return parent
 
     def get_reaction_counts(self, obj):
         counts = {}

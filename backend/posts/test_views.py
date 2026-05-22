@@ -262,6 +262,18 @@ class PostListCreateViewTest(TestCase):
         payload = next(item for item in response.data['results'] if item['id'] == post.id)
         self.assertEqual(payload['comment_count'], 2)
 
+    def test_feed_explore_comment_count_excludes_cross_post_orphan_replies(self):
+        post = Post.objects.create(author=self.user, post_type='text', title='Visible tree count')
+        other_post = Post.objects.create(author=self.user, post_type='text', title='Other post')
+        foreign_parent = Comment.objects.create(post=other_post, author=self.user, body='foreign parent')
+        Comment.objects.create(post=post, author=self.user, body='top level visible')
+        Comment.objects.create(post=post, author=self.user, body='orphaned reply', parent=foreign_parent)
+
+        response = APIClient().get(f'{self.list_url}?feed=explore')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = next(item for item in response.data['results'] if item['id'] == post.id)
+        self.assertEqual(payload['comment_count'], 1)
+
 
 class PostRetrieveViewTest(TestCase):
     def setUp(self):
