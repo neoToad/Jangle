@@ -1,8 +1,6 @@
 # TODO
 
 ## High Priority
-- Run `docs/COMMENTS_DISPLAY_PLAN.md` step 6 backend verification via `docker compose exec backend ...` command path.
-- Complete `docs/COMMENTS_DISPLAY_PLAN.md` steps 7-8 (backend refactor/perf pass and final workflow closeout).
 - Run broader frontend regression suite after post-detail style parity completion.
 - Decide whether to resolve or defer FeedPage Vitest `act(...)` warnings in `frontend/src/pages/FeedPage.test.jsx`.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.

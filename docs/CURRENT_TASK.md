@@ -1,8 +1,18 @@
 ## Next
-- Run step 6 verification using Dockerized backend test command for reliable DB hostname resolution.
-- Complete steps 7-8 (refactor/perf pass and final workflow updates for remaining prompts).
+- None.
 
 ## Completed
+- Completed `docs/COMMENTS_DISPLAY_PLAN.md` steps 6-8:
+  - step 6 verification complete:
+    - backend targeted interactions tests passed in Docker.
+    - frontend related feed/detail tests passed.
+    - broader backend pytest suite passed in Docker.
+  - step 7 refactor/performance pass complete:
+    - kept comment visibility + metadata behavior stable; existing backend query optimizations retained (`select_related`, deterministic ordering).
+    - no additional structural refactor required after green regressions.
+  - step 8 workflow updates complete:
+    - updated `docs/CURRENT_TASK.md` and `docs/TODO.md`.
+    - marked `docs/COMMENTS_DISPLAY_PLAN.md` fully complete on 2026-05-22.
 - Implemented `docs/COMMENTS_DISPLAY_PLAN.md` steps 4-5 (frontend, TDD-first):
   - added failing PostDetailPage test coverage for comment username and posted time on parent and nested replies.
   - updated comment card rendering to show `author_username` and `created_at` date metadata.
@@ -31,6 +41,8 @@
 - `python backend/manage.py test interactions.test_serializers interactions.test_views -v 2` (blocked: DB host `db` not resolvable in this shell environment).
 - `docker compose exec backend python manage.py test interactions.test_serializers interactions.test_views -v 1` (pass: 36 passed).
 - `npm test -- --run src/pages/PostDetailPage.test.jsx` in `frontend/` (pass: 12 passed).
+- `npm test -- --run src/pages/PostDetailPage.test.jsx src/pages/FeedPage.test.jsx` in `frontend/` (pass: 32 passed).
+- `docker compose exec backend python -m pytest -q` (pass: 177 passed).
 - `python -m pytest backend/chat/test_models.py backend/chat/test_serializers.py backend/chat/test_views.py backend/chat/test_consumers.py -v` (pass: 18 passed).
 - `npm test -- --run src/lib/chat.test.js src/components/Layout.test.jsx` (pass: 26 passed).
 - `python -m pytest -q` in `backend/` (pass: 173 passed).
@@ -38,4 +50,4 @@
 - `npm test -- --run` in `frontend/` (pass: 114 passed).
 
 ## Blockers
-- Host-shell Django test command cannot resolve `db`; use containerized command (`docker compose exec backend ...`) where Docker DNS resolves service names.
+- None.
