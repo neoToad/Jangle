@@ -1,8 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import Layout from './Layout'
 import { useAuthStore } from '../store/authStore'
+import { connectRoomWebSocket, fetchRoomHistory, postRoomMessage } from '../lib/chat'
+
+vi.mock('../lib/chat', () => ({
+  fetchRoomHistory: vi.fn(),
+  postRoomMessage: vi.fn(),
+  connectRoomWebSocket: vi.fn(),
+}))
 
 function renderLayout(initialEntries = ['/']) {
   return render(
@@ -22,6 +29,9 @@ function renderLayout(initialEntries = ['/']) {
 describe('Layout shell', () => {
   beforeEach(() => {
     useAuthStore.setState({ accessToken: null, refreshToken: null, currentUser: null })
+    vi.clearAllMocks()
+    fetchRoomHistory.mockResolvedValue([])
+    connectRoomWebSocket.mockReturnValue({ close: vi.fn() })
   })
 
   it('renders jangle nav with search and primary actions', () => {
@@ -51,36 +61,112 @@ describe('Layout shell', () => {
     expect(appShell).toHaveClass('text-jangle-textPrimary')
   })
 
-  it('renders initial chat messages', () => {
+  it('loads chat history on mount', async () => {
+    fetchRoomHistory.mockResolvedValueOnce([
+      { id: 1, authorEmail: 'mosswood@test.dev', text: 'loaded message', createdAt: '2026-05-22T00:00:00Z' },
+    ])
+
     renderLayout()
 
-    expect(screen.getByText('12 Janglers online')).toBeInTheDocument()
-    expect(screen.getByText('mosswood')).toBeInTheDocument()
-    expect(screen.getByText('yo the garden build is up')).toBeInTheDocument()
-    expect(screen.getByText('hazel.ink')).toBeInTheDocument()
+    expect(await screen.findByText('loaded message')).toBeInTheDocument()
+    expect(fetchRoomHistory).toHaveBeenCalledWith('the-jangle')
   })
 
-  it('sends a chat message with send button and clears input', () => {
+  it('shows loading and then empty state when no history', async () => {
     renderLayout()
 
+    expect(screen.getByText('Loading chat history...')).toBeInTheDocument()
+    expect(await screen.findByText('No messages yet.')).toBeInTheDocument()
+  })
+
+  it('shows history load error state', async () => {
+    fetchRoomHistory.mockRejectedValueOnce(new Error('nope'))
+    renderLayout()
+
+    expect(await screen.findByText('Could not load chat history.')).toBeInTheDocument()
+  })
+
+  it('sends a chat message with send button and clears input', async () => {
+    useAuthStore.setState({
+      accessToken: 'token-1',
+      refreshToken: 'refresh-1',
+      currentUser: { username: 'colin' },
+    })
+    postRoomMessage.mockResolvedValueOnce({
+      id: 2,
+      authorEmail: 'you@test.dev',
+      text: 'hello jangle',
+      createdAt: '2026-05-22T00:00:00Z',
+    })
+    renderLayout()
+
+    await screen.findByText('No messages yet.')
     const input = screen.getByRole('textbox', { name: /^chat message$/i })
     fireEvent.change(input, { target: { value: 'hello jangle' } })
     fireEvent.click(screen.getByRole('button', { name: /send chat message/i }))
 
-    expect(screen.getByText('hello jangle')).toBeInTheDocument()
-    expect(screen.getByText('you')).toBeInTheDocument()
-    expect(input).toHaveValue('')
+    expect(await screen.findByText('hello jangle')).toBeInTheDocument()
+    expect(postRoomMessage).toHaveBeenCalledWith('the-jangle', 'hello jangle')
+    await waitFor(() => expect(input).toHaveValue(''))
   })
 
-  it('sends a chat message with Enter key', () => {
+  it('sends a chat message with Enter key', async () => {
+    useAuthStore.setState({
+      accessToken: 'token-1',
+      refreshToken: 'refresh-1',
+      currentUser: { username: 'colin' },
+    })
+    postRoomMessage.mockResolvedValueOnce({
+      id: 3,
+      authorEmail: 'you@test.dev',
+      text: 'enter send',
+      createdAt: '2026-05-22T00:00:00Z',
+    })
     renderLayout()
+    await screen.findByText('No messages yet.')
 
     const input = screen.getByRole('textbox', { name: /^chat message$/i })
     fireEvent.change(input, { target: { value: 'enter send' } })
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' })
 
-    expect(screen.getByText('enter send')).toBeInTheDocument()
-    expect(input).toHaveValue('')
+    expect(await screen.findByText('enter send')).toBeInTheDocument()
+    await waitFor(() => expect(input).toHaveValue(''))
+  })
+
+  it('blocks guest send behavior', async () => {
+    renderLayout()
+    await screen.findByText('No messages yet.')
+
+    const input = screen.getByRole('textbox', { name: /^chat message$/i })
+    fireEvent.change(input, { target: { value: 'guest attempt' } })
+    fireEvent.click(screen.getByRole('button', { name: /send chat message/i }))
+
+    expect(postRoomMessage).not.toHaveBeenCalled()
+    expect(screen.getAllByText('Log in to send messages.').length).toBeGreaterThan(0)
+  })
+
+  it('renders incoming websocket messages in shared chat state', async () => {
+    useAuthStore.setState({
+      accessToken: 'token-1',
+      refreshToken: 'refresh-1',
+      currentUser: { username: 'colin' },
+    })
+    let onMessageHandler = null
+    connectRoomWebSocket.mockImplementation(({ onMessage }) => {
+      onMessageHandler = onMessage
+      return { close: vi.fn() }
+    })
+
+    renderLayout()
+    await screen.findByText('No messages yet.')
+
+    onMessageHandler({
+      id: 4,
+      authorEmail: 'remote@test.dev',
+      text: 'from websocket',
+      createdAt: '2026-05-22T00:00:00Z',
+    })
+    expect(await screen.findAllByText('from websocket')).toHaveLength(1)
   })
 
   it('toggles mobile chat drawer from trigger button', () => {

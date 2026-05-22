@@ -36,14 +36,14 @@
   - room-group join/leave lifecycle.
   - normalized outbound event shape matching REST serializer fields.
 
-## Prompt 3: Frontend Chat Service Layer
+## Prompt 3: Frontend Chat Service Layer ✅ Completed 2026-05-22
 - Add `frontend/src/lib/chat.js` with tests:
   - history fetch helper.
   - message post helper.
   - websocket connector helper.
 - Ensure URL construction and payload normalization are centralized.
 
-## Prompt 4: Layout Integration (Tests First)
+## Prompt 4: Layout Integration (Tests First) ✅ Completed 2026-05-22
 - Add failing tests in `frontend/src/components/Layout.test.jsx`:
   - history loads on mount.
   - loading/error/empty states render correctly.

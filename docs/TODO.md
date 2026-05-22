@@ -3,8 +3,6 @@
 ## High Priority
 - Run broader frontend regression suite after post-detail style parity completion.
 - Decide whether to resolve or defer FeedPage Vitest `act(...)` warnings in `frontend/src/pages/FeedPage.test.jsx`.
-- Implement sidebar chat frontend service layer (`frontend/src/lib/chat.js`) with tests for history fetch, message post, and websocket connector.
-- Implement functional sidebar chat in `frontend/src/components/Layout.jsx` backed by chat REST + websocket updates, with TDD coverage.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.
 - Re-run backend feed mode tests for prompts 3-6 after database host `db` is reachable in local test environment.
 - Re-run backend feed mode tests for prompts 7-8 after database host `db` is reachable in local test environment.

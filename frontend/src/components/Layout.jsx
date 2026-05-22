@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { connectRoomWebSocket, fetchRoomHistory, postRoomMessage } from '../lib/chat'
 
-const INITIAL_CHAT_MESSAGES = [
-  { id: 'msg-1', user: 'mosswood', text: 'yo the garden build is up', time: '2m ago' },
-  { id: 'msg-2', user: 'hazel.ink', text: 'drop the link when you can', time: '1m ago' },
-  { id: 'msg-3', user: 'driftwood_tv', text: 'watching now, love the soundtrack', time: 'just now' },
-]
-
-function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout }) {
+function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout, isLoading, error, notice }) {
+  const hasMessages = messages.length > 0
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-jangle-border bg-jangle-surface p-4">
       <div className="mb-3 flex items-center justify-between">
@@ -20,11 +16,14 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
       </div>
 
       <div className="mb-3 flex-1 space-y-3 overflow-y-auto pr-1" aria-label="Chat messages">
+        {isLoading && <p className="text-sm text-jangle-textMuted">Loading chat history...</p>}
+        {!isLoading && error && <p className="text-sm text-jangle-textMuted">{error}</p>}
+        {!isLoading && !error && !hasMessages && <p className="text-sm text-jangle-textMuted">No messages yet.</p>}
         {messages.map((message) => (
           <article key={message.id} className="rounded-2xl border border-jangle-border/70 bg-jangle-bg/70 p-2.5">
             <div className="mb-1 flex items-center justify-between text-xs">
-              <span className="font-semibold text-jangle-textPrimary">{message.user}</span>
-              <time className="text-jangle-textMuted">{message.time}</time>
+              <span className="font-semibold text-jangle-textPrimary">{message.authorEmail || 'jangler'}</span>
+              <time className="text-jangle-textMuted">{message.createdAt ? String(message.createdAt).slice(0, 16).replace('T', ' ') : 'now'}</time>
             </div>
             <p className="text-sm text-jangle-textPrimary">{message.text}</p>
           </article>
@@ -63,7 +62,9 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
             Log out
           </button>
         ) : (
-          <div className="flex gap-2 text-xs">
+          <div className="space-y-2">
+            <p className="text-xs text-jangle-textMuted">Log in to send messages.</p>
+            <div className="flex gap-2 text-xs">
             <Link
               to="/login"
               className="inline-flex min-h-11 items-center rounded-full px-3 text-jangle-textMuted transition hover:text-jangle-textPrimary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-jangle-accent/80"
@@ -79,8 +80,10 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout 
             >
               Register
             </Link>
+            </div>
           </div>
         )}
+        {notice ? <p className="text-xs text-jangle-textMuted">{notice}</p> : null}
       </form>
     </div>
   )
@@ -92,11 +95,45 @@ export default function Layout() {
   const currentUser = useAuthStore((state) => state.currentUser)
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const isAuthed = Boolean(accessToken)
-  const [messages, setMessages] = useState(INITIAL_CHAT_MESSAGES)
+  const [messages, setMessages] = useState([])
   const [draftMessage, setDraftMessage] = useState('')
+  const [isChatLoading, setIsChatLoading] = useState(true)
+  const [chatError, setChatError] = useState('')
+  const [chatNotice, setChatNotice] = useState('')
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef(null)
+
+  useEffect(() => {
+    let active = true
+    const loadHistory = async () => {
+      try {
+        setChatError('')
+        setIsChatLoading(true)
+        const history = await fetchRoomHistory('the-jangle')
+        if (active) setMessages(history)
+      } catch {
+        if (active) setChatError('Could not load chat history.')
+      } finally {
+        if (active) setIsChatLoading(false)
+      }
+    }
+    loadHistory()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const socket = connectRoomWebSocket({
+      room: 'the-jangle',
+      accessToken: accessToken || '',
+      onMessage: (incoming) => {
+        setMessages((prev) => [...prev, incoming])
+      },
+    })
+    return () => socket?.close?.()
+  }, [accessToken])
 
   useEffect(() => {
     if (!isProfileMenuOpen) return undefined
@@ -130,8 +167,19 @@ export default function Layout() {
     event?.preventDefault?.()
     const trimmed = draftMessage.trim()
     if (!trimmed) return
-    setMessages((prev) => [...prev, { id: `msg-${prev.length + 1}`, user: 'you', text: trimmed, time: 'just now' }])
-    setDraftMessage('')
+    if (!isAuthed) {
+      setChatNotice('Log in to send messages.')
+      return
+    }
+    setChatNotice('')
+    postRoomMessage('the-jangle', trimmed)
+      .then((saved) => {
+        setMessages((prev) => [...prev, saved])
+        setDraftMessage('')
+      })
+      .catch(() => {
+        setChatNotice('Could not send message.')
+      })
   }
 
   return (
@@ -267,6 +315,9 @@ export default function Layout() {
             onSend={onSendMessage}
             isAuthed={isAuthed}
             onLogout={onLogout}
+            isLoading={isChatLoading}
+            error={chatError}
+            notice={chatNotice}
           />
         </aside>
       </main>
@@ -313,6 +364,9 @@ export default function Layout() {
               onSend={onSendMessage}
               isAuthed={isAuthed}
               onLogout={onLogout}
+              isLoading={isChatLoading}
+              error={chatError}
+              notice={chatNotice}
             />
           </div>
         )}

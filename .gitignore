@@ -164,3 +164,9 @@ yarn-error.log*
 pnpm-debug.log*
 .eslintcache
 *.tsbuildinfo
+!frontend/
+!frontend/src/
+!frontend/src/lib/
+frontend/src/lib/*
+!frontend/src/lib/chat.js
+!frontend/src/lib/chat.test.js
