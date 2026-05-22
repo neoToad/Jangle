@@ -27,5 +27,8 @@ class ChatMessage(models.Model):
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['created_at', 'id']
+
     def __str__(self) -> str:
         return f'{self.author_id}:{self.room_id}'

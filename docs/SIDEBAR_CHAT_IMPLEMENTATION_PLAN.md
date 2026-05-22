@@ -16,7 +16,7 @@
 - Authenticated users: can send messages.
 - Initial history comes from REST; live updates come from WebSocket.
 
-## Prompt 1: Backend Chat Data + REST Contract (Tests First)
+## Prompt 1: Backend Chat Data + REST Contract (Tests First) ✅ Completed 2026-05-22
 - Add failing tests split by file:
   - `test_models.py`: `ChatRoom`, `ChatMessage`, constraints, ordering.
   - `test_serializers.py`: message validation and payload shape.
@@ -26,7 +26,7 @@
   - `POST /api/chat/rooms/<slug>/messages/`
 - Preserve pagination support for history.
 
-## Prompt 2: WebSocket Consumer + Routing (Tests First)
+## Prompt 2: WebSocket Consumer + Routing (Tests First) ✅ Completed 2026-05-22
 - Add failing consumer/integration tests:
   - connection handling by auth policy.
   - broadcast delivery for new messages.

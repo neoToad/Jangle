@@ -7,18 +7,15 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from chat.models import ChatMessage, ChatRoom
+from chat.serializers import ChatMessageSerializer
 from users.models import User
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         user = await self._authenticate_user()
-        if user is None:
-            await self.close()
-            return
-
         self.user = user
-        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_name = self.scope['url_route']['kwargs']['room']
         self.room_group_name = f'chat_{self.room_name}'
         self.room = await self._get_or_create_room(self.room_name)
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -28,32 +25,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        message = data.get('message', '')
+        try:
+            data = json.loads(text_data)
+        except json.JSONDecodeError:
+            return
+
+        if not self.user:
+            return
+
+        message = (data.get('body') or '').strip()
         if not message:
             return
 
-        saved_message = await self._create_message(message)
+        event = await self._create_message_event(message)
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': saved_message.body,
-                'author_id': self.user.id,
-                'room': self.room_name,
+                'event': event,
             },
         )
 
     async def chat_message(self, event):
-        await self.send(
-            text_data=json.dumps(
-                {
-                    'message': event['message'],
-                    'author_id': event['author_id'],
-                    'room': event['room'],
-                }
-            )
-        )
+        await self.send(text_data=json.dumps(event['event']))
 
     async def _authenticate_user(self):
         query_string = self.scope.get('query_string', b'').decode()
@@ -76,8 +70,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return room
 
     @database_sync_to_async
-    def _create_message(self, message):
-        return ChatMessage.objects.create(room=self.room, author=self.user, body=message)
+    def _create_message_event(self, message):
+        saved = ChatMessage.objects.create(room=self.room, author=self.user, body=message)
+        return ChatMessageSerializer(saved).data
 
     @database_sync_to_async
     def _get_user(self, user_id):
