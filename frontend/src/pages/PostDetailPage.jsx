@@ -12,9 +12,16 @@ const TYPE_LABELS = {
 }
 
 function CommentItem({ comment }) {
+  const postedDate = comment?.created_at ? String(comment.created_at).slice(0, 10) : 'unknown date'
+  const authorName = comment?.author_username || 'unknown'
+
   return (
     <li className="space-y-2">
       <div className="rounded border border-jangle-border bg-jangle-surface p-3 text-jangle-textPrimary">
+        <p className="mb-1 text-xs font-medium text-jangle-textMuted">
+          <span className="text-jangle-textPrimary">{authorName}</span>{' '}
+          <span>posted {postedDate}</span>
+        </p>
         <p className="text-sm whitespace-pre-wrap">{comment.body}</p>
       </div>
       {Array.isArray(comment.replies) && comment.replies.length > 0 && (

@@ -83,7 +83,18 @@ describe('PostDetailPage', () => {
                 id: 1,
                 body: 'Parent comment',
                 author: 2,
-                replies: [{ id: 2, body: 'Nested reply', author: 3, replies: [] }],
+                author_username: 'parent_user',
+                created_at: '2026-05-01T10:00:00Z',
+                replies: [
+                  {
+                    id: 2,
+                    body: 'Nested reply',
+                    author: 3,
+                    author_username: 'reply_user',
+                    created_at: '2026-05-01T11:00:00Z',
+                    replies: [],
+                  },
+                ],
               },
             ],
           },
@@ -105,6 +116,15 @@ describe('PostDetailPage', () => {
     expect(screen.getByText('2026-05-01')).toBeInTheDocument()
     expect(await screen.findByText('Parent comment')).toBeInTheDocument()
     expect(await screen.findByText('Nested reply')).toBeInTheDocument()
+  })
+
+  it('renders comment username and posted time for parent and nested replies', async () => {
+    renderPage()
+
+    expect(await screen.findByText('Parent comment')).toBeInTheDocument()
+    expect(screen.getByText('parent_user')).toBeInTheDocument()
+    expect(screen.getByText('reply_user')).toBeInTheDocument()
+    expect(screen.getAllByText(/2026-05-01/)).toHaveLength(3)
   })
 
   it('allows authenticated user to submit a comment and refresh list', async () => {

@@ -17,9 +17,13 @@ class CommentListCreateView(generics.ListCreateAPIView):
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            post_id=self.kwargs['post_id'], parent=None, is_removed=False
-        ).order_by('created_at')
+        return (
+            Comment.objects.filter(
+                post_id=self.kwargs['post_id'], parent=None, is_removed=False
+            )
+            .select_related('author')
+            .order_by('created_at', 'id')
+        )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, post_id=self.kwargs['post_id'])

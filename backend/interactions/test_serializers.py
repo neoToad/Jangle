@@ -72,3 +72,8 @@ class CommentSerializerTest(TestCase):
     def test_includes_vote_score_default_zero(self):
         data = CommentSerializer(self.comment).data
         self.assertEqual(data['vote_score'], 0)
+
+    def test_includes_author_username(self):
+        data = CommentSerializer(self.comment).data
+        self.assertIn('author_username', data)
+        self.assertEqual(data['author_username'], self.user.public_username)

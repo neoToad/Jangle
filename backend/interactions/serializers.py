@@ -3,6 +3,7 @@ from interactions.models import Comment
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author_username = serializers.CharField(source='author.public_username', read_only=True)
     replies = serializers.SerializerMethodField()
     reaction_counts = serializers.SerializerMethodField()
     vote_score = serializers.SerializerMethodField()
@@ -13,6 +14,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'post',
             'author',
+            'author_username',
             'parent',
             'body',
             'created_at',
@@ -23,7 +25,7 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'post', 'author', 'created_at']
 
     def get_replies(self, obj):
-        qs = obj.replies.filter(is_removed=False)
+        qs = obj.replies.filter(is_removed=False).select_related('author').order_by('created_at', 'id')
         return CommentSerializer(qs, many=True).data
 
     def get_reaction_counts(self, obj):

@@ -53,6 +53,33 @@ class CommentListCreateViewTest(TestCase):
         response = APIClient().get(self.url)
         self.assertEqual(len(response.data['results'][0]['replies']), 1)
 
+    def test_list_includes_author_username_and_created_at(self):
+        self._comment(body='Parent')
+        response = APIClient().get(self.url)
+        first = response.data['results'][0]
+        self.assertIn('author_username', first)
+        self.assertEqual(first['author_username'], self.user.public_username)
+        self.assertIn('created_at', first)
+
+    def test_list_includes_all_reply_levels_recursively(self):
+        parent = self._comment(body='Parent')
+        child = self._comment(body='Child', parent=parent)
+        self._comment(body='Grandchild', parent=child)
+        response = APIClient().get(self.url)
+        parent_row = response.data['results'][0]
+        self.assertEqual(len(parent_row['replies']), 1)
+        self.assertEqual(parent_row['replies'][0]['body'], 'Child')
+        self.assertEqual(len(parent_row['replies'][0]['replies']), 1)
+        self.assertEqual(parent_row['replies'][0]['replies'][0]['body'], 'Grandchild')
+
+    def test_replies_are_returned_in_created_order(self):
+        parent = self._comment(body='Parent')
+        self._comment(body='Second reply', parent=parent)
+        self._comment(body='First reply', parent=parent)
+        response = APIClient().get(self.url)
+        replies = response.data['results'][0]['replies']
+        self.assertEqual([reply['body'] for reply in replies], ['Second reply', 'First reply'])
+
     def test_removed_comments_not_listed(self):
         self._comment(is_removed=True)
         response = APIClient().get(self.url)

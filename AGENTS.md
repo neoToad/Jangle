@@ -36,3 +36,7 @@ Types: `feat` `fix` `test` `refactor` `chore` `docs`
 - Frontend: Vitest + React Testing Library
 - No commit message if tests are failing
 - Never commit secrets, keys, or credentials — use .env
+## Docker Test Context
+- Backend `DATABASE_URL` uses Docker hostname `db`, so Django tests must run inside the backend container.
+- Use: `docker compose exec backend python manage.py test ...`
+- Avoid host-shell `python backend/manage.py test ...` unless DB host is explicitly configured for host access.

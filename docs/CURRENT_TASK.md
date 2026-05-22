@@ -1,7 +1,19 @@
 ## Next
-- None.
+- Run step 6 verification using Dockerized backend test command for reliable DB hostname resolution.
+- Complete steps 7-8 (refactor/perf pass and final workflow updates for remaining prompts).
 
 ## Completed
+- Implemented `docs/COMMENTS_DISPLAY_PLAN.md` steps 4-5 (frontend, TDD-first):
+  - added failing PostDetailPage test coverage for comment username and posted time on parent and nested replies.
+  - updated comment card rendering to show `author_username` and `created_at` date metadata.
+  - reran targeted PostDetailPage Vitest suite to green.
+- Marked steps 4-5 complete in `docs/COMMENTS_DISPLAY_PLAN.md` on 2026-05-22.
+- Implemented `docs/COMMENTS_DISPLAY_PLAN.md` steps 1-3 (backend, TDD-first):
+  - added serializer test coverage for `author_username` on comments.
+  - added view tests for recursive reply visibility, comment metadata fields, and reply ordering contract.
+  - updated `CommentSerializer` to include `author_username` and deterministic reply ordering.
+  - updated comment list queryset to `select_related('author')` and deterministic top-level ordering.
+- Marked steps 1-3 complete in `docs/COMMENTS_DISPLAY_PLAN.md` on 2026-05-22.
 - Implemented sidebar chat Prompt 7 (final regression + docs):
   - ran focused backend chat tests for models, serializers, views, and consumers.
   - ran focused frontend chat tests for chat service and `Layout` integration.
@@ -16,6 +28,9 @@
   - expected guest `Following` empty state to show explore copy.
 
 ## Tests
+- `python backend/manage.py test interactions.test_serializers interactions.test_views -v 2` (blocked: DB host `db` not resolvable in this shell environment).
+- `docker compose exec backend python manage.py test interactions.test_serializers interactions.test_views -v 1` (pass: 36 passed).
+- `npm test -- --run src/pages/PostDetailPage.test.jsx` in `frontend/` (pass: 12 passed).
 - `python -m pytest backend/chat/test_models.py backend/chat/test_serializers.py backend/chat/test_views.py backend/chat/test_consumers.py -v` (pass: 18 passed).
 - `npm test -- --run src/lib/chat.test.js src/components/Layout.test.jsx` (pass: 26 passed).
 - `python -m pytest -q` in `backend/` (pass: 173 passed).
@@ -23,4 +38,4 @@
 - `npm test -- --run` in `frontend/` (pass: 114 passed).
 
 ## Blockers
-- None.
+- Host-shell Django test command cannot resolve `db`; use containerized command (`docker compose exec backend ...`) where Docker DNS resolves service names.
