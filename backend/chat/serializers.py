@@ -17,4 +17,6 @@ class ChatMessageSerializer(serializers.ModelSerializer):
         body = value.strip()
         if not body:
             raise serializers.ValidationError('Message body cannot be blank.')
+        if len(body) > 500:
+            raise serializers.ValidationError('Message body cannot exceed 500 characters.')
         return body

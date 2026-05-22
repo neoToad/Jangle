@@ -2,6 +2,7 @@ import pytest
 from asgiref.sync import async_to_sync
 from channels.routing import URLRouter
 from channels.testing import WebsocketCommunicator
+from django.test import override_settings
 from rest_framework_simplejwt.tokens import AccessToken
 
 from chat.models import ChatMessage
@@ -68,3 +69,24 @@ def test_chat_consumer_ignores_malformed_payload(user):
 
     async_to_sync(scenario)()
     assert ChatMessage.objects.count() == 0
+
+
+@pytest.mark.django_db(transaction=True)
+@override_settings(CHAT_MESSAGE_RATE_LIMIT=1)
+def test_chat_consumer_rate_limits_authenticated_sender(user):
+    async def scenario():
+        token = str(AccessToken.for_user(user))
+        application = URLRouter(websocket_urlpatterns)
+        communicator = WebsocketCommunicator(application, f'/ws/chat/the-jangle/?token={token}')
+
+        connected, _ = await communicator.connect()
+        assert connected is True
+
+        await communicator.send_json_to({'body': 'first'})
+        await communicator.receive_json_from()
+        await communicator.send_json_to({'body': 'second'})
+
+        await communicator.disconnect()
+
+    async_to_sync(scenario)()
+    assert ChatMessage.objects.count() == 1

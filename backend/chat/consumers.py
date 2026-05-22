@@ -7,6 +7,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
 
 from chat.models import ChatMessage, ChatRoom
+from chat.rate_limits import consume_chat_message_token
 from chat.serializers import ChatMessageSerializer
 from users.models import User
 
@@ -35,6 +36,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         message = (data.get('body') or '').strip()
         if not message:
+            return
+        allowed = await self._consume_rate_limit()
+        if not allowed:
             return
 
         event = await self._create_message_event(message)
@@ -80,3 +84,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return User.objects.get(id=user_id)
         except User.DoesNotExist:
             return None
+
+    @database_sync_to_async
+    def _consume_rate_limit(self):
+        return consume_chat_message_token(self.user.id)

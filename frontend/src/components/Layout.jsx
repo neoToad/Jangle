@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { connectRoomWebSocket, fetchRoomHistory, postRoomMessage } from '../lib/chat'
+import { connectRoomWebSocket, fetchRoomHistory, mergeChronologicalMessages, postRoomMessage } from '../lib/chat'
 
-function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout, isLoading, error, notice }) {
+function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout, isLoading, error, notice, nextHistoryUrl, onLoadOlder }) {
   const hasMessages = messages.length > 0
   return (
     <div className="flex h-full flex-col rounded-[20px] border border-jangle-border bg-jangle-surface p-4">
@@ -11,7 +11,7 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout,
         <h2 className="font-display text-lg font-semibold text-jangle-textPrimary">The Jangle</h2>
         <div className="flex items-center gap-2 text-xs text-jangle-textMuted">
           <span className="h-2 w-2 rounded-full bg-jangle-sage motion-safe:animate-pulse" />
-          <span>12 Janglers online</span>
+          <span>Live chat</span>
         </div>
       </div>
 
@@ -28,6 +28,15 @@ function ChatPanel({ messages, draft, onDraftChange, onSend, isAuthed, onLogout,
             <p className="text-sm text-jangle-textPrimary">{message.text}</p>
           </article>
         ))}
+        {!isLoading && nextHistoryUrl ? (
+          <button
+            type="button"
+            onClick={onLoadOlder}
+            className="min-h-11 rounded-full border border-jangle-border px-3 py-2 text-xs text-jangle-textMuted transition hover:text-jangle-textPrimary"
+          >
+            Load older messages
+          </button>
+        ) : null}
       </div>
 
       <form onSubmit={onSend} className="mt-auto space-y-2">
@@ -98,6 +107,7 @@ export default function Layout() {
   const [messages, setMessages] = useState([])
   const [draftMessage, setDraftMessage] = useState('')
   const [isChatLoading, setIsChatLoading] = useState(true)
+  const [nextHistoryUrl, setNextHistoryUrl] = useState(null)
   const [chatError, setChatError] = useState('')
   const [chatNotice, setChatNotice] = useState('')
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false)
@@ -111,7 +121,10 @@ export default function Layout() {
         setChatError('')
         setIsChatLoading(true)
         const history = await fetchRoomHistory('the-jangle')
-        if (active) setMessages(history)
+        if (active) {
+          setMessages(mergeChronologicalMessages([], history))
+          setNextHistoryUrl(history.next || null)
+        }
       } catch {
         if (active) setChatError('Could not load chat history.')
       } finally {
@@ -129,7 +142,7 @@ export default function Layout() {
       room: 'the-jangle',
       accessToken: accessToken || '',
       onMessage: (incoming) => {
-        setMessages((prev) => [...prev, incoming])
+        setMessages((prev) => mergeChronologicalMessages(prev, [incoming]))
       },
     })
     return () => socket?.close?.()
@@ -174,12 +187,23 @@ export default function Layout() {
     setChatNotice('')
     postRoomMessage('the-jangle', trimmed)
       .then((saved) => {
-        setMessages((prev) => [...prev, saved])
+        setMessages((prev) => mergeChronologicalMessages(prev, [saved]))
         setDraftMessage('')
       })
       .catch(() => {
         setChatNotice('Could not send message.')
       })
+  }
+
+  const onLoadOlderMessages = async () => {
+    if (!nextHistoryUrl) return
+    try {
+      const older = await fetchRoomHistory('the-jangle', nextHistoryUrl)
+      setMessages((prev) => mergeChronologicalMessages(prev, older))
+      setNextHistoryUrl(older.next || null)
+    } catch {
+      setChatNotice('Could not load older messages.')
+    }
   }
 
   return (
@@ -318,6 +342,8 @@ export default function Layout() {
             isLoading={isChatLoading}
             error={chatError}
             notice={chatNotice}
+            nextHistoryUrl={nextHistoryUrl}
+            onLoadOlder={onLoadOlderMessages}
           />
         </aside>
       </main>
@@ -367,6 +393,8 @@ export default function Layout() {
               isLoading={isChatLoading}
               error={chatError}
               notice={chatNotice}
+              nextHistoryUrl={nextHistoryUrl}
+              onLoadOlder={onLoadOlderMessages}
             />
           </div>
         )}

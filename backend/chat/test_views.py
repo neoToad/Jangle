@@ -1,5 +1,7 @@
 import pytest
 from django.urls import reverse
+from django.test import override_settings
+from django.core.cache import cache
 
 from chat.models import ChatMessage, ChatRoom
 
@@ -48,3 +50,19 @@ def test_room_messages_endpoint_404_for_unknown_room(api_client):
     response = api_client.get(url)
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@override_settings(CHAT_MESSAGE_RATE_LIMIT=2)
+def test_post_room_message_is_rate_limited_for_authenticated_user(auth_client):
+    cache.clear()
+    room = ChatRoom.objects.create(name='the-jangle')
+    url = reverse('chat:room-messages', kwargs={'slug': room.name})
+
+    first = auth_client.post(url, {'body': 'one'}, format='json')
+    second = auth_client.post(url, {'body': 'two'}, format='json')
+    third = auth_client.post(url, {'body': 'three'}, format='json')
+
+    assert first.status_code == 201
+    assert second.status_code == 201
+    assert third.status_code == 429

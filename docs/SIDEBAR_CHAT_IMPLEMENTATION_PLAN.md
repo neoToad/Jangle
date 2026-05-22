@@ -52,7 +52,7 @@
   - guest send behavior follows contract.
 - Replace mock-only message flow in `Layout.jsx` with service-backed state.
 
-## Prompt 5: Reliability + UX Hardening
+## Prompt 5: Reliability + UX Hardening ✅ Completed 2026-05-22
 - Add tests and implementation for:
   - reconnect backoff on websocket disconnect.
   - stale/double message deduplication (optimistic + echo safety).
@@ -60,7 +60,7 @@
   - optional “load older” pagination behavior.
 - Replace static “12 Janglers online” copy unless real presence is implemented.
 
-## Prompt 6: Security and Rate-Limit Baseline
+## Prompt 6: Security and Rate-Limit Baseline ✅ Completed 2026-05-22
 - Enforce backend validation limits on message content/length.
 - Add per-user rate limiting for message creation paths.
 - Ensure permission checks match guest/read and auth/write contract.

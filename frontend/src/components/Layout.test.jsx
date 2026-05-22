@@ -9,6 +9,17 @@ vi.mock('../lib/chat', () => ({
   fetchRoomHistory: vi.fn(),
   postRoomMessage: vi.fn(),
   connectRoomWebSocket: vi.fn(),
+  mergeChronologicalMessages: vi.fn((existing, incoming) => {
+    const all = [...(existing || []), ...(incoming || [])]
+    const uniqueById = []
+    const seen = new Set()
+    all.forEach((item) => {
+      if (!item || seen.has(item.id)) return
+      seen.add(item.id)
+      uniqueById.push(item)
+    })
+    return uniqueById.sort((a, b) => Date.parse(a.createdAt || 0) - Date.parse(b.createdAt || 0))
+  }),
 }))
 
 function renderLayout(initialEntries = ['/']) {
@@ -42,6 +53,7 @@ describe('Layout shell', () => {
     expect(screen.getByPlaceholderText('search drops...')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /shake it/i })).toHaveClass('motion-shake-hover')
     expect(screen.getByRole('button', { name: /open profile menu/i })).toBeInTheDocument()
+    expect(screen.queryByText('12 Janglers online')).not.toBeInTheDocument()
   })
 
   it('renders centered feed and sidebar shell regions', () => {
@@ -167,6 +179,58 @@ describe('Layout shell', () => {
       createdAt: '2026-05-22T00:00:00Z',
     })
     expect(await screen.findAllByText('from websocket')).toHaveLength(1)
+  })
+
+  it('keeps chronological order and deduplicates optimistic plus websocket echo', async () => {
+    useAuthStore.setState({
+      accessToken: 'token-1',
+      refreshToken: 'refresh-1',
+      currentUser: { username: 'colin' },
+    })
+    let onMessageHandler = null
+    connectRoomWebSocket.mockImplementation(({ onMessage }) => {
+      onMessageHandler = onMessage
+      return { close: vi.fn() }
+    })
+    postRoomMessage.mockResolvedValueOnce({
+      id: 20,
+      authorEmail: 'you@test.dev',
+      text: 'dupe me',
+      createdAt: '2026-05-22T00:03:00Z',
+    })
+
+    renderLayout()
+    await screen.findByText('No messages yet.')
+    const input = screen.getByRole('textbox', { name: /^chat message$/i })
+    fireEvent.change(input, { target: { value: 'dupe me' } })
+    fireEvent.click(screen.getByRole('button', { name: /send chat message/i }))
+    await screen.findByText('dupe me')
+
+    onMessageHandler({
+      id: 20,
+      authorEmail: 'you@test.dev',
+      text: 'dupe me',
+      createdAt: '2026-05-22T00:03:00Z',
+    })
+    expect(screen.getAllByText('dupe me')).toHaveLength(1)
+  })
+
+  it('loads older paginated messages', async () => {
+    fetchRoomHistory
+      .mockResolvedValueOnce(
+        Object.assign([{ id: 2, authorEmail: 'a@test.dev', text: 'newer', createdAt: '2026-05-22T00:02:00Z' }], {
+          next: '/api/chat/rooms/the-jangle/messages/?page=2',
+        }),
+      )
+      .mockResolvedValueOnce(
+        Object.assign([{ id: 1, authorEmail: 'b@test.dev', text: 'older', createdAt: '2026-05-22T00:01:00Z' }], { next: null }),
+      )
+
+    renderLayout()
+    expect(await screen.findByText('newer')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /load older messages/i }))
+    expect(await screen.findByText('older')).toBeInTheDocument()
+    expect(fetchRoomHistory).toHaveBeenNthCalledWith(2, 'the-jangle', '/api/chat/rooms/the-jangle/messages/?page=2')
   })
 
   it('toggles mobile chat drawer from trigger button', () => {

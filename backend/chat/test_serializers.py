@@ -28,3 +28,15 @@ def test_chat_message_serializer_includes_expected_payload_shape(user):
     assert data['author'] == user.id
     assert data['author_email'] == user.email
     assert data['body'] == 'Hello world'
+
+
+@pytest.mark.django_db
+def test_chat_message_serializer_rejects_too_long_body(user):
+    room = ChatRoom.objects.create(name='the-jangle')
+    serializer = ChatMessageSerializer(
+        data={'body': 'x' * 501},
+        context={'room': room, 'request_user': user},
+    )
+
+    assert serializer.is_valid() is False
+    assert 'body' in serializer.errors
