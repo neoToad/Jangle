@@ -65,7 +65,7 @@
 - Add per-user rate limiting for message creation paths.
 - Ensure permission checks match guest/read and auth/write contract.
 
-## Prompt 7: Final Regression + Docs
+## Prompt 7: Final Regression + Docs ✅ Completed 2026-05-22
 - Run focused frontend and backend chat tests, then full suite if feasible.
 - Add concise API and websocket docs for chat endpoints/events.
 - Update project docs to indicate sidebar chat is now persisted and real-time.

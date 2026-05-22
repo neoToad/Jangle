@@ -7,7 +7,6 @@
 - Re-run backend feed mode tests for prompts 3-6 after database host `db` is reachable in local test environment.
 - Re-run backend feed mode tests for prompts 7-8 after database host `db` is reachable in local test environment.
 - Re-run frontend `FeedPage.test.jsx` after resolving Vitest sandbox path access to `frontend/vite.config.js`.
-- Run sidebar chat Prompt 7 final regression/docs pass after environment blockers are cleared.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
 - Add comment reply/delete UI controls in post detail, with interaction tests.

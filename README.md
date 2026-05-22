@@ -161,6 +161,17 @@ Quick local check:
 WebSocket route pattern used by the app:
 - `/ws/chat/<room_name>/?token=<jwt_access_token>`
 
+## Sidebar Chat Contract
+
+Sidebar chat now uses persisted history + real-time delivery for the global room `the-jangle`.
+
+- REST history/create:
+  - `GET /api/chat/rooms/<slug>/messages/` (guest read allowed)
+  - `POST /api/chat/rooms/<slug>/messages/` (auth required, body max 500 chars, rate-limited)
+- WebSocket live events:
+  - `ws/chat/<room>/` (guest can receive, authenticated users can send)
+- Canonical message/event payload details live in [docs/CHAT_API.md](docs/CHAT_API.md).
+
 ## Feed Media Behavior
 
 - YouTube drops support inline playback in feed cards when the URL resolves to a supported YouTube host (`youtube.com`, `m.youtube.com`, `youtu.be`).

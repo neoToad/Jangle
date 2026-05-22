@@ -10,7 +10,7 @@
 - `jangle-textMuted`: metadata and supporting copy.
 
 ## Component Responsibilities
-- `Layout`: owns app shell, sticky nav, global search, `Shake it` action, and `The Jangle` chat shell on desktop/mobile.
+- `Layout`: owns app shell, sticky nav, global search, `Shake it` action, and persisted real-time `The Jangle` chat shell on desktop/mobile (REST history + websocket updates).
 - `FeedPage`: owns feed-level actions/state (tabs, create drop form, loading/error/pagination) and binds API posts to `PostCard`.
 - `PostCard`: owns per-drop visual presentation and local interaction affordances (reactions, vote toggles, game/youtube preview strips).
 - `adapters/posts`: isolates backend feed payload mapping (`post_type`, pagination shape) from UI components.
