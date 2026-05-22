@@ -14,7 +14,7 @@ class PostViewSet(viewsets.ModelViewSet):
         feed_mode = (self.request.query_params.get('feed') or 'explore').lower()
         base_queryset = (
             Post.objects.filter(is_removed=False)
-            .annotate(comment_count=Count('comments', filter=Q(comments__is_removed=False)))
+            .annotate(comment_count=Count('comments', filter=Q(comments__is_removed=False), distinct=True))
         )
         if feed_mode == 'explore':
             return (

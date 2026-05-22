@@ -4,8 +4,6 @@
 - Run broader frontend regression suite after post-detail style parity completion.
 - Decide whether to resolve or defer FeedPage Vitest `act(...)` warnings in `frontend/src/pages/FeedPage.test.jsx`.
 - Define and implement guest behavior policy for `Following` tab (login-gated vs explore-fallback) with matching frontend/backend tests.
-- Re-run backend feed mode tests for prompts 3-6 after database host `db` is reachable in local test environment.
-- Re-run backend feed mode tests for prompts 7-8 after database host `db` is reachable in local test environment.
 - Prompt 6: align post-detail interactions with new feed-card local reaction/vote behavior.
 - Add focused tests for comment action click-through behavior once post-detail footer wiring lands.
 - Add comment reply/delete UI controls in post detail, with interaction tests.

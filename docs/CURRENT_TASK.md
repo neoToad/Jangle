@@ -2,6 +2,10 @@
 - None.
 
 ## Completed
+- Fixed explore-feed `comment_count` inflation bug causing mismatched card counts:
+  - added regression test proving `comment_count` must not inflate when reactions/votes joins are present.
+  - updated post queryset annotation to use distinct comment counting.
+  - validated against the reported post: raw DB comment total is 5 while explore annotation was inflated pre-fix.
 - Completed `docs/COMMENTS_DISPLAY_PLAN.md` steps 6-8:
   - step 6 verification complete:
     - backend targeted interactions tests passed in Docker.
@@ -38,6 +42,8 @@
   - expected guest `Following` empty state to show explore copy.
 
 ## Tests
+- `docker compose exec backend python manage.py test posts.test_views.PostListCreateViewTest.test_feed_explore_comment_count_not_inflated_by_reactions_and_votes_joins -v 1 --noinput` (pass: 1 passed).
+- `docker compose exec backend python manage.py test posts.test_views interactions.test_views interactions.test_serializers -v 1` (pass: 68 passed).
 - `python backend/manage.py test interactions.test_serializers interactions.test_views -v 2` (blocked: DB host `db` not resolvable in this shell environment).
 - `docker compose exec backend python manage.py test interactions.test_serializers interactions.test_views -v 1` (pass: 36 passed).
 - `npm test -- --run src/pages/PostDetailPage.test.jsx` in `frontend/` (pass: 12 passed).

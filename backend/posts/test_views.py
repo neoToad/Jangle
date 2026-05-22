@@ -246,6 +246,22 @@ class PostListCreateViewTest(TestCase):
         titles = [p['title'] for p in response.data['results']]
         self.assertEqual(titles[:2], ['Tie second', 'Tie first'])
 
+    def test_feed_explore_comment_count_not_inflated_by_reactions_and_votes_joins(self):
+        post = Post.objects.create(author=self.user, post_type='text', title='Count integrity')
+        other = make_user('count-integrity@example.com')
+
+        Comment.objects.create(post=post, author=self.user, body='c1')
+        Comment.objects.create(post=post, author=self.user, body='c2')
+        Reaction.objects.create(user=self.user, post=post, emoji='🔥')
+        Reaction.objects.create(user=other, post=post, emoji='👍')
+        Vote.objects.create(user=self.user, post=post, value=1)
+        Vote.objects.create(user=other, post=post, value=1)
+
+        response = APIClient().get(f'{self.list_url}?feed=explore')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        payload = next(item for item in response.data['results'] if item['id'] == post.id)
+        self.assertEqual(payload['comment_count'], 2)
+
 
 class PostRetrieveViewTest(TestCase):
     def setUp(self):
